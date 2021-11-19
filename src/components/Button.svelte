@@ -1,19 +1,18 @@
 <script lang="ts">
-  let count: number = 0
-  const increment = () => {
-    count += 1
+  function startGame(): void {
+    console.log('Inicia o jogo!');
   }
 </script>
 
-<button on:click={increment}>
-  Clicks: {count}
+<button on:click={startGame}>
+  Play!
 </button>
 
 <style>
   button {
     font-family: inherit;
     font-size: inherit;
-    padding: 1em 2em;
+    padding: 0.5em;
     color: #ff3e00;
     background-color: rgba(255, 62, 0, 0.1);
     border-radius: 2em;
