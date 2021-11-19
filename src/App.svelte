@@ -8,13 +8,14 @@
 
 <main>
 
-  <!-- HeaderComponents -->
+  <!-- Header -->
   <Header />
-  <!-- ./HeaderComponents -->
+  <!-- ./Header -->
 
-  <!-- GameComponent -->
+  <!-- Game -->
   <Game />
-  <!-- ./GameComponent -->
+  <!-- ./Game -->
+  
 </main>
 
 <style>

@@ -1,12 +1,12 @@
 {
-  "name": "game-metaverso",
-  "version": "0.0.0",
+  "name": "lowpolyschool",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "rm -rf docs/",
+    "prebuild": "rimraf docs",
     "build": "vite build",
-    "postbuild": "mkdir -p docs && cp -R dist/* docs/ && sed -i 's#\\=\\\"\\/#\\=\\\"#' docs/index.html",
+    "postbuild": "mkdir docs && ncp dist/ docs/ && rimraf dist && replace '=\"\/' '=\"' docs/index.html",
     "serve": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
@@ -14,6 +14,9 @@
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.11",
     "@tsconfig/svelte": "^2.0.1",
     "@types/three": "^0.134.0",
+    "ncp": "^2.0.0",
+    "replace": "^1.2.1",
+    "rimraf": "^2.7.1",
     "svelte": "^3.44.1",
     "svelte-check": "^2.1.0",
     "svelte-preprocess": "^4.7.2",
