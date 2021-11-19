@@ -4,8 +4,9 @@
 # Mac specific
 .DS_Store
 
-# Since our build will be shared keep this folder outside gitignore
-#dist
+# gh-pages use page docs for site .-.
+# dist should be removed
+dist
 
 ### Node ###
 # Logs

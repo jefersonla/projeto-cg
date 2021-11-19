@@ -6,6 +6,7 @@
 
     // Aguarda o componente carregar
     onMount(() => {
+        // Cria e dar inicio ao jogo
         const game = new MainGame(canvasArea);
         game.run();
     });
@@ -14,6 +15,7 @@
 <!-- GameArea -->
 <div class="canvas-area" bind:this={canvasArea}>
 </div>
+<!-- ./GameArea -->
 
 <style>
     .canvas-area {
