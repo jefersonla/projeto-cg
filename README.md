@@ -5,7 +5,7 @@
 Jogo parecido com o visual do anim**-crossing, porém com atividades lúdicas para séries iniciais 
 (1-4 ano Ensino Fundamental). Ler o white-paper (link white-paper) para entender mais.
 
-## **[Jogue Agora!]()**
+## ▶️ **[Jogue Agora!](https://jefersonla.github.io/projeto-cg/)**
 
 ## 📘 Introdução
 
@@ -15,7 +15,7 @@ Jogo parecido com o visual do anim**-crossing, porém com atividades lúdicas pa
 
 ### Por mais que algumas tecnologias tenham sido utilizadas para melhorar a interação com o projeto nenhuma delas é necesśaria para a execução do mesmo. Então fique tranquilo e aproveite a leitura da documentação :)
 
-## 🪛 Tecnologias utilizadas
+## 🔧 Tecnologias utilizadas
 
 ### 1. [Svelte](https://svelte.dev/)
 Framework Web, bastante simples de se utilizar e sem uso de [virtual-dom](https://pt-br.reactjs.org/docs/faq-internals.html).
