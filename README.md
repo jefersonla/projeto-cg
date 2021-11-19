@@ -198,9 +198,9 @@ esse projeto
 
 Desenvolvido com ❤️ em Salvador-BA na **UFBA** (Universidade Federal da Bahia) por:
 
-- **Alana Bispo** ([@absouza](https://github.com/absouza))
-- **Alexandre Campos** ([@seuser](seulink))
-- **André *primeiro_sobrenome*** ([@seuser](seulink))
+- **Alana Bispo** ([@alanabispo](https://github.com/alanabispo))
+- **Alexandre Campos** ([@alexandrefscampos](https://github.com/alexandrefscampos))
+- **André Luiz Silva*** ([@seuser](seulink))
 - **Cainan Neves** ([@CainanNeves](https://github.com/CainanNeves))
 - **Jeferson Lima** ([@jefersonla](https://github.com/jefersonla))
 - **Rafael Nobre** ([@seuser](seulink))
