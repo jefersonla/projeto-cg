@@ -24,7 +24,7 @@ export class MainGame {
         this.camera.position.z = 2
 
         this.renderer = new THREE.WebGLRenderer();
-        this.renderer.setSize(window.innerWidth * 0.6, window.innerWidth * 0.6);
+        this.renderer.setSize(window.innerHeight * 0.8, window.innerHeight * 0.8);
 
         canvasArea.appendChild(this.renderer.domElement);
 
@@ -43,7 +43,7 @@ export class MainGame {
         window.addEventListener('resize', () => {
             // this.camera.aspect = window.innerWidth / window.innerHeight;
             // this.camera.updateProjectionMatrix();
-            this.renderer.setSize(window.innerWidth * 0.6, window.innerWidth * 0.6);
+            this.renderer.setSize(window.innerHeight * 0.8, window.innerHeight * 0.8);
             this.renderer.render(this.scene, this.camera);
         }, false);
     }
