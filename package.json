@@ -4,8 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "rm -rf docs/",
     "build": "vite build",
-    "postbuild": "mkdir -p docs && cp -R dist/ docs/",
+    "postbuild": "mkdir -p docs && cp -R dist/* docs/ && sed -i 's#\\=\\\"\\/#\\=\\\"#' docs/index.html",
     "serve": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
