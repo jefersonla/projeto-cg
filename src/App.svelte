@@ -1,5 +1,8 @@
 <script lang="ts">
-  import Header from './components/Header.svelte';
+  /* --- Layout Components --- */
+  import Header from './layout/Header.svelte';
+  
+  /* --- Other Components --- */
   import Game from './project/Game.svelte';
 </script>
 
