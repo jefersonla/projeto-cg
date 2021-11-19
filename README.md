@@ -5,9 +5,9 @@
 Jogo parecido com o visual do anim**-crossing, porém com atividades lúdicas para séries iniciais 
 (1-4 ano Ensino Fundamental). Ler o white-paper (link white-paper) para entender mais.
 
+## **[Jogue Agora!]()**
+
 ## 📘 Introdução
-
-
 
 **TODO**: Documentar melhor o que é esse jogo
 
@@ -204,3 +204,5 @@ Desenvolvido com ❤️ em Salvador-BA na **UFBA** (Universidade Federal da Bahi
 - **Cainan Neves** ([@CainanNeves](https://github.com/CainanNeves))
 - **Jeferson Lima** ([@jefersonla](https://github.com/jefersonla))
 - **Rafael Nobre** ([@seuser](seulink))
+
+**⚠ Hospedado também em https://github.com/jefersonla/projeto-cg/invitations**
