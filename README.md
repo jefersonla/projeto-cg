@@ -200,7 +200,7 @@ Desenvolvido com ❤️ em Salvador-BA na **UFBA** (Universidade Federal da Bahi
 
 - **Alana Bispo** ([@alanabispo](https://github.com/alanabispo))
 - **Alexandre Campos** ([@alexandrefscampos](https://github.com/alexandrefscampos))
-- **André Luiz Silva*** ([@seuser](seulink))
+- **André Luiz Silva*** ([@andresantosufba](https://github.com/andresantosufba))
 - **Cainan Neves** ([@CainanNeves](https://github.com/CainanNeves))
 - **Jeferson Lima** ([@jefersonla](https://github.com/jefersonla))
 - **Rafael Nobre** ([@seuser](seulink))
