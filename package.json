@@ -7,7 +7,7 @@
     "dev": "vite",
     "prebuild": "rimraf docs",
     "build": "vite build",
-    "postbuild": "mkdir docs && ncp dist/ docs/ && rimraf dist && replace-in-files --string='=\"/' --replacement='=\"' docs/index.html",
+    "postbuild": "mkdir docs && ncp dist/ docs/ && rimraf dist && replace '=\"/' '=\"' docs/index.html",
     "serve": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
@@ -16,7 +16,7 @@
     "@tsconfig/svelte": "^2.0.1",
     "@types/three": "^0.134.0",
     "ncp": "^2.0.0",
-    "replace-in-files-cli": "^2.0.0",
+    "replace": "^1.2.1",
     "rimraf": "^2.7.1",
     "svelte": "^3.44.1",
     "svelte-check": "^2.1.0",
