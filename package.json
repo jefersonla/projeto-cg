@@ -7,7 +7,7 @@
     "dev": "vite",
     "prebuild": "rimraf docs",
     "build": "vite build",
-    "postbuild": "mkdir docs && ncp dist/ docs/ && rimraf dist && replace '=\"/' '=\"' docs/index.html",
+    "postbuild": "mkdir docs && ncp dist/ docs/ && rimraf dist && node scripts/adjust-imports.js",
     "serve": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
