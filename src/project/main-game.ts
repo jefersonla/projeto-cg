@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import Stats from 'three/examples/jsm/libs/stats.module';
 
 /**
  * Classe principal do jogo
@@ -16,6 +18,11 @@ export class MainGame {
 
     /* Controle de Orbita */
     controls: OrbitControls;
+
+    mixer: THREE.AnimationMixer;
+    clock: THREE.Clock;
+
+    stats: Stats;
 
     // TODO REMOVER - usado apenas no teste
     cube: THREE.Mesh;
@@ -35,11 +42,18 @@ export class MainGame {
             0.1,
             1000
         );
-        this.camera.position.z = 2
+        this.camera.position.x = 5;
+        this.camera.position.y = 5;
+        this.camera.position.z = 5;
 
         // Cria o render
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(window.innerHeight * 0.8, window.innerHeight * 0.8);
+        this.renderer.setPixelRatio( window.devicePixelRatio );
+        this.renderer.outputEncoding = THREE.sRGBEncoding;
+        this.renderer.shadowMap.enabled = true;
+
+        this.clock = new THREE.Clock();
 
         // Insere o render a página
         canvasArea.appendChild(this.renderer.domElement);
@@ -47,15 +61,106 @@ export class MainGame {
         // Adiciona controles de órbita para a aplicação
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
+        this.controls.target.set( 0, 0.5, 0 );
+        this.controls.update();
+        this.controls.enablePan = false;
+        this.controls.enableDamping = true;
+
+        this.stats = Stats();
+        canvasArea.appendChild( this.stats.dom );
+
+
+        // Create an hemisphere light and add it to scene
+        const hemisphereLight = new THREE.HemisphereLight(0x443333, 0x111122);
+        this.scene.add(hemisphereLight);
+
+        // Create an spotlight, which can cast shadows
+        const spotLight = new THREE.SpotLight( 0xffffff );
+        spotLight.position.set( 10, 10, 10 );
+
+        // Enable shadow
+        spotLight.castShadow = true;
+
+        // Configure map size
+        spotLight.shadow.mapSize.width = 1024;
+        spotLight.shadow.mapSize.height = 1024;
+
+        // Configure shadow
+        spotLight.shadow.camera.near = 10;
+        spotLight.shadow.camera.far = 30;
+        spotLight.shadow.camera.fov = 1;
+
+        // Add spotlight to scene
+        this.scene.add(spotLight);
+
+        // Add a spotlight helper to help orientation
+        const spotLightHelper = new THREE.SpotLightHelper( spotLight );
+        this.scene.add( spotLightHelper );
+
+
+        // Add a plane to represent ground on this scene
+        const planeGeometry = new THREE.PlaneBufferGeometry(4000, 4000, 32, 32);
+        const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xfffffff });
+        const groundPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+        groundPlane.rotation.x = THREE.MathUtils.degToRad(-90);
+        groundPlane.receiveShadow = true;
+        this.scene.add(groundPlane);
+
         // TODO REMOVER - Apenas para teste
         // Cria um elemento qualquer
         const geometry = new THREE.BoxGeometry();
-        const material = new THREE.MeshBasicMaterial({
+        geometry.translate(0, 0.5, 0)
+
+        const material = new THREE.MeshPhongMaterial({
             color: 0xff3e00,
-            wireframe: true,
+            // wireframe: true,
         });
         this.cube = new THREE.Mesh(geometry, material);
+
+        this.cube.castShadow = true;
+        this.cube.receiveShadow = true;
+
         this.scene.add(this.cube);
+        this.scene.fog = new THREE.Fog( 0x72645b, 10, 30 );
+
+        this.renderer.setClearColor(0x72645b, 1);
+        // this.renderer.ga = true;
+        // this.renderer.gammaOutput = true;
+        this.renderer.shadowMap.enabled = true;
+
+        const loader = new GLTFLoader();
+        loader.load( 'scout_girl.glb', ( gltf ) => {
+
+            const model = gltf.scene;
+            this.scene.add( model );
+            model.castShadow = true;
+            model.receiveShadow = true;
+
+            model.translateX(2);
+
+            const skeleton = new THREE.SkeletonHelper( model );
+            skeleton.visible = true;
+
+            this.scene.add( skeleton );
+
+            const animations = gltf.animations;
+
+            this.mixer = new THREE.AnimationMixer( model );
+
+            const idleAction = this.mixer.clipAction( animations[ 0 ] );
+            const runAction = this.mixer.clipAction( animations[ 1 ] );
+
+            console.log(runAction.getEffectiveWeight())
+
+            runAction.enabled = true;
+            runAction.setEffectiveTimeScale( 1 );
+            runAction.setEffectiveWeight( 1 );
+
+            // idleAction.paused = false;
+            // idleAction.play();
+            runAction.paused = false;
+            runAction.play();
+        } );
     }
 
     /**
@@ -68,11 +173,16 @@ export class MainGame {
         // Game Logic
 
         // TODO REMOVER - Rotaciona o cubo
-        this.cube.rotation.x += 0.01;
-        this.cube.rotation.y += 0.01;
+        //this.cube.rotation.x += 0.01;
+        //this.cube.rotation.y += 0.01;
 
         // Atualiza o controle de órbita
         this.controls.update();
+
+        this.stats.update();
+
+        let mixerUpdateDelta = this.clock.getDelta();
+        this.mixer.update( mixerUpdateDelta );
 
         // Renderiza a cena
         this.render();
