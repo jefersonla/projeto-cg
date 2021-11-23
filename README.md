@@ -203,6 +203,6 @@ Desenvolvido com ❤️ em Salvador-BA na **UFBA** (Universidade Federal da Bahi
 - **André Luiz Silva*** ([@andresantosufba](https://github.com/andresantosufba))
 - **Cainan Neves** ([@CainanNeves](https://github.com/CainanNeves))
 - **Jeferson Lima** ([@jefersonla](https://github.com/jefersonla))
-- **Rafael Nobre** ([@seuser](seulink))
+- **Rafael Nobre** ([@rafaelnsacramento](https://github.com/rafaelnsacramento))
 
 **⚠ Hospedado também em https://github.com/jefersonla/projeto-cg/invitations**
