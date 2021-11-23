@@ -1,17 +1,59 @@
-# 🏫 LowPolySchool
+# 🏫 LowPolySchool (Escolinha)
 
 ---
 
-Jogo parecido com o visual do anim**-crossing, porém com atividades lúdicas para séries iniciais 
-(1-4 ano Ensino Fundamental). Ler o white-paper (link white-paper) para entender mais.
+Jogo parecido com o visual do anim**-crossing, porém com atividades lúdicas para séries iniciais
+(1-4 ano Ensino Fundamental). Na pasta documentação (a pasta docs contem a aplicação por limitações
+do GitHub, ver [gh-pages limitations](https://github.community/t/can-i-define-a-custom-source-or-folder-from-which-my-site-hosted-on-github-pages-can-load-from/10237)) ou o white-paper (TBR - To Be Released) para entender mais.
 
 ## ▶️ **[Jogue Agora!](https://jefersonla.github.io/projeto-cg/)**
 
 ## 📘 Introdução
 
-**TODO**: Documentar melhor o que é esse jogo
+O Low Poly School é um jogo 3D, low-poly (poucos polygons), com visual cartunesco, porém, sem renunciar o uso de
+efeitos de reflexão e sombra, que visa apresentar uma nova maneira de aprendizado através de um mundo virtual
+onde o aluno pode criar seu avatar e realizar algumas das atividades possíveis.
 
-## ⚠️ Aviso Professor
+O jogo visa servir como ferramenta de auxílio as aulas nas séries iniciais trazendo para um professor
+uma simples mais poderosa ferramenta de interação que visa melhorar ainda mais o interesse dos alunos.
+
+A motivação para essa ideia vêm do interesse de criar um laboratório virtual de ensino, que seja 3D, multiplataforma e
+online (esta feature será incluída em lançamentos futuros) e aproxime os alunos no ensino remoto e também que permita
+que estes se interessem ainda mais pelos assuntos estudados.
+
+Algumas fontes que servem como motivação para esta ideia:
+
+- [The Effective Use of Game-Based Learning in Education | Andre Thomas | TEDxTAMU](https://www.youtube.com/watch?v=-X1m7tf9cRQ&ab_channel=TEDxTalks)
+- [The Power of Gamification in Education | Scott Hebert | TEDxUAlberta](https://www.youtube.com/watch?v=mOssYTimQwM&ab_channel=TEDxTalks)
+- [Gather Town - Ferramenta para reuniões online através do uso de avatares](https://www.gather.town/)
+- [Can we Improve Tutorials for Complex Games?](https://www.youtube.com/watch?v=-GV814cWiAw&t=361s&ab_channel=GameMaker%27sToolkit)
+- [How Accessible Were 2020's Biggest Games?](https://www.youtube.com/watch?v=RWQcuBigOj0&t=530s&ab_channel=GameMaker%27sToolkit)
+- [I Tried Making a 3D RPG Game in JavaScript](https://www.youtube.com/watch?v=SBfZAVzbhCg&ab_channel=SimonDev)
+
+O Projeto LowPolySchool("Escolinha") está sendo observado por uma professora de séries iniciais com mestrado em 
+Educação de modo a ser um case realmente adequado para o meio que este pode ser utilizado.
+
+## 📓 História
+
+*Professor(a)*
+Olá {user_name}!
+Seja muito bem vindo a Escolinha! :)
+
+*Professor(a)*
+Vou te mostrar sua primeira atividade, tá bom?
+
+*Professor(a)*
+...
+
+A Escolinha é uma escola a ceu aberto com um leque de atividades lúdicas para execução pelos alunos das séries iniciais.
+Nossa ideia é garantir um ambiente ao qual os alunos possam criar uma representação destes e executar atividades que 
+antes estes executariam em formato escrito. 
+
+O lore da história é o próprio aluno e o ambiente onde ele está, a única coisa que o jogo tem de extra é a presença da
+'Pró' (PeRsonagem de Orientação) que irá guiar o aluno no mundo virtual informando as tarefas que este terá que 
+executar.
+
+## ⚠️ Aviso Professor CG
 
 ### Por mais que algumas tecnologias tenham sido utilizadas para melhorar a interação com o projeto nenhuma delas é necesśaria para a execução do mesmo. Então fique tranquilo e aproveite a leitura da documentação :)
 
@@ -27,8 +69,8 @@ TypeScript.
 **Aprenda mais em: https://svelte.dev/tutorial/basics**
 
 ### 2. [TypeScript](https://www.typescriptlang.org/)
-Linguagem derivada a partir do JavaScript que auxilia no desenvolvimento de aplicações, através da 
-inserção de tipos ao JavaScript. **Toda sintaxe JavaScript (usaremos a abreviação JS no restante do documento) 
+Linguagem derivada a partir do JavaScript que auxilia no desenvolvimento de aplicações, através da
+inserção de tipos ao JavaScript. **Toda sintaxe JavaScript (usaremos a abreviação JS no restante do documento)
 é compatível com o TypeScript (usaremos a abreviação TS no restante do documento).
 
 Pense no TS como um [superset](https://mathinsight.org/definition/superset) de JS que estende
@@ -70,14 +112,14 @@ e então vai ser só abrir o endereço no seu browser e editar os arquivos e o p
 ### 4. [Node.js](https://nodejs.org)
 
 Eu sei, eu sei... nem todo mundo gosta de codar em JS :/, mas uma coisa é um fato importante, o JS e em especial o
-Node.js e seu Package Manager oficial o NPM tem uma das maiores comunidades OpenSource da atualidade com mais de 
+Node.js e seu Package Manager oficial o NPM tem uma das maiores comunidades OpenSource da atualidade com mais de
 [1.3 bilhões de pacotes](https://blog.npmjs.org/post/615388323067854848/so-long-and-thanks-for-all-the-packages.html) (mesmo que alguns desses [exagerem as vezes](https://dev.to/jyotishman/10-useless-npm-package-with-millions-of-downloads-de9)).
 
 E é aqui que entra o uso do node.js por esse projeto, não necessariamente para execução porém como uma ferramenta de tooling
 com algumas aplicações de terminal ou CLI (Command Line Interface) que irão aumentar nossa produtividade de maneira
 bastante eficiente.
 
-Atualmente o node.js está na versão `17.1.0`, porém como podem observar na documentação do node.js oficial para o 
+Atualmente o node.js está na versão `17.1.0`, porém como podem observar na documentação do node.js oficial para o
 [cronograma de lançamentos](https://nodejs.org/en/about/releases/) essa versão não é LTS (long-term-support), e como
 esse projeto não tem nenhum requisito extremamente específico, utilizem qualquer versão `>= 14.x.x`.
 
@@ -88,21 +130,21 @@ No caso de dificuldades sobre a instalação vocês podem baixar e instalar dos 
 para quem usar linux, ou do próprio site do node.js (https://nodejs.dev/download).
 
 Vou deixar algumas documentações sobre a história do Node.js e como usar ele, para quem tiver curiosidade, porém
-lendo os comandos que irei apresentar abaixo e sabendo que vamos usar bastante o npm, não vão existir dificuldades 
+lendo os comandos que irei apresentar abaixo e sabendo que vamos usar bastante o npm, não vão existir dificuldades
 notavéis em adotar essa ferramenta.
 
 **Aprenda mais em: https://nodejs.dev/learn**
 
 ### 5. [Three.js](https://threejs.org/)
 
-A nossa cereja do bolo é o Three.js, para quem ainda não estiver convencido das vantagens em se utilizar o Three.js 
-em detrimento das API's diretas do WebGl, recomendo este [guia](http://learnwebgl.brown37.net/), mas resumindo bem o 
+A nossa cereja do bolo é o Three.js, para quem ainda não estiver convencido das vantagens em se utilizar o Three.js
+em detrimento das API's diretas do WebGl, recomendo este [guia](http://learnwebgl.brown37.net/), mas resumindo bem o
 Three.JS é similar ao TypeScript, ele nos proporciona algumas utilidades que não só facilitam como também melhoram
 a qualidade da solução final ao nos apresentar recursos valiosos.
 
 Como podem ver nesse [link](https://www.npmjs.com/package/three), o three.js está publicado no NPM e pode ser integrado
 facilmente a projetos do Node.js (nosso caso), além disso, por mais que não tenha diretamente os tipos referenciados no
-próprio pacote existe um pacote chamado [`@types/three`](https://www.npmjs.com/package/@types/three) que nos oferece isso, o que melhora ainda mais uma vez que 
+próprio pacote existe um pacote chamado [`@types/three`](https://www.npmjs.com/package/@types/three) que nos oferece isso, o que melhora ainda mais uma vez que
 iremos utilizar TS.
 
 **TENTE aprender mais em: https://threejs.org/docs/** (documentação simplificada não é um dos fortes do projeto)
@@ -111,16 +153,16 @@ iremos utilizar TS.
 
 **1. Editor de Texto VSCode**
 
-Para quem não tiver problemas em utilizar um editor de texto recomendo utilizar o 
+Para quem não tiver problemas em utilizar um editor de texto recomendo utilizar o
 [VSCode](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
 
 **2. IDE WebStorm**
 
 Para quem quiser utilizar uma IDE (recomendo) vocês podem utilizar qualquer uma da JetBrains e instalar o plugin
-para JavaScript/TypeScript, ou baixar a IDE **[WebStorm](https://www.jetbrains.com/pt-br/webstorm/)** que já traz tudo 
-isso pronto. 
+para JavaScript/TypeScript, ou baixar a IDE **[WebStorm](https://www.jetbrains.com/pt-br/webstorm/)** que já traz tudo
+isso pronto.
 
-Ela é paga, porém, tem ‘trial’ de 30 dias (o suficiente para o projeto) e oferece também licença para estudantes por 
+Ela é paga, porém, tem ‘trial’ de 30 dias (o suficiente para o projeto) e oferece também licença para estudantes por
 2 anos (podendo estes serem prorrogados enquanto você for estudante).
 
 Para quem gostar e estiver com sangue nos olhos mesmo dá até para pagar a licença mensal que é algo próximo dos R$ 50,00
@@ -133,7 +175,7 @@ por mês, ou seja, é só cortar o Netflix que tá tudo certo!
 Para executar a aplicação em seu estado atual siga os seguintes passos:
 
 1. Baixe o projeto e abra ele com sua IDE ou Editor de Texto preferido. Se utilizar git
-execute o comando abaixo:
+   execute o comando abaixo:
 
 ```shell
 git clone https://github.com/MATA65-2021-2/problema-metaverso-g4.git
@@ -144,8 +186,8 @@ cd problema-metaverso-g4
 ```
 
 2. Com o projeto aberto em seu editor no terminal instale as dependências do projeto (lembre de ter o node.js e o npm
- instalado):
- 
+   instalado):
+
 ```shell
 npm install
 ```
@@ -161,38 +203,21 @@ de desenvolvimento. Para facilitar o projeto conta com um módulo de [Hot-Reload
 que recarrega a aplicação sem a necessidade do refresh manual, então todas as suas modificações serão
 em tempo real no projeto!
 
-## 🚧 Desenvolvendo Módulos
+## 👩‍🔧 Preparando ambiente de desenvolvimento
+
+TODO dar segmento a essa tarefa (terminar durante a aula)
+
+## 🚧 Desenvolvendo Módulos e testando a aplicação
 
 TODO Explicar como desenvolver novas features
-
-## 👩‍🔧 Testando a Aplicação
-
 TODO Explicar sobre o processo de testes e sobre boas práticas
-
-## 📐 Arquitetura da Aplicação
-
-TODO Explicar sobre como a arquitetura da aplicação foi modelada
-
-## 🎮 Game Development
-
-TODO Explicar o objetivo dessa guia
-
-### 🧔 1. Character Design
-
-TODO Explicar a escolha dos personagens
-
-### 🎲 2. 3D Modeling and LowPoly
-
-TODO Explicar sobre os topicos acima
-
-### 📚 3. Level Design
-
-TODO continuar as descrições do que foi importante para esse projeto...
 
 ## 📖 WhitePaper e Citação
 
-TODO (ainda em análise) Colocar link para PDF se este existir e explicar como citar
-esse projeto
+TODO (TBR - To Be Released) 
+- Colocar link para PDF 
+- Explicar como citar esse projeto
+- Tentar submeter em alguma conferência
 
 ## 🛠️ Suporte e Desenvolvimento
 
@@ -205,4 +230,4 @@ Desenvolvido com ❤️ em Salvador-BA na **UFBA** (Universidade Federal da Bahi
 - **Jeferson Lima** ([@jefersonla](https://github.com/jefersonla))
 - **Rafael Nobre** ([@rafaelnsacramento](https://github.com/rafaelnsacramento))
 
-**⚠ Hospedado também em https://github.com/jefersonla/projeto-cg/invitations**
+**⚠ Hospedado também em https://github.com/jefersonla/projeto-cg**
