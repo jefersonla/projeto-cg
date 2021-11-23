@@ -3,8 +3,10 @@
 ---
 
 Jogo parecido com o visual do anim**-crossing, porém com atividades lúdicas para séries iniciais
-(1-4 ano Ensino Fundamental). Na pasta documentação (a pasta docs contem a aplicação por limitações
-do GitHub, ver [gh-pages limitations](https://github.community/t/can-i-define-a-custom-source-or-folder-from-which-my-site-hosted-on-github-pages-can-load-from/10237)) ou o white-paper (TBR - To Be Released) para entender mais.
+(1-4 ano Ensino Fundamental). Na pasta `documentation` (a pasta docs contem a aplicação por limitações
+do GitHub, ver [gh-pages limitations](https://github.community/t/can-i-define-a-custom-source-or-folder-from-which-my-site-hosted-on-github-pages-can-load-from/10237))
+existem detalhes acerca das diversas etapas do desenvolvimento da aplicação.
+Para maiores detalhes existe também um white-paper (TBR - To Be Released), pendente de submissão.
 
 ## ▶️ **[Jogue Agora!](https://jefersonla.github.io/projeto-cg/)**
 
@@ -113,7 +115,8 @@ e então vai ser só abrir o endereço no seu browser e editar os arquivos e o p
 
 Eu sei, eu sei... nem todo mundo gosta de codar em JS :/, mas uma coisa é um fato importante, o JS e em especial o
 Node.js e seu Package Manager oficial o NPM tem uma das maiores comunidades OpenSource da atualidade com mais de
-[1.3 bilhões de pacotes](https://blog.npmjs.org/post/615388323067854848/so-long-and-thanks-for-all-the-packages.html) (mesmo que alguns desses [exagerem as vezes](https://dev.to/jyotishman/10-useless-npm-package-with-millions-of-downloads-de9)).
+[1.3 bilhões de pacotes](https://blog.npmjs.org/post/615388323067854848/so-long-and-thanks-for-all-the-packages.html) 
+(mesmo que alguns desses [exagerem as vezes](https://dev.to/jyotishman/10-useless-npm-package-with-millions-of-downloads-de9)).
 
 E é aqui que entra o uso do node.js por esse projeto, não necessariamente para execução porém como uma ferramenta de tooling
 com algumas aplicações de terminal ou CLI (Command Line Interface) que irão aumentar nossa produtividade de maneira
@@ -170,7 +173,7 @@ por mês, ou seja, é só cortar o Netflix que tá tudo certo!
 
 **Para conseguir sua licença de estudante basta usar seu e-mail UFBA em: https://www.jetbrains.com/pt-br/community/education/**
 
-## 🚀 Executando a Aplicação
+## 🚀 Executando a aplicação
 
 Para executar a aplicação em seu estado atual siga os seguintes passos:
 
@@ -199,7 +202,8 @@ npm run dev
 ```
 
 Abra o link informado no terminal em seu navegador favorito e dê inicio ao seu processo
-de desenvolvimento. Para facilitar o projeto conta com um módulo de [Hot-Reloading](https://stackoverflow.com/questions/41428954/what-is-the-difference-between-hot-reloading-and-live-reloading-in-react-native#:~:text=1.,are%20deep%20in%20your%20navigation.)
+de desenvolvimento. Para facilitar o projeto conta com um módulo de 
+[Hot-Reloading](https://stackoverflow.com/questions/41428954/what-is-the-difference-between-hot-reloading-and-live-reloading-in-react-native#:~:text=1.,are%20deep%20in%20your%20navigation.)
 que recarrega a aplicação sem a necessidade do refresh manual, então todas as suas modificações serão
 em tempo real no projeto!
 
@@ -207,7 +211,7 @@ em tempo real no projeto!
 
 TODO dar segmento a essa tarefa (terminar durante a aula)
 
-## 🚧 Desenvolvendo Módulos e testando a aplicação
+## 🚧 Desenvolvendo módulos e testando a aplicação
 
 TODO Explicar como desenvolver novas features
 TODO Explicar sobre o processo de testes e sobre boas práticas
