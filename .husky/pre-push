@@ -1,6 +1,0 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-npm run build
-git add ./docs ./entrega
-git commit -m "Build Projeto: Branch $(git rev-parse --abbrev-ref HEAD) - $(date +%Y-%m-%d-%H.%M)"
