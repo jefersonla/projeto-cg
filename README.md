@@ -37,14 +37,14 @@ Educação de modo a ser um case realmente adequado para o meio que este pode se
 
 ## 📓 História
 
-*Professor(a)*
+***Professor(a)*** -
 Olá {user_name}!
 Seja muito bem vindo a Escolinha! :)
 
-*Professor(a)*
+***Professor(a)*** -
 Vou te mostrar sua primeira atividade, tá bom?
 
-*Professor(a)*
+***Professor(a)*** -
 ...
 
 A Escolinha é uma escola a ceu aberto com um leque de atividades lúdicas para execução pelos alunos das séries iniciais.
@@ -52,7 +52,7 @@ Nossa ideia é garantir um ambiente ao qual os alunos possam criar uma represent
 antes estes executariam em formato escrito. 
 
 O lore da história é o próprio aluno e o ambiente onde ele está, a única coisa que o jogo tem de extra é a presença da
-'Pró' (PeRsonagem de Orientação) que irá guiar o aluno no mundo virtual informando as tarefas que este terá que 
+**'Pró'** (PeRsonagem de Orientação) que irá guiar o aluno no mundo virtual informando as tarefas que este terá que 
 executar.
 
 ## ⚠️ Aviso Professor CG
