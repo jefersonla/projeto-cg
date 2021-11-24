@@ -16,24 +16,24 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run build && git add ./docs ./entrega && git commit -m 'Adicionado novo Build'"
+      "pre-push": "npm run build && git add ./docs ./entrega && git commit -m 'Adicionado novo Build'"
     }
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.11",
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
     "@tsconfig/svelte": "^2.0.1",
     "@types/three": "^0.134.0",
     "husky": "^7.0.4",
     "ncp": "^2.0.0",
     "npm-run-all": "^4.1.5",
     "rimraf": "^2.7.1",
-    "svelte": "^3.44.1",
-    "svelte-check": "^2.1.0",
-    "svelte-preprocess": "^4.7.2",
+    "svelte": "^3.44.2",
+    "svelte-check": "^2.2.10",
+    "svelte-preprocess": "^4.9.8",
     "sveltestrap": "^5.6.3",
     "three": "^0.134.0",
-    "tslib": "^2.2.0",
-    "typescript": "^4.3.2",
-    "vite": "^2.6.4"
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.2",
+    "vite": "^2.6.14"
   }
 }
