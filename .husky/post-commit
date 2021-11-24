@@ -4,7 +4,7 @@
 npm run build
 node -e "console.log('\n\n====================================================================')"
 node -e "console.log('Nao esqueca de comitar os arquivos das pastas \"docs\" e \"entrega\"')"
-node -e "console.log('--------------------------------------------------------------------')"
-node -e "console.log('git add ./docs ./entrega')"
-node -e "console.log('git commit -m \"Novo build de versao\"')"
 node -e "console.log('====================================================================\n\n')"
+
+node -e "console.log('git add ./docs ./entrega')"
+node -e "console.log('git commit -m \"Novo build de versao\"\n\n')"
