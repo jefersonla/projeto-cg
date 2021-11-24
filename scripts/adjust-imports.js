@@ -30,7 +30,7 @@ const arqPath = resolve(getRootDir(__dirname), 'docs', 'index.html');
 // Checa se o arquivo index.html da pasta de build docs existe
 if (!existsSync(arqPath)) {
     console.error('Falha ao reparar arquivo index.html. Arquivo não existe!');
-    return 1;
+    process.exit(1);
 }
 
 // Pega e modifica conteudo
