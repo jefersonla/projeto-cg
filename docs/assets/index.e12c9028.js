@@ -215,7 +215,6 @@ class MainGame {
       idleAction.enabled = true;
       idleAction.setEffectiveTimeScale(1);
       idleAction.setEffectiveWeight(1);
-      let lastUpdateTime = Date.now();
       idleAction.paused = true;
       idleAction.play();
       document.addEventListener("keydown", (evt) => {
@@ -231,17 +230,28 @@ class MainGame {
           idleAction.stopFading();
           runAction.paused = false;
           runAction.play();
-          lastUpdateTime = Date.now();
+          switch (evt.key.toUpperCase()) {
+            case "W":
+              model.position.z += 0.15;
+              break;
+            case "A":
+              model.position.x -= 0.15;
+              break;
+            case "S":
+              model.position.z -= 0.15;
+              break;
+            case "D":
+              model.position.x += 0.15;
+              break;
+          }
         }
       });
-      setInterval(() => {
-        if (Date.now() - lastUpdateTime > 1e3) {
-          runAction.paused = true;
-          runAction.stopFading();
-          idleAction.paused = false;
-          idleAction.play();
-        }
-      }, 100);
+      document.addEventListener("keyup", () => {
+        runAction.paused = true;
+        runAction.stopFading();
+        idleAction.paused = false;
+        idleAction.play();
+      });
     });
   }
   run() {
