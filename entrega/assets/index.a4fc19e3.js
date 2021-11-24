@@ -4,7 +4,7 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-import { S as SvelteComponent, i as init, s as safe_not_equal, e as element, a as attr, b as insert, l as listen, n as noop, d as detach, c as space, f as create_component, g as append, m as mount_component, t as transition_in, h as transition_out, j as destroy_component, k as Scene, P as PerspectiveCamera, W as WebGLRenderer, o as sRGBEncoding, C as Clock, O as OrbitControls, p as Stats, H as HemisphereLight, q as SpotLight, r as SpotLightHelper, u as PlaneGeometry, M as MeshStandardMaterial, v as Mesh, w as MathUtils, B as BoxGeometry, x as MeshPhongMaterial, G as GLTFLoader, y as SkeletonHelper, A as AnimationMixer, z as onMount, D as binding_callbacks } from "./vendor.733fc3c0.js";
+import { S as SvelteComponent, i as init, s as safe_not_equal, e as element, a as attr, b as insert, l as listen, n as noop, d as detach, c as space, f as create_component, g as append, m as mount_component, t as transition_in, h as transition_out, j as destroy_component, k as Scene, P as PerspectiveCamera, W as WebGLRenderer, o as sRGBEncoding, C as Clock, O as OrbitControls, p as Stats, H as HemisphereLight, q as SpotLight, r as SpotLightHelper, u as PlaneGeometry, M as MeshStandardMaterial, v as Mesh, w as MathUtils, B as BoxGeometry, x as MeshPhongMaterial, G as GLTFLoader, y as ShaderMaterial, z as SkeletonHelper, A as AnimationMixer, D as onMount, E as binding_callbacks } from "./vendor.07630317.js";
 const p = function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) {
@@ -195,7 +195,22 @@ class MainGame {
     this.mixers = [];
     const loader = new GLTFLoader();
     loader.load("game/models/scout_girl.glb", (gltf) => {
-      const model = gltf.scene;
+      const model = gltf.scene.children[0];
+      model.children.forEach((o) => {
+        if (o.type == "SkinnedMesh") {
+          const child = o;
+          const uniforms = {
+            u_helmet_texture: { value: null }
+          };
+          uniforms.u_helmet_texture.value = child.material.map;
+          child.material = new ShaderMaterial({
+            uniforms,
+            vertexShader: "varying vec3 vPosition;varying vec2 vUv;uniform float radius;uniform sampler2D textureBg;void main() {    gl_Position = vec4(position, 10);    vPosition = vec3(position);    vUv = uv;}",
+            fragmentShader: "varying vec3 vPosition;varying vec2 vUv;uniform float radius;uniform sampler2D textureBg;const float pi = 3.141592653589793;vec3 hsl2rgb(in vec3 c){vec3 rgb = clamp(abs(mod(c.x * 6.0 + vec3(0.0,4.0,2.0),6.0) - 3.0) - 1.0,0.0,1.0);    return c.z + c.y * (rgb-0.5)*(1.0-abs(2.0*c.z-1.0));}void main() {    gl_FragColor = texture2D(textureBg, vUv);    gl_FragColor.x = 1.0;        gl_FragColor.a = 1.0;}"
+          });
+          o.castShadow = true;
+        }
+      });
       this.scene.add(model);
       model.castShadow = true;
       model.receiveShadow = true;
@@ -208,14 +223,13 @@ class MainGame {
       this.mixers.push(objMixer);
       const idleAction = objMixer.clipAction(animations[0]);
       const runAction = objMixer.clipAction(animations[1]);
-      console.log(runAction.getEffectiveWeight());
       runAction.enabled = true;
       runAction.setEffectiveTimeScale(1);
       runAction.setEffectiveWeight(1);
       idleAction.enabled = true;
       idleAction.setEffectiveTimeScale(1);
       idleAction.setEffectiveWeight(1);
-      idleAction.paused = true;
+      idleAction.paused = false;
       idleAction.play();
       document.addEventListener("keydown", (evt) => {
         const allowedKeys = [
@@ -224,7 +238,6 @@ class MainGame {
           "S",
           "D"
         ];
-        console.log(this.clock.getDelta());
         if (allowedKeys.includes(evt.key.toUpperCase())) {
           idleAction.paused = true;
           idleAction.stopFading();
