@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import Stats from 'three/examples/jsm/libs/stats.module';
+import type {SkinnedMesh} from "three";
 
 /**
  * Classe principal do jogo
@@ -131,7 +132,70 @@ export class MainGame {
         const loader = new GLTFLoader();
         loader.load( 'game/models/scout_girl.glb', ( gltf ) => {
 
-            const model = gltf.scene;
+            const model = gltf.scene.children[0];
+
+            model.children.forEach((o) => {
+
+                if (o.type == 'SkinnedMesh') {
+                    const child: SkinnedMesh = o as any;
+
+                    const uniforms = {
+                        u_helmet_texture: { value: null }
+                    };
+
+                    uniforms.u_helmet_texture.value = (child.material as any).map;
+                    child.material =  new THREE.ShaderMaterial({
+                        uniforms: uniforms,
+                        vertexShader: "\
+varying vec3 vPosition;\
+varying vec2 vUv;\
+\
+uniform float radius;\
+uniform sampler2D textureBg;\
+\
+void main() {\
+    gl_Position = vec4(position, 10);\
+    vPosition = vec3(position);\
+    vUv = uv;\
+}",
+                        fragmentShader:  "\
+varying vec3 vPosition;\
+varying vec2 vUv;\
+\
+uniform float radius;\
+uniform sampler2D textureBg;\
+\
+const float pi = 3.141592653589793;\
+\
+vec3 hsl2rgb(in vec3 c)\
+{\
+vec3 rgb = clamp(\
+abs(\
+mod(\
+c.x * 6.0 + vec3(0.0,4.0,2.0),\
+6.0\
+) - 3.0\
+) - 1.0,\
+0.0,\
+1.0\
+);\
+\
+    return c.z + c.y * (rgb-0.5)*(1.0-abs(2.0*c.z-1.0));\
+}\
+\
+void main() {\
+    gl_FragColor = texture2D(textureBg, vUv);\
+    gl_FragColor.x = 1.0;\
+    \
+    gl_FragColor.a = 1.0;\
+}",
+                    });
+
+                    o.castShadow = true;
+                    // o.receiveShadow = true; -- checar problemas
+                }
+            });
+
             this.scene.add( model );
             model.castShadow = true;
             model.receiveShadow = true;
@@ -151,8 +215,6 @@ export class MainGame {
             const idleAction = objMixer.clipAction( animations[ 0 ] );
             const runAction = objMixer.clipAction( animations[ 1 ] );
 
-            console.log(runAction.getEffectiveWeight())
-
             runAction.enabled = true;
             runAction.setEffectiveTimeScale( 1 );
             runAction.setEffectiveWeight( 1 );
@@ -161,10 +223,7 @@ export class MainGame {
             idleAction.setEffectiveTimeScale( 1 );
             idleAction.setEffectiveWeight( 1 );
 
-            let lastUpdateTime = Date.now();
-            let isRunning = false;
-
-            idleAction.paused = true;
+            idleAction.paused = false;
             idleAction.play();
 
             document.addEventListener('keydown', (evt) => {
@@ -175,7 +234,6 @@ export class MainGame {
                     'D'
                 ];
 
-                console.log(this.clock.getDelta());
                 if (allowedKeys.includes(evt.key.toUpperCase())) {
                     idleAction.paused = true;
                     idleAction.stopFading();
