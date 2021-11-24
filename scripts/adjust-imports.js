@@ -27,6 +27,12 @@ export const getRootDir = (pathDir = __dirname) => {
 // Define a pasta do arquivo
 const arqPath = resolve(getRootDir(__dirname), 'docs', 'index.html');
 
+// Checa se o arquivo index.html da pasta de build docs existe
+if (!existsSync(arqPath)) {
+    console.error('Falha ao reparar arquivo index.html. Arquivo não existe!');
+    return 1;
+}
+
 // Pega e modifica conteudo
 const arqContent = readFileSync(arqPath, 'utf-8')
     .replace(/="\//gm, '="');

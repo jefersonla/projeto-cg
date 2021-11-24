@@ -3,19 +3,30 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "predev": "rimraf docs",
+    "postinstall": "husky install",
+    "clean": "run-p clean:*",
+    "clean:docs": "rimraf docs",
+    "clean:entrega": "rimraf entrega",
+    "predev": "npm run clean",
     "dev": "vite",
-    "prebuild": "rimraf docs",
+    "prebuild": "npm run clean",
     "build": "vite build",
-    "postbuild": "mkdir docs && ncp dist/ docs/ && rimraf dist && node scripts/adjust-imports.js",
+    "postbuild": "mkdir docs && mkdir entrega && ncp dist/ docs/ && rimraf dist && node scripts/adjust-imports.js && ncp docs/ entrega/",
     "serve": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run build && git add ./docs ./entrega && git commit -m 'Adicionado novo Build'"
+    }
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.11",
     "@tsconfig/svelte": "^2.0.1",
     "@types/three": "^0.134.0",
+    "husky": "^7.0.4",
     "ncp": "^2.0.0",
+    "npm-run-all": "^4.1.5",
     "rimraf": "^2.7.1",
     "svelte": "^3.44.1",
     "svelte-check": "^2.1.0",

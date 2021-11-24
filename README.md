@@ -10,6 +10,10 @@ Para maiores detalhes existe também um white-paper (TBR - To Be Released), pend
 
 ## ▶️ **[Jogue Agora!](https://jefersonla.github.io/projeto-cg/)**
 
+**Obs.: O arquivo index.html na raiz deste projeto é um arquivo de montagem, utilizado pelo framework Svelte. Não 
+utilize-o, para rodar a aplicação. Caso esteja atrás do projeto para execução utilize a pasta `docs` ou a pasta 
+`entrega`que contém a aplicação compilada para utilização.**       
+
 ## 📘 Introdução
 
 O Low Poly School é um jogo 3D, low-poly (poucos polygons), com visual cartunesco, porém, sem renunciar o uso de
