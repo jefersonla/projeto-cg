@@ -19,7 +19,7 @@ export class MainGame {
     /* Controle de Orbita */
     controls: OrbitControls;
 
-    mixer: THREE.AnimationMixer;
+    mixers: THREE.AnimationMixer[];
     clock: THREE.Clock;
 
     stats: Stats;
@@ -48,7 +48,7 @@ export class MainGame {
 
         // Cria o render
         this.renderer = new THREE.WebGLRenderer();
-        this.renderer.setSize(window.innerHeight * 0.8, window.innerHeight * 0.8);
+        this.renderer.setSize(Math.min(window.innerHeight, window.innerWidth) * 0.8, Math.min(window.innerHeight, window.innerWidth) * 0.8);
         this.renderer.setPixelRatio( window.devicePixelRatio );
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.renderer.shadowMap.enabled = true;
@@ -61,14 +61,13 @@ export class MainGame {
         // Adiciona controles de órbita para a aplicação
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-        this.controls.target.set( 0, 0.5, 0 );
+        // this.controls.target.set( 0, 0.5, 0 );
         this.controls.update();
-        this.controls.enablePan = false;
+        this.controls.enablePan = true;
         this.controls.enableDamping = true;
 
         this.stats = Stats();
         canvasArea.appendChild( this.stats.dom );
-
 
         // Create an hemisphere light and add it to scene
         const hemisphereLight = new THREE.HemisphereLight(0x443333, 0x111122);
@@ -97,7 +96,6 @@ export class MainGame {
         const spotLightHelper = new THREE.SpotLightHelper( spotLight );
         this.scene.add( spotLightHelper );
 
-
         // Add a plane to represent ground on this scene
         const planeGeometry = new THREE.PlaneBufferGeometry(4000, 4000, 32, 32);
         const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xfffffff });
@@ -121,15 +119,17 @@ export class MainGame {
         this.cube.receiveShadow = true;
 
         this.scene.add(this.cube);
-        this.scene.fog = new THREE.Fog( 0x72645b, 10, 30 );
+        // this.scene.fog = new THREE.Fog( 0x72645b, 10, 30 );
 
         this.renderer.setClearColor(0x72645b, 1);
         // this.renderer.ga = true;
         // this.renderer.gammaOutput = true;
         this.renderer.shadowMap.enabled = true;
 
+        this.mixers = [];
+
         const loader = new GLTFLoader();
-        loader.load( 'scout_girl.glb', ( gltf ) => {
+        loader.load( 'game/models/scout_girl.glb', ( gltf ) => {
 
             const model = gltf.scene;
             this.scene.add( model );
@@ -145,10 +145,11 @@ export class MainGame {
 
             const animations = gltf.animations;
 
-            this.mixer = new THREE.AnimationMixer( model );
+            const objMixer = new THREE.AnimationMixer( model );
+            this.mixers.push(objMixer);
 
-            const idleAction = this.mixer.clipAction( animations[ 0 ] );
-            const runAction = this.mixer.clipAction( animations[ 1 ] );
+            const idleAction = objMixer.clipAction( animations[ 0 ] );
+            const runAction = objMixer.clipAction( animations[ 1 ] );
 
             console.log(runAction.getEffectiveWeight())
 
@@ -156,10 +157,44 @@ export class MainGame {
             runAction.setEffectiveTimeScale( 1 );
             runAction.setEffectiveWeight( 1 );
 
-            // idleAction.paused = false;
-            // idleAction.play();
-            runAction.paused = false;
-            runAction.play();
+            idleAction.enabled = true;
+            idleAction.setEffectiveTimeScale( 1 );
+            idleAction.setEffectiveWeight( 1 );
+
+            let lastUpdateTime = Date.now();
+            let isRunning = false;
+
+            idleAction.paused = true;
+            idleAction.play();
+
+            document.addEventListener('keydown', (evt) => {
+                const allowedKeys = [
+                    'A',
+                    'W',
+                    'S',
+                    'D'
+                ];
+
+                console.log(this.clock.getDelta());
+                if (allowedKeys.includes(evt.key.toUpperCase())) {
+                    idleAction.paused = true;
+                    idleAction.stopFading();
+
+                    runAction.paused = false;
+                    runAction.play();
+                    lastUpdateTime = Date.now();
+                }
+            });
+
+            setInterval(() => {
+                if (Date.now() - lastUpdateTime > 1000) {
+                    runAction.paused = true;
+                    runAction.stopFading();
+
+                    idleAction.paused = false;
+                    idleAction.play();
+                }
+            }, 100);
         } );
     }
 
@@ -182,7 +217,9 @@ export class MainGame {
         this.stats.update();
 
         let mixerUpdateDelta = this.clock.getDelta();
-        this.mixer.update( mixerUpdateDelta );
+        for (const mixer of this.mixers) {
+            mixer.update( mixerUpdateDelta );
+        }
 
         // Renderiza a cena
         this.render();
