@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Escolinha</title>
+
+    <!-- Normalize.css -->
+    <link rel="stylesheet" href="styles/normalize.css" />
+
+    <!-- BootStrap -->
+    <link rel="stylesheet" href="styles/bootstrap.min.css" />
+    <link rel="stylesheet" href="styles/bootstrap-icons.css" />
+    <script type="module" crossorigin src="assets/index.c236701a.js"></script>
+    <link rel="modulepreload" href="assets/vendor.733fc3c0.js">
+    <link rel="stylesheet" href="assets/index.4c703201.css">
+  </head>
+  <body>
+    <!-- ViteProcessStatus -->
+    <div id="--compiled-vite" style="display: none"></div>
+    <!-- ./ViteProcessStatus -->
+
+    <div id="app"></div>
+    
+
+    <!-- Check if this file is processed by vite -->
+    <script>
+      // Element to check if this file has been pre-processed
+      const compiledStatusElement = document.querySelector('#--compiled-vite');
+
+      // If this file has not been pre-processed, display a warning message
+      if (compiledStatusElement == null) {
+        // Clean the document body
+        document.body.innerHTML = '';
+
+        // Create the alert element
+        const h1RedAlertTextNode = document.createTextNode('ESTE ARQUIVO É APENAS UM ENTRYPOINT!\nACESSE O PROJETO ATRAVÉS DA PASTA \'docs\' OU \'entrega\'!');
+        const h1RedAlertNode = document.createElement('h1');
+        h1RedAlertNode.appendChild(h1RedAlertTextNode);
+        h1RedAlertNode.style.color = '#ff0011';
+        h1RedAlertNode.style.whiteSpace = 'pre';
+        h1RedAlertNode.style.textAlign = 'center';
+
+        // Append the alert element to the document body
+        document.body.appendChild(h1RedAlertNode);
+      }
+    </script>
+  </body>
+</html>
