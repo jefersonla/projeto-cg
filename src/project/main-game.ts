@@ -182,19 +182,31 @@ export class MainGame {
 
                     runAction.paused = false;
                     runAction.play();
-                    lastUpdateTime = Date.now();
+
+                    switch (evt.key.toUpperCase()) {
+                        case 'W':
+                            model.position.z += 0.15;
+                            break;
+                        case 'A':
+                            model.position.x -= 0.15;
+                            break;
+                        case 'S':
+                            model.position.z -= 0.15;
+                            break;
+                        case 'D':
+                            model.position.x += 0.15;
+                            break;
+                    }
                 }
             });
 
-            setInterval(() => {
-                if (Date.now() - lastUpdateTime > 1000) {
-                    runAction.paused = true;
-                    runAction.stopFading();
+            document.addEventListener('keyup', () => {
+                runAction.paused = true;
+                runAction.stopFading();
 
-                    idleAction.paused = false;
-                    idleAction.play();
-                }
-            }, 100);
+                idleAction.paused = false;
+                idleAction.play();
+            });
         } );
     }
 
