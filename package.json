@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "test": " node -e \"console.log('NOT IMPLEMENTED YET')\"",
     "clean": "run-p clean:*",
     "clean:docs": "rimraf docs",
     "clean:entrega": "rimraf entrega",
