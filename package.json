@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "postinstall": "husky install",
     "clean": "run-p clean:*",
     "clean:docs": "rimraf docs",
     "clean:entrega": "rimraf entrega",
@@ -17,7 +16,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-push": "npm run build && git add ./docs ./entrega && git commit -m 'Adicionado novo Build'"
+      "pre-commit": "npm run build && git add ./docs ./entrega && git commit -m 'Adicionado novo Build'"
     }
   },
   "devDependencies": {
