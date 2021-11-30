@@ -34,6 +34,9 @@ function safe_not_equal(a, b) {
 function is_empty(obj) {
   return Object.keys(obj).length === 0;
 }
+function append(target, node) {
+  target.appendChild(node);
+}
 function insert(target, node, anchor) {
   target.insertBefore(node, anchor || null);
 }
@@ -27153,4 +27156,4 @@ Stats.Panel = function(name, fg, bg) {
   };
 };
 var Stats$1 = Stats;
-export { AnimationMixer as A, BoxGeometry as B, Clock as C, onMount as D, binding_callbacks as E, GLTFLoader as G, HemisphereLight as H, MeshStandardMaterial as M, OrbitControls as O, PerspectiveCamera as P, Scene as S, WebGLRenderer as W, Stats$1 as a, SpotLight as b, SpotLightHelper as c, PlaneGeometry as d, Mesh as e, MathUtils as f, MeshPhongMaterial as g, Color as h, SkeletonHelper as i, SvelteComponent as j, init as k, safe_not_equal as l, element as m, set_style as n, insert as o, noop as p, detach as q, attr as r, sRGBEncoding as s, destroy_each as t, space as u, create_component as v, mount_component as w, transition_in as x, transition_out as y, destroy_component as z };
+export { AnimationMixer as A, BoxGeometry as B, Clock as C, destroy_component as D, onMount as E, binding_callbacks as F, GLTFLoader as G, HemisphereLight as H, MeshStandardMaterial as M, OrbitControls as O, PerspectiveCamera as P, Scene as S, WebGLRenderer as W, Stats$1 as a, SpotLight as b, SpotLightHelper as c, PlaneGeometry as d, Mesh as e, MathUtils as f, MeshPhongMaterial as g, Color as h, SkeletonHelper as i, SvelteComponent as j, init as k, safe_not_equal as l, element as m, attr as n, set_style as o, insert as p, noop as q, detach as r, sRGBEncoding as s, space as t, append as u, destroy_each as v, create_component as w, mount_component as x, transition_in as y, transition_out as z };

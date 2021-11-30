@@ -4,6 +4,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import {Mesh, SkinnedMesh} from "three";
 import {UniformsLib, Color, ShaderChunk, MeshStandardMaterial} from "three";
+import * as dat from 'dat.gui';
 
 /**
  * Classe principal do jogo
@@ -30,7 +31,11 @@ export class MainGame {
     mixers: THREE.AnimationMixer[];
     clock: THREE.Clock;
 
+    /* Status de render */
     stats: Stats;
+
+    /* Debug Menu */
+    debugMenu: dat.GUI;
 
     // TODO REMOVER - usado apenas no teste
     cube: THREE.Mesh;
@@ -79,6 +84,9 @@ export class MainGame {
 
         this.stats = Stats();
         canvasArea.appendChild( this.stats.dom );
+
+        this.debugMenu = new dat.GUI();
+        this.debugMenu.show();
 
         // Create an hemisphere light and add it to scene
         const hemisphereLight = new THREE.HemisphereLight(0x443333, 0x111122);
