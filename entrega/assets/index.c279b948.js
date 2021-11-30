@@ -4,7 +4,7 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-import { S as Scene, P as PerspectiveCamera, W as WebGLRenderer, s as sRGBEncoding, C as Clock, O as OrbitControls, a as Stats, H as HemisphereLight, b as SpotLight, c as SpotLightHelper, d as PlaneGeometry, M as MeshStandardMaterial, e as Mesh, f as MathUtils, B as BoxGeometry, g as MeshPhongMaterial, G as GLTFLoader, h as Color, i as SkeletonHelper, A as AnimationMixer, j as SvelteComponent, k as init, l as safe_not_equal, m as element, n as set_style, o as insert, p as noop, q as detach, r as attr, t as destroy_each, u as space, v as create_component, w as mount_component, x as transition_in, y as transition_out, z as destroy_component, D as onMount, E as binding_callbacks } from "./vendor.ab222422.js";
+import { S as Scene, P as PerspectiveCamera, W as WebGLRenderer, s as sRGBEncoding, C as Clock, O as OrbitControls, a as Stats, H as HemisphereLight, b as SpotLight, c as SpotLightHelper, d as PlaneGeometry, M as MeshStandardMaterial, e as Mesh, f as MathUtils, B as BoxGeometry, g as MeshPhongMaterial, G as GLTFLoader, h as Color, i as SkeletonHelper, A as AnimationMixer, j as SvelteComponent, k as init, l as safe_not_equal, m as element, n as attr, o as set_style, p as insert, q as noop, r as detach, t as space, u as append, v as destroy_each, w as create_component, x as mount_component, y as transition_in, z as transition_out, D as destroy_component, E as onMount, F as binding_callbacks } from "./vendor.0daa8066.js";
 const p = function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) {
@@ -227,9 +227,8 @@ function create_each_block(ctx) {
   return {
     c() {
       div = element("div");
-      set_style(div, "background-color", "$" + ctx[1]);
-      set_style(div, "width", "30px");
-      set_style(div, "heigth", "30px");
+      attr(div, "class", "color-button svelte-1826qsl");
+      set_style(div, "background-color", ctx[1]);
     },
     m(target, anchor) {
       insert(target, div, anchor);
@@ -242,7 +241,10 @@ function create_each_block(ctx) {
   };
 }
 function create_fragment$2(ctx) {
-  let div;
+  let div4;
+  let div2;
+  let t5;
+  let div3;
   let each_value = ctx[0];
   let each_blocks = [];
   for (let i = 0; i < each_value.length; i += 1) {
@@ -250,16 +252,26 @@ function create_fragment$2(ctx) {
   }
   return {
     c() {
-      div = element("div");
+      div4 = element("div");
+      div2 = element("div");
+      div2.innerHTML = `<div class="object-button svelte-1826qsl"><span class="material-icons-outlined">school</span> Hat</div> 
+        <div class="object-button svelte-1826qsl"><span class="material-icons-outlined">face</span> Hair</div>`;
+      t5 = space();
+      div3 = element("div");
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].c();
       }
-      attr(div, "class", "color-menu svelte-xdjwc5");
+      attr(div2, "class", "object-selection svelte-1826qsl");
+      attr(div3, "class", "colors svelte-1826qsl");
+      attr(div4, "class", "color-menu svelte-1826qsl");
     },
     m(target, anchor) {
-      insert(target, div, anchor);
+      insert(target, div4, anchor);
+      append(div4, div2);
+      append(div4, t5);
+      append(div4, div3);
       for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].m(div, null);
+        each_blocks[i].m(div3, null);
       }
     },
     p(ctx2, [dirty]) {
@@ -273,7 +285,7 @@ function create_fragment$2(ctx) {
           } else {
             each_blocks[i] = create_each_block(child_ctx);
             each_blocks[i].c();
-            each_blocks[i].m(div, null);
+            each_blocks[i].m(div3, null);
           }
         }
         for (; i < each_blocks.length; i += 1) {
@@ -286,29 +298,29 @@ function create_fragment$2(ctx) {
     o: noop,
     d(detaching) {
       if (detaching)
-        detach(div);
+        detach(div4);
       destroy_each(each_blocks, detaching);
     }
   };
 }
 function instance$1($$self) {
   const cores = [
+    "#333333",
     "#9E9E9E",
+    "#607D8B",
+    "#795548",
+    "#FFC107",
     "#FFEB3B",
     "#CDDC39",
-    "#00BCD4",
-    "#FFC107",
-    "#03A9F4",
     "#4CAF50",
-    "#2196F3",
-    "#607D8B",
     "#009688",
-    "#F44331",
-    "#E91E63",
-    "#795548",
-    "#9C27B0",
+    "#00BCD4",
+    "#03A9F4",
     "#3F51B5",
-    "#673AB7"
+    "#673AB7",
+    "#9C27B0",
+    "#E91E63",
+    "#F44331"
   ];
   return [cores];
 }

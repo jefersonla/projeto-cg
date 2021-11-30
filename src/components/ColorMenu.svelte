@@ -1,9 +1,9 @@
 <script lang="ts">
     const cores = [
-        "#333333",
-        "#9E9E9E",
-        "#607D8B",
         "#795548",
+        "#333333",
+        "#607D8B",
+        "#9E9E9E",
         "#FFC107",
         "#FFEB3B",
         "#CDDC39",
@@ -17,21 +17,45 @@
         "#E91E63",
         "#F44331",
     ];
+    type ButtonOptions = 'hat' | 'hair';
+    const buttonElements: { [key: ButtonOptions]: HTMLDivElement | null } = {
+        'hat': null,
+        'hair': null
+    };
+    let buttonSelected: ButtonOptions = 'hat';
+
+    let modalActive: boolean = true;
+
+    const toggleButton = (buttonName: ButtonOptions) => {
+        return () => { buttonSelected = buttonName; };
+    };
+
+    const closeMenu = () => modalActive = false;
+    const openMenu = () => modalActive = true;
 </script>
 
-<div class="color-menu">
+<div class="color-menu" class:modalActive>
     <div class="object-selection">
-        <div class="object-button"> <span class="material-icons-outlined"> school </span> Hat </div>
-        <div class="object-button"> <span class="material-icons-outlined"> face </span> Hair </div>
+        <div class:buttonSelected={buttonSelected === 'hat'} class="object-button" bind:this={buttonElements.hat} on:click={toggleButton('hat')}>
+            <span class="material-icons-outlined"> school </span> Hat
+        </div>
+        <div class:buttonSelected={buttonSelected === 'hair'} class="object-button" bind:this={buttonElements.hair} on:click={toggleButton('hair')}>
+            <span class="material-icons-outlined"> face </span> Hair
+        </div>
     </div>
     <div class="colors">
         {#each cores as cor}
             <div class="color-button" style="background-color: {cor}"></div>
         {/each}
     </div>
+    <div class="close-button" on:click={closeMenu}> <span class="material-icons-outlined"> close </span> </div>
 </div>
 
 <style>
+    .modalActive {
+        background-color: #ff3e00;
+    }
+
     .color-menu {
         position: absolute;
         left: 50%;
@@ -40,6 +64,7 @@
         padding: 0;
         width: 50%;
         height: 100%;
+        aspect-ratio: 4/3;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -59,7 +84,7 @@
     }
 
     .object-button {
-        height: 100%;
+        height: 80%;
         background: #ffffff;
         padding: 2px 10px;
         display: flex;
@@ -68,8 +93,24 @@
         justify-content: center;
         border: 2px solid #888;
         border-radius: 8px;
-        min-width: calc((50vw / 4) - 20px);
+        min-width: calc(min(50vw / 4, 50vh / 4) - 20px);
         margin: 0 10px;
+        aspect-ratio: 1;
+        cursor: pointer;
+    }
+
+    .object-button:hover, .buttonSelected {
+        background-color: #333333;
+        color: #ffffff;
+        border-color: #ffffff;
+    }
+
+    @media only screen and (min-device-height: 380px)
+        and (max-device-width: 480px)
+        and (orientation: landscape) {
+           .object-button {
+            height: 100%;
+        }
     }
 
     .colors {
@@ -78,14 +119,54 @@
         align-items: center;
         justify-content: center;
         height: 81%;
+        width: 100%;
     }
 
     .color-button {
-        flex: 1 0 calc((50vw / 4) - 20px);
-        max-width: calc((50vw / 4) - 20px);
-        height: calc((50vw / 4) - 20px);
-        border: 4px solid #e2e6f3;
-        margin: 0 10px 0;
-        border-radius: 8px;
+        --margin: 1rem;
+        --border-size: 4px;
+        --elements-per-line: 4;
+        --side-size: calc(max(50vw / var(--elements-per-line), 50vh / var(--elements-per-line)) - (2 * var(--margin)) - (2 * var(--border-size)));
+        flex: 1 0 var(--side-size);
+        max-width: var(--side-size);
+        height: var(--side-size);
+        border: var(--border-size) solid #e2e6f3;
+        margin: 0 var(--margin) 0;
+        border-radius: 1rem;
+    }
+
+    .color-button:hover {
+        border-color: #333333;
+        --border-size: 4px;
+        cursor: pointer;
+    }
+
+    .close-button {
+        --size-button: 6vh;
+        position: absolute;
+        right: calc((19vh / 2) - (var(--size-button) / 2));
+        top: calc((19vh / 2) - (var(--size-button) / 2));
+        color: #fff;
+        cursor: pointer;
+        border-radius: 50%;
+        width: var(--size-button);
+        height: var(--size-button);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 0.15rem solid #ffffff;
+    }
+
+    .close-button:hover {
+        color: #ff3e00;
+        background-color: #ffffff;
+    }
+
+    .object-selection, .close-button {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
     }
 </style>
