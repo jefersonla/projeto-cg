@@ -1,4 +1,6 @@
 <script lang="ts">
+    import {createEventDispatcher} from "svelte";
+
     const cores = [
         "#795548",
         "#333333",
@@ -32,6 +34,14 @@
 
     const closeMenu = () => modalActive = true;
     const openMenu = () => modalActive = false;
+
+    const dispatch = createEventDispatcher();
+    const colorChanged = (colorName) => {
+        return () => dispatch('colorChanged', JSON.stringify({
+            materialColor: colorName,
+            materialName: buttonSelected
+        }));
+    };
 </script>
 
 <div class:modalActive class="color-menu" >
@@ -45,7 +55,7 @@
     </div>
     <div class="colors">
         {#each cores as cor}
-            <div class="color-button" style="background-color: {cor}"></div>
+            <div class="color-button" on:click={colorChanged(cor)} style="background-color: {cor}"></div>
         {/each}
     </div>
     <div class="close-button" on:click={closeMenu}> <span class="material-icons-outlined"> close </span> </div>

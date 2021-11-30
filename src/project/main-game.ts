@@ -40,6 +40,9 @@ export class MainGame {
     // TODO REMOVER - usado apenas no teste
     cube: THREE.Mesh;
 
+    private hatMaterial: MeshStandardMaterial;
+    private hairMaterial: MeshStandardMaterial;
+
     /**
      * Constrói a aplicação
      * @param canvasArea 
@@ -159,8 +162,10 @@ export class MainGame {
                     o.castShadow = true;
 
                     if (o.name == 'Hat') {
+                        this.hatMaterial = (o.material as MeshStandardMaterial);
                         (o.material as MeshStandardMaterial).color = new Color('#2e7bd9');
                     } else if (o.name == 'Hair') {
+                        this.hairMaterial = (o.material as MeshStandardMaterial);
                         (o.material as MeshStandardMaterial).color = new Color('#b109d7');
                     }
                 }
@@ -281,6 +286,14 @@ export class MainGame {
                 idleAction.play();
             });
         } );
+    }
+
+    changeElementMaterial(materialName: string, materialColor) {
+        if (materialName == 'hat') {
+            this.hatMaterial.color = new Color(materialColor);
+        } else if (materialName == 'hair') {
+            this.hairMaterial.color = new Color(materialColor);
+        }
     }
 
     /**
