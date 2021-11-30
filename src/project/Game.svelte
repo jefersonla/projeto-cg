@@ -7,6 +7,7 @@
 
     let canvasArea: HTMLDivElement;
     let displayAlert: boolean = false;
+    let colorChanged;
 
     // Aguarda o componente carregar
     onMount(() => {
@@ -30,6 +31,12 @@
         // Apenas rodar em telas 4:3 até 16:9
         window.addEventListener('resize', resizeAndControlGame);
         resizeAndControlGame();
+
+        colorChanged = (event) => {
+            const val: {materialColor: string, materialName: string} = JSON.parse(event.detail);
+            console.log(JSON.parse(event.detail));
+            game.changeElementMaterial(val.materialName, val.materialColor);
+        };
     });
 </script>
 
@@ -45,9 +52,7 @@
 <!-- ./AlertOverlay -->
 
 <!-- ColorMenu -->
-<ColorMenu>
-
-</ColorMenu>
+<ColorMenu on:colorChanged={colorChanged} />
 <!-- ./ColorMenu -->
 
 <!-- GameArea -->
