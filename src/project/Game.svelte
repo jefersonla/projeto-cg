@@ -3,6 +3,8 @@
 
     import { MainGame } from './main-game';
 
+    import  ColorMenu  from '../components/ColorMenu.svelte';
+
     let canvasArea: HTMLDivElement;
     let displayAlert: boolean = false;
 
@@ -41,6 +43,12 @@
     </div>
 {/if}
 <!-- ./AlertOverlay -->
+
+<!-- ColorMenu -->
+<ColorMenu>
+
+</ColorMenu>
+<!-- ./ColorMenu -->
 
 <!-- GameArea -->
 <div class="canvas-area" bind:this={canvasArea}>
