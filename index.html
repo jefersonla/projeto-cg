@@ -37,15 +37,18 @@
         document.body.innerHTML = '';
 
         // Create the alert element
-        const h1RedAlertTextNode = document.createTextNode('ESTE ARQUIVO É APENAS UM ENTRYPOINT!\nACESSE O PROJETO ATRAVÉS DA PASTA \'docs\' OU \'entrega\'!');
+        const h1RedAlertTextNode = document.createTextNode(
+          'ESTE ARQUIVO É APENAS UM ENTRYPOINT!\n' +
+          'ACESSE O PROJETO ATRAVÉS DA PASTA \'docs\' OU \'entrega\'!'
+        );
         const h1RedAlertNode = document.createElement('h1');
-        h1RedAlertNode.appendChild(h1RedAlertTextNode);
+        h1RedAlertNode.append(h1RedAlertTextNode);
         h1RedAlertNode.style.color = '#ff0011';
         h1RedAlertNode.style.whiteSpace = 'pre';
         h1RedAlertNode.style.textAlign = 'center';
 
         // Append the alert element to the document body
-        document.body.appendChild(h1RedAlertNode);
+        document.body.append(h1RedAlertNode);
       }
     </script>
   </body>
