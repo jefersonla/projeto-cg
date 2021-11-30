@@ -30,11 +30,11 @@
         return () => { buttonSelected = buttonName; };
     };
 
-    const closeMenu = () => modalActive = false;
-    const openMenu = () => modalActive = true;
+    const closeMenu = () => modalActive = true;
+    const openMenu = () => modalActive = false;
 </script>
 
-<div class="color-menu" class:modalActive>
+<div class:modalActive class="color-menu" >
     <div class="object-selection">
         <div class:buttonSelected={buttonSelected === 'hat'} class="object-button" bind:this={buttonElements.hat} on:click={toggleButton('hat')}>
             <span class="material-icons-outlined"> school </span> Hat
@@ -51,11 +51,11 @@
     <div class="close-button" on:click={closeMenu}> <span class="material-icons-outlined"> close </span> </div>
 </div>
 
-<style>
-    .modalActive {
-        background-color: #ff3e00;
-    }
+<div class="open-menu close-button" class:hidden={!modalActive} on:click={openMenu}>
+    <span class="material-icons-outlined"> face </span>
+</div>
 
+<style>
     .color-menu {
         position: absolute;
         left: 50%;
@@ -168,5 +168,14 @@
         -moz-user-select: none; /* Old versions of Firefox */
         -ms-user-select: none; /* Internet Explorer/Edge */
         user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+    }
+
+    .modalActive {
+        background-color: #ff3e00;
+        display: none;
+    }
+
+    .hidden {
+        display: none;
     }
 </style>
