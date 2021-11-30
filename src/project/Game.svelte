@@ -34,7 +34,10 @@
 <!-- AlertOverlay -->
 {#if displayAlert}
     <div class="alert-overlay">
-        <h1 style="color: red">ALERTA</h1>
+        <span class="material-icons-outlined">
+            screen_rotation
+        </span>
+        <h1>Vire o Smartphone para começar!</h1>
     </div>
 {/if}
 <!-- ./AlertOverlay -->
@@ -45,6 +48,7 @@
 <!-- ./GameArea -->
 
 <style>
+
     .canvas-area {
     }
 
@@ -57,5 +61,18 @@
         margin: 0;
         padding: 0;
         background: #333;
+        color: white;
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;        
+    }
+
+    .alert-overlay h1{
+        font-size: 18px;
+        font-family: sans-serif, 'sans-serif','Roboto';
+        max-width: 75vw;
+        margin-top: 10px;
     }
 </style>
