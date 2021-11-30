@@ -2,12 +2,19 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import Stats from 'three/examples/jsm/libs/stats.module';
-import type {SkinnedMesh} from "three";
+import {Mesh, SkinnedMesh} from "three";
+import {UniformsLib, Color, ShaderChunk, MeshStandardMaterial} from "three";
 
 /**
  * Classe principal do jogo
  */
 export class MainGame {
+    /* Indica que o jogo está rodando ou não */
+    isRunning: boolean;
+
+    /* Animation Frame Handler */
+    animationFrameHandler: number;
+
     /* Cena atual do jogo */
     scene: THREE.Scene;
 
@@ -29,7 +36,7 @@ export class MainGame {
     cube: THREE.Mesh;
 
     /**
-     * Constroi a aplicação
+     * Constrói a aplicação
      * @param canvasArea 
      */
     constructor(canvasArea: HTMLDivElement) {
@@ -39,7 +46,7 @@ export class MainGame {
         // Cria a camera
         this.camera = new THREE.PerspectiveCamera(
             75,
-            1,
+            window.innerWidth/window.innerHeight,
             0.1,
             1000
         );
@@ -49,7 +56,10 @@ export class MainGame {
 
         // Cria o render
         this.renderer = new THREE.WebGLRenderer();
-        this.renderer.setSize(Math.min(window.innerHeight, window.innerWidth) * 0.8, Math.min(window.innerHeight, window.innerWidth) * 0.8);
+        this.renderer.setSize(
+            window.innerWidth * 0.95,
+            window.innerHeight * 0.95
+        );
         this.renderer.setPixelRatio( window.devicePixelRatio );
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.renderer.shadowMap.enabled = true;
@@ -130,71 +140,68 @@ export class MainGame {
         this.mixers = [];
 
         const loader = new GLTFLoader();
-        loader.load( 'game/models/scout_girl.glb', ( gltf ) => {
+        loader.load( 'game/models/cau.glb', ( gltf ) => {
 
             const model = gltf.scene.children[0];
 
-            model.children.forEach((o) => {
+            console.log(gltf)
 
-                if (o.type == 'SkinnedMesh') {
-                    const child: SkinnedMesh = o as any;
-
-                    const uniforms = {
-                        u_helmet_texture: { value: null }
-                    };
-
-                    uniforms.u_helmet_texture.value = (child.material as any).map;
-                    child.material =  new THREE.ShaderMaterial({
-                        uniforms: uniforms,
-                        vertexShader: "\
-varying vec3 vPosition;\
-varying vec2 vUv;\
-\
-uniform float radius;\
-uniform sampler2D textureBg;\
-\
-void main() {\
-    gl_Position = vec4(position, 10);\
-    vPosition = vec3(position);\
-    vUv = uv;\
-}",
-                        fragmentShader:  "\
-varying vec3 vPosition;\
-varying vec2 vUv;\
-\
-uniform float radius;\
-uniform sampler2D textureBg;\
-\
-const float pi = 3.141592653589793;\
-\
-vec3 hsl2rgb(in vec3 c)\
-{\
-vec3 rgb = clamp(\
-abs(\
-mod(\
-c.x * 6.0 + vec3(0.0,4.0,2.0),\
-6.0\
-) - 3.0\
-) - 1.0,\
-0.0,\
-1.0\
-);\
-\
-    return c.z + c.y * (rgb-0.5)*(1.0-abs(2.0*c.z-1.0));\
-}\
-\
-void main() {\
-    gl_FragColor = texture2D(textureBg, vUv);\
-    gl_FragColor.x = 1.0;\
-    \
-    gl_FragColor.a = 1.0;\
-}",
-                    });
-
+            model.traverse(o => {
+                if (o instanceof Mesh) {
                     o.castShadow = true;
-                    // o.receiveShadow = true; -- checar problemas
+
+                    if (o.name == 'Hat') {
+                        (o.material as MeshStandardMaterial).color = new Color('#2e7bd9');
+                    } else if (o.name == 'Hair') {
+                        (o.material as MeshStandardMaterial).color = new Color('#b109d7');
+                    }
                 }
             });
+
+            // model.children.forEach((o) => {
+            //     console.log(o)
+            //
+            //     if (o.type == 'SkinnedMesh') {
+            //         const child: SkinnedMesh = o as any;
+            //
+            //         const uniforms = {
+            //             u_helmet_texture: { value: null }
+            //         };
+            //
+            //         uniforms.u_helmet_texture.value = (child.material as any).map;
+            //
+            //         if (child.name == "Hair") {
+            //             (child.material as MeshStandardMaterial).color = new Color('#333');
+            //         }
+            //         // child.material =  new THREE.ShaderMaterial({
+            //         //     uniforms: mergeUniforms( [
+            //         //         UniformsLib.common,
+            //         //         UniformsLib.envmap,
+            //         //         UniformsLib.aomap,
+            //         //         UniformsLib.lightmap,
+            //         //         UniformsLib.emissivemap,
+            //         //         UniformsLib.bumpmap,
+            //         //         UniformsLib.normalmap,
+            //         //         UniformsLib.displacementmap,
+            //         //         UniformsLib.roughnessmap,
+            //         //         UniformsLib.metalnessmap,
+            //         //         UniformsLib.fog,
+            //         //         UniformsLib.lights,
+            //         //         {
+            //         //             emissive: { value: new Color( 0x000000 ) },
+            //         //             roughness: { value: 1.0 },
+            //         //             metalness: { value: 0.0 },
+            //         //             envMapIntensity: { value: 1 } // temporary
+            //         //         }
+            //         //     ] ),
+            //         //     vertexShader: ShaderChunk.meshphysical_vert,
+            //         //     fragmentShader: ShaderChunk.meshphysical_frag
+            //         // });
+            //
+            //         o.castShadow = true;
+            //         // o.receiveShadow = true; -- checar problemas
+            //     }
+            // });
 
             this.scene.add( model );
             model.castShadow = true;
@@ -269,17 +276,39 @@ void main() {\
     }
 
     /**
-     * Executa a aplicação
+     * Indica se a página contém a proporção básica para operar
      */
-    run() {
-        // Loop de renderização
-        requestAnimationFrame(() => this.run());
+    isPageRatioAllowed() {
+        return (window.innerWidth / window.innerHeight) >= 1;
+    }
 
+    /**
+     * Redimensiona a tela do jogo
+     */
+    setRenderSize() {
+        // Atualiza a camera
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+
+        // Atualiza o render
+        this.renderer.setSize(
+            window.innerWidth * 0.95,
+            window.innerHeight * 0.95
+        );
+    }
+
+    /**
+     * Executa frame a frame do jogo
+     *
+     * @private
+     */
+    private step() {
         // Game Logic
 
         // TODO REMOVER - Rotaciona o cubo
-        //this.cube.rotation.x += 0.01;
-        //this.cube.rotation.y += 0.01;
+        // this.cube.rotation.x += 0.01;
+        this.cube.rotation.y += 0.01;
+        this.cube.castShadow = true;
 
         // Atualiza o controle de órbita
         this.controls.update();
@@ -293,6 +322,38 @@ void main() {\
 
         // Renderiza a cena
         this.render();
+
+        // Chama o próximo frame
+        this.animationFrameHandler = requestAnimationFrame(() => this.step());
+    }
+
+    /**
+     * Executa a aplicação
+     */
+    run() {
+        // Inicia loop de renderização se jogo estiver parado
+        if (!this.isRunning) {
+            this.animationFrameHandler = requestAnimationFrame(() => this.step());
+            this.isRunning = true;
+        }
+    }
+
+    /**
+     * Para a aplicação
+     */
+    stop() {
+        // Para o jogo se jogo estiver rodando
+        if (this.isRunning) {
+            // Para a animação
+            cancelAnimationFrame(this.animationFrameHandler);
+
+            // Limpa o ambiente
+            this.renderer.clear(false);
+
+            // Configura as variáveis de estado
+            this.isRunning = false;
+            this.animationFrameHandler = 0;
+        }
     }
 
     /**

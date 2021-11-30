@@ -1,6 +1,6 @@
 <script lang="ts">
   /* --- Layout Components --- */
-  import Header from './layout/Header.svelte';
+  // import Header from './layout/Header.svelte';
   
   /* --- Other Components --- */
   import Game from './project/Game.svelte';
@@ -9,7 +9,7 @@
 <main>
 
   <!-- Header -->
-  <Header />
+  <!-- <Header /> -->
   <!-- ./Header -->
 
   <!-- Game -->
@@ -35,6 +35,7 @@
     display: flex;
     align-content: center;
     justify-content: center;
+    background-color: #222;
   }
 
   :global(body > div) {
@@ -45,9 +46,6 @@
 
   main {
     text-align: center;
-    padding: 1em;
     margin: 0 auto;
-    max-width: 80vw;
-    max-height: 90vw;
   }
 </style>
