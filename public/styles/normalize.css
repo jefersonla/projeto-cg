@@ -210,3 +210,37 @@ button::-moz-focus-inner,
     border-style: none;
     padding: 0;
 }
+
+
+button {
+    display: inline-block;
+    height: 43px;
+    padding: 0;
+    margin: 0;
+    vertical-align: top;
+    width: 43px;
+    margin-bottom: 10px;
+}
+
+#b_a img {
+    display: block;
+    height: 40px;  
+    width: 40px;
+    
+}
+#b_s img {
+    display: block;
+    height: 40px;  
+    width: 40px;
+}
+#b_d img {
+    display: block;
+    height: 40px;  
+    width: 40px;
+
+}
+#b_w img {
+    display: block;
+    height: 40px;  
+    width: 40px;
+}

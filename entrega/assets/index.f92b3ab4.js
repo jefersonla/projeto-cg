@@ -217,6 +217,7 @@ class MainGame {
       idleAction.setEffectiveWeight(1);
       idleAction.paused = true;
       idleAction.play();
+      document.querySelector("button");
       document.addEventListener("keydown", (evt) => {
         const allowedKeys = [
           "A",
@@ -233,15 +234,19 @@ class MainGame {
           switch (evt.key.toUpperCase()) {
             case "W":
               model.position.z += 0.15;
+              model.rotation.y = Math.PI * 2;
               break;
-            case "A":
+            case "D":
               model.position.x -= 0.15;
+              model.rotation.y = 3 * Math.PI / 2;
               break;
             case "S":
               model.position.z -= 0.15;
+              model.rotation.y = Math.PI;
               break;
-            case "D":
+            case "A":
               model.position.x += 0.15;
+              model.rotation.y = Math.PI / 2;
               break;
           }
         }

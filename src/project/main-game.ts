@@ -128,6 +128,8 @@ export class MainGame {
 
         this.mixers = [];
 
+    
+
         const loader = new GLTFLoader();
         loader.load( 'game/models/scout_girl.glb', ( gltf ) => {
 
@@ -166,13 +168,14 @@ export class MainGame {
 
             idleAction.paused = true;
             idleAction.play();
-
+            const button = document.querySelector('button');
             document.addEventListener('keydown', (evt) => {
                 const allowedKeys = [
                     'A',
                     'W',
                     'S',
                     'D'
+                    
                 ];
 
                 console.log(this.clock.getDelta());
@@ -180,32 +183,47 @@ export class MainGame {
                     idleAction.paused = true;
                     idleAction.stopFading();
 
+                    
                     runAction.paused = false;
                     runAction.play();
 
                     switch (evt.key.toUpperCase()) {
                         case 'W':
                             model.position.z += 0.15;
+                            model.rotation.y = (Math.PI*2);
                             break;
-                        case 'A':
+                        case 'D':
                             model.position.x -= 0.15;
+                            model.rotation.y = (3*Math.PI/2);
                             break;
                         case 'S':
                             model.position.z -= 0.15;
+                            model.rotation.y = (Math.PI);
                             break;
-                        case 'D':
+                        case 'A':
                             model.position.x += 0.15;
+                            model.rotation.y = (Math.PI/2);
                             break;
+
                     }
                 }
             });
 
             document.addEventListener('keyup', () => {
+        
+
                 runAction.paused = true;
+                // runAction.enabled = false;
                 runAction.stopFading();
 
+                
                 idleAction.paused = false;
                 idleAction.play();
+
+
+
+
+
             });
         } );
     }
