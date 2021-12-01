@@ -1,58 +1,95 @@
-import * as THREE from 'three';
+import * as dat from 'dat.gui';
+import {
+    Mesh,
+    Color,
+    MeshStandardMaterial,
+    SkeletonHelper,
+    AnimationMixer,
+    MeshPhongMaterial,
+    MathUtils,
+    PlaneBufferGeometry,
+    BoxGeometry,
+    SpotLightHelper,
+    SpotLight,
+    HemisphereLight,
+    sRGBEncoding,
+    Clock,
+    WebGLRenderer,
+    PerspectiveCamera, Scene
+} from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import Stats from 'three/examples/jsm/libs/stats.module';
-import {Mesh, SkinnedMesh} from "three";
-import {UniformsLib, Color, ShaderChunk, MeshStandardMaterial} from "three";
-import * as dat from 'dat.gui';
 
 /**
  * Classe principal do jogo
  */
 export class MainGame {
+    /** ---------- System Properties --------- **/
+
     /* Indica que o jogo está rodando ou não */
     isRunning: boolean;
 
     /* Animation Frame Handler */
     animationFrameHandler: number;
 
-    /* Cena atual do jogo */
-    scene: THREE.Scene;
-
-    /* Camera da aplicação */
-    camera: THREE.PerspectiveCamera;
-
-    /* Render da aplicação */
-    renderer: THREE.WebGLRenderer;
-
-    /* Controle de Orbita */
-    controls: OrbitControls;
-
-    mixers: THREE.AnimationMixer[];
-    clock: THREE.Clock;
-
-    /* Status de render */
-    stats: Stats;
+    /** ---------- Debug Properties ---------- **/
 
     /* Debug Menu */
     debugMenu: dat.GUI;
 
+    /* Debug Frame Status */
+    debugStats: Stats;
+
+    /* Canvas Container */
+    private canvasContainer: HTMLDivElement;
+
+    /* Cena atual do jogo */
+    scene: Scene;
+
+    /* Camera da aplicação */
+    camera: PerspectiveCamera;
+
+    /* Render da aplicação */
+    renderer: WebGLRenderer;
+
+    /* Controle de Orbita */
+    controls: OrbitControls;
+
+    /* Controle de animação */
+    mixers: AnimationMixer[];
+
+    /* Controle de tempo de execução */
+    clock: Clock;
+
     // TODO REMOVER - usado apenas no teste
-    cube: THREE.Mesh;
+    cube: Mesh;
 
     private hatMaterial: MeshStandardMaterial;
     private hairMaterial: MeshStandardMaterial;
 
     /**
      * Constrói a aplicação
-     * @param canvasArea 
+     *
+     * @param canvasContainer
+     * @param debugEnabled Habilita ou desabilita o debug da aplicação
      */
-    constructor(canvasArea: HTMLDivElement) {
+    constructor(
+        canvasContainer: HTMLDivElement,
+        public debugEnabled = false
+    ) {
+        this.canvasContainer = canvasContainer;
+
+        // Inicializa o sistema de debug
+        if (debugEnabled) {
+            this.initDebugOptions();
+        }
+
         // Cria a cena que irá abrigar os dados
-        this.scene = new THREE.Scene()
+        this.scene = new Scene();
 
         // Cria a camera
-        this.camera = new THREE.PerspectiveCamera(
+        this.camera = new PerspectiveCamera(
             75,
             window.innerWidth/window.innerHeight,
             0.1,
@@ -63,19 +100,19 @@ export class MainGame {
         this.camera.position.z = 5;
 
         // Cria o render
-        this.renderer = new THREE.WebGLRenderer();
+        this.renderer = new WebGLRenderer();
         this.renderer.setSize(
             window.innerWidth * 0.95,
             window.innerHeight * 0.95
         );
         this.renderer.setPixelRatio( window.devicePixelRatio );
-        this.renderer.outputEncoding = THREE.sRGBEncoding;
+        this.renderer.outputEncoding = sRGBEncoding;
         this.renderer.shadowMap.enabled = true;
 
-        this.clock = new THREE.Clock();
+        this.clock = new Clock();
 
         // Insere o render a página
-        canvasArea.appendChild(this.renderer.domElement);
+        this.canvasContainer.appendChild(this.renderer.domElement);
 
         // Adiciona controles de órbita para a aplicação
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -85,18 +122,12 @@ export class MainGame {
         this.controls.enablePan = true;
         this.controls.enableDamping = true;
 
-        this.stats = Stats();
-        canvasArea.appendChild( this.stats.dom );
-
-        this.debugMenu = new dat.GUI();
-        this.debugMenu.show();
-
         // Create an hemisphere light and add it to scene
-        const hemisphereLight = new THREE.HemisphereLight(0x443333, 0x111122);
+        const hemisphereLight = new HemisphereLight(0x443333, 0x111122);
         this.scene.add(hemisphereLight);
 
         // Create an spotlight, which can cast shadows
-        const spotLight = new THREE.SpotLight( 0xffffff );
+        const spotLight = new SpotLight( 0xffffff );
         spotLight.position.set( 10, 10, 10 );
 
         // Enable shadow
@@ -108,40 +139,40 @@ export class MainGame {
 
         // Configure shadow
         spotLight.shadow.camera.near = 10;
-        spotLight.shadow.camera.far = 30;
+        spotLight.shadow.camera.far = 130;
         spotLight.shadow.camera.fov = 1;
 
         // Add spotlight to scene
         this.scene.add(spotLight);
 
         // Add a spotlight helper to help orientation
-        const spotLightHelper = new THREE.SpotLightHelper( spotLight );
+        const spotLightHelper = new SpotLightHelper( spotLight );
         this.scene.add( spotLightHelper );
 
         // Add a plane to represent ground on this scene
-        const planeGeometry = new THREE.PlaneBufferGeometry(4000, 4000, 32, 32);
-        const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xfffffff });
-        const groundPlane = new THREE.Mesh(planeGeometry, planeMaterial);
-        groundPlane.rotation.x = THREE.MathUtils.degToRad(-90);
+        const planeGeometry = new PlaneBufferGeometry(4000, 4000, 32, 32);
+        const planeMaterial = new MeshStandardMaterial({ color: 0xfffffff });
+        const groundPlane = new Mesh(planeGeometry, planeMaterial);
+        groundPlane.rotation.x = MathUtils.degToRad(-90);
         groundPlane.receiveShadow = true;
         this.scene.add(groundPlane);
 
         // TODO REMOVER - Apenas para teste
         // Cria um elemento qualquer
-        const geometry = new THREE.BoxGeometry();
+        const geometry = new BoxGeometry();
         geometry.translate(0, 0.5, 0)
 
-        const material = new THREE.MeshPhongMaterial({
+        const material = new MeshPhongMaterial({
             color: 0xff3e00,
             // wireframe: true,
         });
-        this.cube = new THREE.Mesh(geometry, material);
+        this.cube = new Mesh(geometry, material);
 
         this.cube.castShadow = true;
         this.cube.receiveShadow = true;
 
         this.scene.add(this.cube);
-        // this.scene.fog = new THREE.Fog( 0x72645b, 10, 30 );
+        // this.scene.fog = new Fog( 0x72645b, 10, 30 );
 
         this.renderer.setClearColor(0x72645b, 1);
         // this.renderer.ga = true;
@@ -186,7 +217,7 @@ export class MainGame {
             //         if (child.name == "Hair") {
             //             (child.material as MeshStandardMaterial).color = new Color('#333');
             //         }
-            //         // child.material =  new THREE.ShaderMaterial({
+            //         // child.material =  new ShaderMaterial({
             //         //     uniforms: mergeUniforms( [
             //         //         UniformsLib.common,
             //         //         UniformsLib.envmap,
@@ -222,14 +253,14 @@ export class MainGame {
 
             model.translateX(2);
 
-            const skeleton = new THREE.SkeletonHelper( model );
+            const skeleton = new SkeletonHelper( model );
             skeleton.visible = true;
 
             this.scene.add( skeleton );
 
             const animations = gltf.animations;
 
-            const objMixer = new THREE.AnimationMixer( model );
+            const objMixer = new AnimationMixer( model );
             this.mixers.push(objMixer);
 
             const idleAction = objMixer.clipAction( animations[ 0 ] );
@@ -288,7 +319,32 @@ export class MainGame {
         } );
     }
 
-    changeElementMaterial(materialName: string, materialColor) {
+    /**
+     * Inicializa as opções de Debug da aplicação
+     * @private
+     */
+    private initDebugOptions() {
+        this.debugStats = Stats();
+        this.canvasContainer.appendChild( this.debugStats.dom );
+
+        this.debugMenu = new dat.GUI();
+        // this.debugMenu.show();
+    }
+
+    /**
+     * Atualiza status das opções de DEBUG
+     */
+    private updateDebugStats() {
+        this.debugStats.update();
+    }
+
+    /**
+     * Troca a cor de elementos do personagem principal
+     *
+     * @param materialName
+     * @param materialColor
+     */
+    changePlayerMaterial(materialName: string, materialColor) {
         if (materialName == 'hat') {
             this.hatMaterial.color = new Color(materialColor);
         } else if (materialName == 'hair') {
@@ -307,14 +363,17 @@ export class MainGame {
      * Redimensiona a tela do jogo
      */
     setRenderSize() {
+        const aspectRatio = window.innerWidth / window.innerHeight;
+        const borderPercentage = 0.01;
+
         // Atualiza a camera
-        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.aspect = aspectRatio;
         this.camera.updateProjectionMatrix();
 
         // Atualiza o render
         this.renderer.setSize(
-            window.innerWidth * 0.95,
-            window.innerHeight * 0.95
+            window.innerWidth * (1 - borderPercentage),
+            window.innerHeight * (1 - (borderPercentage * aspectRatio))
         );
     }
 
@@ -324,6 +383,10 @@ export class MainGame {
      * @private
      */
     private step() {
+        if (this.debugEnabled) {
+            this.updateDebugStats();
+        }
+
         // Game Logic
 
         // TODO REMOVER - Rotaciona o cubo
@@ -333,8 +396,6 @@ export class MainGame {
 
         // Atualiza o controle de órbita
         this.controls.update();
-
-        this.stats.update();
 
         let mixerUpdateDelta = this.clock.getDelta();
         for (const mixer of this.mixers) {

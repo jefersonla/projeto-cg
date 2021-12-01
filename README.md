@@ -12,7 +12,7 @@ Para maiores detalhes existe também um white-paper (TBR - To Be Released), pend
 
 **Obs.: O arquivo index.html na raiz deste projeto é um arquivo de montagem, utilizado pelo framework Svelte. Não 
 utilize-o, para rodar a aplicação. Caso esteja atrás do projeto para execução utilize a pasta `docs` ou a pasta 
-`entrega`que contém a aplicação compilada para utilização.**       
+`app`que contém a aplicação compilada para utilização.**       
 
 ## 📘 Introdução
 
