@@ -1,6 +1,7 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
 
+    // Cores possíveis
     const cores = [
         "#795548",
         "#333333",
@@ -19,6 +20,7 @@
         "#E91E63",
         "#F44331",
     ];
+
     type ButtonOptions = 'hat' | 'hair';
     const buttonElements: { [key: ButtonOptions]: HTMLDivElement | null } = {
         'hat': null,

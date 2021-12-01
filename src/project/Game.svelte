@@ -12,7 +12,7 @@
     // Aguarda o componente carregar
     onMount(() => {
         // Cria e dar inicio ao jogo
-        const game = new MainGame(canvasArea);
+        const game = new MainGame(canvasArea, true);
 
         // Redimensiona e checa se o jogo pode rodar
         const resizeAndControlGame = () => {
@@ -35,7 +35,7 @@
         colorChanged = (event) => {
             const val: {materialColor: string, materialName: string} = JSON.parse(event.detail);
             console.log(JSON.parse(event.detail));
-            game.changeElementMaterial(val.materialName, val.materialColor);
+            game.changePlayerMaterial(val.materialName, val.materialColor);
         };
     });
 </script>
