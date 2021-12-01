@@ -4,7 +4,7 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-import { S as Scene, P as PerspectiveCamera, W as WebGLRenderer, s as sRGBEncoding, C as Clock, O as OrbitControls, a as Stats, G as GUI$1, H as HemisphereLight, b as SpotLight, c as SpotLightHelper, d as PlaneGeometry, M as MeshStandardMaterial, e as Mesh, f as MathUtils, B as BoxGeometry, g as MeshPhongMaterial, h as GLTFLoader, i as Color, j as SkeletonHelper, A as AnimationMixer, k as SvelteComponent, l as init, m as safe_not_equal, n as element, o as attr, p as set_style, q as insert, r as listen, t as detach, u as space, v as toggle_class, w as append, x as noop, y as destroy_each, z as run_all, D as createEventDispatcher, E as binding_callbacks, F as is_function, I as create_component, J as mount_component, K as transition_in, L as transition_out, N as destroy_component, Q as onMount } from "./vendor.6868e708.js";
+import { S as Scene, P as PerspectiveCamera, W as WebGLRenderer, s as sRGBEncoding, C as Clock, O as OrbitControls, H as HemisphereLight, a as SpotLight, b as SpotLightHelper, c as PlaneGeometry, M as MeshStandardMaterial, d as Mesh, e as MathUtils, B as BoxGeometry, f as MeshPhongMaterial, G as GLTFLoader, g as Color, h as SkeletonHelper, A as AnimationMixer, i as Stats, j as GUI$1, k as SvelteComponent, l as init, m as safe_not_equal, n as element, o as attr, p as set_style, q as insert, r as listen, t as detach, u as space, v as toggle_class, w as append, x as noop, y as destroy_each, z as run_all, D as createEventDispatcher, E as binding_callbacks, F as is_function, I as create_component, J as mount_component, K as transition_in, L as transition_out, N as destroy_component, Q as onMount } from "./vendor.7c5fa0f8.js";
 const p = function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) {
@@ -48,20 +48,26 @@ const p = function polyfill() {
 };
 p();
 class MainGame {
-  constructor(canvasArea) {
+  constructor(canvasContainer, debugEnabled = false) {
     __publicField(this, "isRunning");
     __publicField(this, "animationFrameHandler");
+    __publicField(this, "debugMenu");
+    __publicField(this, "debugStats");
+    __publicField(this, "canvasContainer");
     __publicField(this, "scene");
     __publicField(this, "camera");
     __publicField(this, "renderer");
     __publicField(this, "controls");
     __publicField(this, "mixers");
     __publicField(this, "clock");
-    __publicField(this, "stats");
-    __publicField(this, "debugMenu");
     __publicField(this, "cube");
     __publicField(this, "hatMaterial");
     __publicField(this, "hairMaterial");
+    this.debugEnabled = debugEnabled;
+    this.canvasContainer = canvasContainer;
+    if (debugEnabled) {
+      this.initDebugOptions();
+    }
     this.scene = new Scene();
     this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1e3);
     this.camera.position.x = 5;
@@ -73,15 +79,11 @@ class MainGame {
     this.renderer.outputEncoding = sRGBEncoding;
     this.renderer.shadowMap.enabled = true;
     this.clock = new Clock();
-    canvasArea.appendChild(this.renderer.domElement);
+    this.canvasContainer.appendChild(this.renderer.domElement);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.update();
     this.controls.enablePan = true;
     this.controls.enableDamping = true;
-    this.stats = Stats();
-    canvasArea.appendChild(this.stats.dom);
-    this.debugMenu = new GUI$1();
-    this.debugMenu.show();
     const hemisphereLight = new HemisphereLight(4469555, 1118498);
     this.scene.add(hemisphereLight);
     const spotLight = new SpotLight(16777215);
@@ -90,7 +92,7 @@ class MainGame {
     spotLight.shadow.mapSize.width = 1024;
     spotLight.shadow.mapSize.height = 1024;
     spotLight.shadow.camera.near = 10;
-    spotLight.shadow.camera.far = 30;
+    spotLight.shadow.camera.far = 130;
     spotLight.shadow.camera.fov = 1;
     this.scene.add(spotLight);
     const spotLightHelper = new SpotLightHelper(spotLight);
@@ -185,7 +187,15 @@ class MainGame {
       });
     });
   }
-  changeElementMaterial(materialName, materialColor) {
+  initDebugOptions() {
+    this.debugStats = Stats();
+    this.canvasContainer.appendChild(this.debugStats.dom);
+    this.debugMenu = new GUI$1();
+  }
+  updateDebugStats() {
+    this.debugStats.update();
+  }
+  changePlayerMaterial(materialName, materialColor) {
     if (materialName == "hat") {
       this.hatMaterial.color = new Color(materialColor);
     } else if (materialName == "hair") {
@@ -196,15 +206,19 @@ class MainGame {
     return window.innerWidth / window.innerHeight >= 1;
   }
   setRenderSize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
+    const aspectRatio = window.innerWidth / window.innerHeight;
+    const borderPercentage = 0.01;
+    this.camera.aspect = aspectRatio;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(window.innerWidth * 0.95, window.innerHeight * 0.95);
+    this.renderer.setSize(window.innerWidth * (1 - borderPercentage), window.innerHeight * (1 - borderPercentage * aspectRatio));
   }
   step() {
+    if (this.debugEnabled) {
+      this.updateDebugStats();
+    }
     this.cube.rotation.y += 0.01;
     this.cube.castShadow = true;
     this.controls.update();
-    this.stats.update();
     let mixerUpdateDelta = this.clock.getDelta();
     for (const mixer of this.mixers) {
       mixer.update(mixerUpdateDelta);
@@ -553,7 +567,7 @@ function instance($$self, $$props, $$invalidate) {
   let displayAlert = false;
   let colorChanged;
   onMount(() => {
-    const game = new MainGame(canvasArea);
+    const game = new MainGame(canvasArea, true);
     const resizeAndControlGame = () => {
       game.setRenderSize();
       if (game.isPageRatioAllowed()) {
@@ -569,7 +583,7 @@ function instance($$self, $$props, $$invalidate) {
     $$invalidate(2, colorChanged = (event) => {
       const val = JSON.parse(event.detail);
       console.log(JSON.parse(event.detail));
-      game.changeElementMaterial(val.materialName, val.materialColor);
+      game.changePlayerMaterial(val.materialName, val.materialColor);
     });
   });
   function div_binding($$value) {
