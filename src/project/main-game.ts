@@ -17,7 +17,7 @@ import {
     WebGLRenderer,
     PerspectiveCamera, Scene, Vector3, AxesHelper
 } from "three";
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import type { GLTF, } from 'three/examples/jsm/loaders/GLTFLoader';
 import Stats from 'three/examples/jsm/libs/stats.module';
