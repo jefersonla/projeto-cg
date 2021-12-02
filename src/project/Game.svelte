@@ -8,6 +8,7 @@
     import LoadBar from '../components/LoadBar.svelte';
     import ColorMenu from '../components/ColorMenu.svelte';
     import StartMenu from '../components/StartMenu.svelte';
+    import FloatMessage from '../components/FloatMessage.svelte';
 
     let focusedCamera = false;
 
@@ -81,6 +82,9 @@
 <!-- LoadBar -->
 <LoadBar bind:disabled={loadBarDisabled} bind:progressValue />
 <!-- ./LoadBar -->
+
+<!-- FloatMessage -->
+<FloatMessage disabled={!(gameStarted && !displayAlert && !focusedCamera)}/>
 
 <!-- AlertOverlay -->
 {#if displayAlert}

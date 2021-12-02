@@ -336,10 +336,31 @@ class MainGame {
     this.debugMenu = new GUI$1();
     this.debugMenu.close();
     const debug = this.debugMenu.addFolder("helpers");
-    debug.add(this.debugOptions, "enableSkeleton", false);
-    debug.add(this.debugOptions, "enableSpotlightHelper", false);
-    debug.add(this.debugOptions, "enableCameraHelper", false);
-    debug.add(this.debugOptions, "enableAxesHelper", false);
+    const updateDebug = (prop) => {
+      return (state) => {
+        switch (prop) {
+          case "enableSkeleton":
+            state ? this.scene.add(this.debugOptions.skeletonHelper) : this.scene.remove(this.debugOptions.skeletonHelper);
+            break;
+          case "enableSpotlightHelper":
+            state ? this.scene.add(this.debugOptions.spotlightHelper) : this.scene.remove(this.debugOptions.spotlightHelper);
+            break;
+          case "enableCameraHelper":
+            state ? this.scene.add(this.debugOptions.cameraHelper) : this.scene.remove(this.debugOptions.cameraHelper);
+            break;
+          case "enableAxesHelper":
+            state ? this.scene.add(this.debugOptions.axesHelper) : this.scene.remove(this.debugOptions.axesHelper);
+            break;
+        }
+      };
+    };
+    const debugProperties = [
+      debug.add(this.debugOptions, "enableSkeleton", false),
+      debug.add(this.debugOptions, "enableSpotlightHelper", false),
+      debug.add(this.debugOptions, "enableCameraHelper", false),
+      debug.add(this.debugOptions, "enableAxesHelper", false)
+    ];
+    debugProperties.forEach((debugProperty) => debugProperty.onChange(updateDebug(debugProperty.property)));
   }
   updateDebugStats() {
     this.debugStats.update();
@@ -382,8 +403,6 @@ class MainGame {
     }
     this.render();
     this.animationFrameHandler = requestAnimationFrame(() => this.step());
-  }
-  updateDebugOptions() {
   }
   run() {
     if (!this.isRunning) {
