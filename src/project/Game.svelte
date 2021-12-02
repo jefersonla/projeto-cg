@@ -105,6 +105,7 @@
 <style>
 
     .canvas-area {
+        /* Canvas */
     }
 
     .alert-overlay {
