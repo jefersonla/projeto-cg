@@ -23,6 +23,9 @@ import type { GLTF, } from 'three/examples/jsm/loaders/GLTFLoader';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { Player } from './components/player';
 
+
+type ProgressBarCallback = (progress?: number, finished?: boolean) => void;
+
 /**
  * Classe principal do jogo
  */
@@ -81,7 +84,7 @@ export class MainGame {
     constructor(
         canvasContainer: HTMLDivElement,
         public debugEnabled = false,
-        loadCallback: (state: true) => {}
+        loadCallback: ProgressBarCallback = () => {}
     ) {
         this.canvasContainer = canvasContainer;
 

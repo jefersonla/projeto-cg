@@ -1,9 +1,12 @@
-<script lang="ts">
+<script lang="ts"> 
     import { onMount } from 'svelte';
 
     import { MainGame } from './main-game';
 
-    import  ColorMenu  from '../components/ColorMenu.svelte';
+    /* ------ Svelte Components ------ */
+    
+    import LoadBar from '../components/LoadBar.svelte';
+    import ColorMenu  from '../components/ColorMenu.svelte';
 
     let canvasArea: HTMLDivElement;
     let displayAlert: boolean = false;
@@ -40,6 +43,9 @@
     });
 </script>
 
+
+
+
 <!-- AlertOverlay -->
 {#if displayAlert}
     <div class="alert-overlay">
@@ -54,6 +60,8 @@
 <!-- ColorMenu -->
 <ColorMenu on:colorChanged={colorChanged} />
 <!-- ./ColorMenu -->
+
+<LoadBar></LoadBar>
 
 <!-- GameArea -->
 <div class="canvas-area" bind:this={canvasArea}>

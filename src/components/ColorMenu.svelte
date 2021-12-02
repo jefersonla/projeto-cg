@@ -1,6 +1,11 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
 
+    enum ButtonOptions {
+        HAT = 'hat',
+        HAIR = 'hair'
+    }
+
     // Cores possíveis
     const cores = [
         "#795548",
@@ -21,12 +26,11 @@
         "#F44331",
     ];
 
-    type ButtonOptions = 'hat' | 'hair';
-    const buttonElements: { [key: ButtonOptions]: HTMLDivElement | null } = {
-        'hat': null,
-        'hair': null
+    const buttonElements = {
+        [ButtonOptions.HAT]: (null as HTMLDivElement),
+        [ButtonOptions.HAIR]: (null as HTMLDivElement)
     };
-    let buttonSelected: ButtonOptions = 'hat';
+    let buttonSelected: ButtonOptions = ButtonOptions.HAT;
 
     let modalActive: boolean = true;
 
@@ -46,26 +50,54 @@
     };
 </script>
 
+<!-- ColorMenu -->
 <div class:modalActive class="color-menu" >
+    
+    <!-- MaterialSelection -->
     <div class="object-selection">
-        <div class:buttonSelected={buttonSelected === 'hat'} class="object-button" bind:this={buttonElements.hat} on:click={toggleButton('hat')}>
+        
+        <!-- HatMaterial -->
+        <div class:buttonSelected={buttonSelected === ButtonOptions.HAT}
+            class="object-button" 
+            bind:this={buttonElements[ButtonOptions.HAT]} 
+            on:click={toggleButton(ButtonOptions.HAT)}>
             <span class="material-icons-outlined"> school </span> Hat
         </div>
-        <div class:buttonSelected={buttonSelected === 'hair'} class="object-button" bind:this={buttonElements.hair} on:click={toggleButton('hair')}>
+        <!-- ./HatMaterial -->
+
+        <!-- HairMaterial -->
+        <div class:buttonSelected={buttonSelected === ButtonOptions.HAIR} 
+            class="object-button"
+            bind:this={buttonElements[ButtonOptions.HAIR]} 
+            on:click={toggleButton(ButtonOptions.HAIR)}>
             <span class="material-icons-outlined"> face </span> Hair
         </div>
+        <!-- HairMaterial -->
+
     </div>
+    <!-- ./MaterialSelection -->
+
+    <!-- ColorsButtons -->
     <div class="colors">
         {#each cores as cor}
             <div class="color-button" on:click={colorChanged(cor)} style="background-color: {cor}"></div>
         {/each}
     </div>
-    <div class="close-button" on:click={closeMenu}> <span class="material-icons-outlined"> close </span> </div>
-</div>
+    <!-- ./ColorsButtons -->
 
+    <!-- CloseButton -->
+    <div class="close-button" on:click={closeMenu}>
+        <span class="material-icons-outlined"> close </span>
+    </div>
+    <!-- ./CloseButton -->
+</div>
+<!-- ./ColorMenu -->
+
+<!-- OpenMenuButton -->
 <div class="open-menu close-button" class:hidden={!modalActive} on:click={openMenu}>
     <span class="material-icons-outlined"> face </span>
 </div>
+<!-- ./OpenMenuButton -->
 
 <style>
     .color-menu {
@@ -132,16 +164,18 @@
         justify-content: center;
         height: 81%;
         width: 100%;
+        overflow-y: scroll;
     }
 
     .color-button {
         --margin: 1rem;
         --border-size: 4px;
         --elements-per-line: 4;
-        --side-size: calc(max(50vw / var(--elements-per-line), 50vh / var(--elements-per-line)) - (2 * var(--margin)) - (2 * var(--border-size)));
+        --side-size: calc((50vw / var(--elements-per-line)) - (2 * var(--margin)) - (2 * var(--border-size)));
         flex: 1 0 var(--side-size);
         max-width: var(--side-size);
         height: var(--side-size);
+        max-height: calc((50vh / 4));
         border: var(--border-size) solid #e2e6f3;
         margin: 0 var(--margin) 0;
         border-radius: 1rem;
