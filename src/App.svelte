@@ -40,7 +40,7 @@
     background-color: #222;
   }
 
-  :global(body > div) {
+  :global(#app) {
     display: flex;
     justify-content: center;
     align-items: center;

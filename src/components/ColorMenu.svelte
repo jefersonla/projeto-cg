@@ -112,6 +112,11 @@
 <!-- ./OpenMenuButton -->
 
 <style>
+    :global(.dg.ac) {
+        left: calc(50% - (245px / 2)) !important;
+        right: unset;
+    }
+
     .color-menu {
         position: absolute;
         left: 50%;
