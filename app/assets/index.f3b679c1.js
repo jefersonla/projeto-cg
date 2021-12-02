@@ -1082,8 +1082,8 @@ function create_if_block(ctx) {
     c() {
       div = element("div");
       div.innerHTML = `<span class="material-icons-outlined">screen_rotation</span> 
-        <h1 class="svelte-1kxyy8o">Vire o Smartphone para come\xE7ar!</h1>`;
-      attr(div, "class", "alert-overlay svelte-1kxyy8o");
+        <h1 class="svelte-h6eprq">Vire o Smartphone para come\xE7ar!</h1>`;
+      attr(div, "class", "alert-overlay svelte-h6eprq");
     },
     m(target, anchor) {
       insert(target, div, anchor);
@@ -1174,7 +1174,7 @@ function create_fragment$1(ctx) {
       create_component(colormenu.$$.fragment);
       t3 = space();
       div = element("div");
-      attr(div, "class", "canvas-area svelte-1kxyy8o");
+      attr(div, "class", "canvas-area svelte-h6eprq");
       toggle_class(div, "focusedCamera", ctx[0]);
     },
     m(target, anchor) {
