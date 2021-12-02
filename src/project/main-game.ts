@@ -304,8 +304,6 @@ export class MainGame {
         this.initPlayer();
     }
 
-
-
     /**
      * Inicializa as opções de Debug da aplicação
      * @private
@@ -319,11 +317,40 @@ export class MainGame {
 
         const debug = this.debugMenu.addFolder('helpers');
 
-        debug.add(this.debugOptions, 'enableSkeleton', false);
-        debug.add(this.debugOptions, 'enableSpotlightHelper', false);
-        debug.add(this.debugOptions, 'enableCameraHelper', false);
-        debug.add(this.debugOptions, 'enableAxesHelper', false);
+        const updateDebug = (prop: string) => {
+            return (state: boolean) => {
+                switch(prop) {
+                    case 'enableSkeleton':
+                        state
+                            ? this.scene.add(this.debugOptions.skeletonHelper)
+                            : this.scene.remove(this.debugOptions.skeletonHelper);
+                        break;
+                    case 'enableSpotlightHelper':
+                        state
+                            ? this.scene.add(this.debugOptions.spotlightHelper)
+                            : this.scene.remove(this.debugOptions.spotlightHelper);
+                        break;
+                    case 'enableCameraHelper':
+                        state
+                            ? this.scene.add(this.debugOptions.cameraHelper)
+                            : this.scene.remove(this.debugOptions.cameraHelper);
+                        break;
+                    case 'enableAxesHelper':
+                        state
+                            ? this.scene.add(this.debugOptions.axesHelper)
+                            : this.scene.remove(this.debugOptions.axesHelper);
+                        break;
+                }
+            }
+        };
 
+        const debugProperties = [
+            debug.add(this.debugOptions, 'enableSkeleton', false),
+            debug.add(this.debugOptions, 'enableSpotlightHelper', false),
+            debug.add(this.debugOptions, 'enableCameraHelper', false),
+            debug.add(this.debugOptions, 'enableAxesHelper', false),
+        ];
+        debugProperties.forEach(debugProperty => debugProperty.onChange(updateDebug(debugProperty.property)));
     }
 
     /**
@@ -417,10 +444,6 @@ export class MainGame {
 
         // Chama o próximo frame
         this.animationFrameHandler = requestAnimationFrame(() => this.step());
-    }
-
-    updateDebugOptions() {
-
     }
 
     /**
