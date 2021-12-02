@@ -1,4 +1,4 @@
-import { AnimationMixer, MathUtils, Object3D, PerspectiveCamera, Vector2, Vector3 } from "three";
+import {AnimationMixer, Camera, MathUtils, Object3D, PerspectiveCamera, Vector2, Vector3} from "three";
 import type { AnimationAction } from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import { CustomLoader } from "./custom-loader";
@@ -22,7 +22,7 @@ export class Player {
         'ARROWLEFT': Movements.LEFT,
     };
 
-    static readonly baseSpeed = 0.05;
+    static readonly baseSpeed = 0.1;
     static readonly movementBaseVector = new Vector3(0, 0, 1);
 
     model: Object3D;
@@ -43,11 +43,14 @@ export class Player {
     runAction: AnimationAction;
     idleAction: AnimationAction;
 
-    static async loadPlayer() {
-        return new Player(await CustomLoader.load('game/models/cau.glb'));
+    static async loadPlayer(frontCamera: PerspectiveCamera) {
+        return new Player(await CustomLoader.load('game/models/cau.glb'), frontCamera);
     }
 
-    constructor(private gltf: GLTF) {
+    constructor(
+        private gltf: GLTF,
+        public frontCamera: PerspectiveCamera
+    ) {
         this.model = gltf.scene.children[0];
         this.animationMixer = new AnimationMixer(this.model);
         this.movementVector = new Vector3(0, 0, 0);
@@ -97,13 +100,13 @@ export class Player {
 
     convertCommandToMovementVector() {
         if (this.activeCommands[Movements.FRONT] || this.activeCommands[Movements.BACK]) {
-            this.movementVector.z = this.activeCommands[Movements.FRONT] ? 1 : -1;
+            this.movementVector.z = this.activeCommands[Movements.FRONT] ? -1 : 1;
         } else {
             this.movementVector.z = 0;
         }
 
         if (this.activeCommands[Movements.LEFT] || this.activeCommands[Movements.RIGHT]) {
-            this.movementVector.x = this.activeCommands[Movements.RIGHT] ? -1 : 1;
+            this.movementVector.x = this.activeCommands[Movements.RIGHT] ? 1 : -1;
         } else {
             this.movementVector.x = 0;
         }
@@ -123,17 +126,26 @@ export class Player {
         this.model.position.x += this.movementVector.x * Player.baseSpeed;
         this.model.position.z += this.movementVector.z * Player.baseSpeed;
 
-        const playerRotation = Player.movementBaseVector.angleTo(this.currentLookingVector.normalize());
-        const movementRotation = Player.movementBaseVector.angleTo(this.movementVector.normalize());
+        this.currentLookingVector = this.model.position
+            .clone()
+            .add(this.movementVector.normalize());
 
-        if (playerRotation !== movementRotation) {
-            this.currentLookingVector = this.movementVector.clone();
+        const cameraPosition = this.model.position
+            .clone()
+            .add(this.movementVector
+                .clone()
+                .normalize()
+                .multiplyScalar(6));
 
-            this.model.rotateOnAxis(
-                new Vector3(0, 1, 0),
-                playerRotation - movementRotation
-            );
-        }
+        this.frontCamera.position.x = cameraPosition.x;
+        this.frontCamera.position.z = cameraPosition.z;
+
+        const targetPosition = this.model.position.clone();
+        targetPosition.y = 3;
+
+        this.frontCamera.lookAt(targetPosition);
+
+        this.model.lookAt(this.currentLookingVector);
     }
 
     updateIsometricCamera(camera: PerspectiveCamera) {

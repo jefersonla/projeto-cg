@@ -1,13 +1,12 @@
 <script lang="ts">
-    export let progressValue = 24;
     export let disabled = true;
 </script>
 
 <div class="load-bar" class:disabled>
     <img src="images/escolinha.png" alt="Escolinha logo">
-    
-    <div class="progress">
-        <div class="progress-bar" role="progressbar" style="width: {progressValue}%;" aria-valuenow="{progressValue}" aria-valuemin="0" aria-valuemax="100">{progressValue}%</div>
+
+    <div class="menu">
+        <button type="button" class="btn btn-primary">Play!</button>
     </div>
 
 </div>
@@ -34,14 +33,9 @@
         margin-bottom: 2vw;
     }
 
-    .progress{
+    .menu {
         width: 80vw;
-        height: 5vh;
-    }
-
-    .progress-bar {
-        background-color: #d63384;
-        font-size: 2em;
+        /*height: 5vh;*/
     }
 
     .disabled {

@@ -15,7 +15,7 @@ import {
     sRGBEncoding,
     Clock,
     WebGLRenderer,
-    PerspectiveCamera, Scene, Vector3, AxesHelper
+    PerspectiveCamera, Scene, Vector3, AxesHelper, Camera
 } from "three";
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -57,6 +57,12 @@ export class MainGame {
     /* Camera da aplicação */
     camera: PerspectiveCamera;
 
+    /* Camera de frente do personagem */
+    frontCamera: PerspectiveCamera;
+
+    /* Define se é para ser usado a camera 100% ou não */
+    useFrontCamera: boolean;
+
     /* Render da aplicação */
     renderer: WebGLRenderer;
 
@@ -72,6 +78,21 @@ export class MainGame {
     // TODO REMOVER - usado apenas no teste
     cube: Mesh;
 
+    // Opções de debug
+    debugOptions = {
+        enableSkeleton: false,
+        skeletonHelper: null,
+
+        enableSpotlightHelper: false,
+        spotlightHelper: null,
+
+        enableCameraHelper: false,
+        cameraHelper: null,
+
+        enableAxesHelper: false,
+        axesHelper: null
+    };
+
     private hatMaterial?: MeshStandardMaterial;
     private hairMaterial?: MeshStandardMaterial;
 
@@ -80,6 +101,7 @@ export class MainGame {
      *
      * @param canvasContainer
      * @param debugEnabled Habilita ou desabilita o debug da aplicação
+     * @param loadCallback Carrega o load
      */
     constructor(
         canvasContainer: HTMLDivElement,
@@ -87,6 +109,7 @@ export class MainGame {
         loadCallback: ProgressBarCallback = () => {}
     ) {
         this.canvasContainer = canvasContainer;
+        this.useFrontCamera = false;
 
         // Inicializa o sistema de debug
         if (debugEnabled) {
@@ -121,9 +144,9 @@ export class MainGame {
         // this.camera.rotateOnAxis(new Vector3(0, 1, 0), 45);
         // this.camera.rotateOnAxis(new Vector3(1, 0, 0), MathUtils.degToRad(-45));
 
-        this.camera.position.x = 15;
-        this.camera.position.y = 20;
         this.camera.position.z = 15;
+        this.camera.position.y = 20;
+        // this.camera.position.z = 15;
 
         this.camera.lookAt(new Vector3(0, 0, 0));
     }
@@ -139,7 +162,6 @@ export class MainGame {
         this.renderer.outputEncoding = sRGBEncoding;
         this.renderer.shadowMap.enabled = true;
 
-
         // Insere o render a página
         this.canvasContainer.appendChild(this.renderer.domElement);
 
@@ -150,7 +172,6 @@ export class MainGame {
 
         const axesHelper = new AxesHelper(5);
         this.scene.add(axesHelper);
-
     }
 
     private initLights() {
@@ -212,9 +233,21 @@ export class MainGame {
     }
 
     private async initPlayer() {
-        this.player = await Player.loadPlayer();
-        this.scene.add(this.player.model);
-        this.animationsMixer.push(this.player.animationMixer);
+        // Inicializa a camera frontal
+        this.frontCamera = new PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+
+        this.frontCamera.position.z = 6;
+        this.frontCamera.position.y = 3;
+
+        this.frontCamera.lookAt(new Vector3(0, 3, 0));
+
+        // Carrega o player
+        this.player = await Player.loadPlayer(this.frontCamera);
 
         this.player.model.traverse(o => {
             if (o instanceof Mesh) {
@@ -227,6 +260,13 @@ export class MainGame {
                 }
             }
         });
+
+        // Salva as demais propriedades
+        this.animationsMixer.push(this.player.animationMixer);
+
+        // Adiciona elementos a cena
+        this.scene.add(this.frontCamera);
+        this.scene.add(this.player.model);
     }
 
     private createDummyCube() {
@@ -258,6 +298,8 @@ export class MainGame {
 
         this.initPlayer();
     }
+
+
 
     /**
      * Inicializa as opções de Debug da aplicação
@@ -306,9 +348,12 @@ export class MainGame {
         const aspectRatio = window.innerWidth / window.innerHeight;
         const borderPercentage = 0.01;
 
-        // Atualiza a camera
+        // Atualiza as camera
         this.camera.aspect = aspectRatio;
         this.camera.updateProjectionMatrix();
+
+        this.frontCamera.aspect = aspectRatio;
+        this.frontCamera.updateProjectionMatrix();
 
         // Atualiza o render
         this.renderer.setSize(
@@ -393,6 +438,9 @@ export class MainGame {
      * Renderiza a cena usando a camera padrão
      */
     render() {
-        this.renderer.render(this.scene, this.camera);
+        this.renderer.render(this.scene, this.useFrontCamera
+            ? this.frontCamera
+            : this.camera
+        );
     }
 }
