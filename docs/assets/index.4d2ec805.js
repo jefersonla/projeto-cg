@@ -4,7 +4,7 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-import { G as GLTFLoader, A as AnimationMixer, V as Vector3, S as Scene, P as PerspectiveCamera, W as WebGLRenderer, s as sRGBEncoding, a as AxesHelper, H as HemisphereLight, b as SpotLight, c as SpotLightHelper, d as PlaneGeometry, M as MeshStandardMaterial, e as Mesh, f as MathUtils, C as Clock, g as Color, B as BoxGeometry, h as MeshPhongMaterial, i as Stats, j as GUI$1, k as SvelteComponent, l as init, m as safe_not_equal, n as element, o as space, t as text, p as src_url_equal, q as attr, r as set_style, u as toggle_class, v as insert, w as append, x as set_data, y as noop, z as detach, D as listen, E as is_function, F as destroy_each, I as run_all, J as createEventDispatcher, K as binding_callbacks, L as create_component, N as mount_component, O as transition_in, Q as transition_out, R as destroy_component, T as onMount } from "./vendor.4ba106ba.js";
+import { G as GLTFLoader, A as AnimationMixer, V as Vector3, S as Scene, P as PerspectiveCamera, W as WebGLRenderer, s as sRGBEncoding, a as AxesHelper, H as HemisphereLight, b as SpotLight, c as SpotLightHelper, d as PlaneGeometry, M as MeshStandardMaterial, e as Mesh, f as MathUtils, C as Clock, g as Color, B as BoxGeometry, h as MeshPhongMaterial, i as Stats, j as GUI$1, k as SvelteComponent, l as init, m as safe_not_equal, n as element, o as space, t as text, p as src_url_equal, q as attr, r as set_style, u as insert, v as append, w as set_data, x as create_out_transition, y as detach, z as empty, D as transition_in, E as group_outros, F as transition_out, I as check_outros, J as fade, K as toggle_class, L as listen, N as is_function, O as destroy_each, Q as run_all, R as noop, T as add_render_callback, U as create_bidirectional_transition, X as createEventDispatcher, Y as fly, Z as binding_callbacks, _ as bind, $ as create_component, a0 as mount_component, a1 as add_flush_callback, a2 as destroy_component } from "./vendor.77a67044.js";
 const p = function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) {
@@ -129,6 +129,9 @@ const _Player = class {
     this.previousAction = this.idleAction;
     this.activeAction = this.idleAction;
   }
+  setMovementVector(movement) {
+    this.movementVector = movement;
+  }
   convertCommandToMovementVector() {
     if (this.activeCommands[0] || this.activeCommands[1]) {
       this.movementVector.z = this.activeCommands[0] ? -1 : 1;
@@ -236,9 +239,11 @@ class MainGame {
     this.initRender();
     this.initCamera();
     this.initLights();
+    loadCallback(25, false);
     this.initAnimationMixer();
     this.initBasicControl();
-    this.initScene();
+    loadCallback(50, false);
+    this.initScene().then(() => loadCallback(100, true));
   }
   initCamera() {
     this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1e3);
@@ -329,6 +334,12 @@ class MainGame {
     this.debugStats = Stats();
     this.canvasContainer.appendChild(this.debugStats.dom);
     this.debugMenu = new GUI$1();
+    this.debugMenu.close();
+    const debug = this.debugMenu.addFolder("helpers");
+    debug.add(this.debugOptions, "enableSkeleton", false);
+    debug.add(this.debugOptions, "enableSpotlightHelper", false);
+    debug.add(this.debugOptions, "enableCameraHelper", false);
+    debug.add(this.debugOptions, "enableAxesHelper", false);
   }
   updateDebugStats() {
     this.debugStats.update();
@@ -393,7 +404,7 @@ class MainGame {
   }
 }
 var LoadBar_svelte_svelte_type_style_lang = "";
-function create_fragment$3(ctx) {
+function create_if_block$3(ctx) {
   let div2;
   let img;
   let img_src_value;
@@ -402,6 +413,8 @@ function create_fragment$3(ctx) {
   let div0;
   let t1;
   let t2;
+  let div2_outro;
+  let current;
   return {
     c() {
       div2 = element("div");
@@ -414,16 +427,15 @@ function create_fragment$3(ctx) {
       if (!src_url_equal(img.src, img_src_value = "images/escolinha.png"))
         attr(img, "src", img_src_value);
       attr(img, "alt", "Escolinha logo");
-      attr(img, "class", "svelte-12f5yyt");
-      attr(div0, "class", "progress-bar svelte-12f5yyt");
+      attr(img, "class", "svelte-4qvl44");
+      attr(div0, "class", "progress-bar svelte-4qvl44");
       attr(div0, "role", "progressbar");
       set_style(div0, "width", ctx[0] + "%");
       attr(div0, "aria-valuenow", ctx[0]);
       attr(div0, "aria-valuemin", "0");
       attr(div0, "aria-valuemax", "100");
-      attr(div1, "class", "progress svelte-12f5yyt");
-      attr(div2, "class", "load-bar svelte-12f5yyt");
-      toggle_class(div2, "disabled", ctx[1]);
+      attr(div1, "class", "progress svelte-4qvl44");
+      attr(div2, "class", "load-bar svelte-4qvl44");
     },
     m(target, anchor) {
       insert(target, div2, anchor);
@@ -433,30 +445,94 @@ function create_fragment$3(ctx) {
       append(div1, div0);
       append(div0, t1);
       append(div0, t2);
+      current = true;
     },
-    p(ctx2, [dirty]) {
-      if (dirty & 1)
+    p(ctx2, dirty) {
+      if (!current || dirty & 1)
         set_data(t1, ctx2[0]);
-      if (dirty & 1) {
+      if (!current || dirty & 1) {
         set_style(div0, "width", ctx2[0] + "%");
       }
-      if (dirty & 1) {
+      if (!current || dirty & 1) {
         attr(div0, "aria-valuenow", ctx2[0]);
       }
-      if (dirty & 2) {
-        toggle_class(div2, "disabled", ctx2[1]);
-      }
     },
-    i: noop,
-    o: noop,
+    i(local) {
+      if (current)
+        return;
+      if (div2_outro)
+        div2_outro.end(1);
+      current = true;
+    },
+    o(local) {
+      div2_outro = create_out_transition(div2, fade, {});
+      current = false;
+    },
     d(detaching) {
       if (detaching)
         detach(div2);
+      if (detaching && div2_outro)
+        div2_outro.end();
     }
   };
 }
-function instance$2($$self, $$props, $$invalidate) {
-  let { progressValue = 24 } = $$props;
+function create_fragment$4(ctx) {
+  let if_block_anchor;
+  let current;
+  let if_block = !ctx[1] && create_if_block$3(ctx);
+  return {
+    c() {
+      if (if_block)
+        if_block.c();
+      if_block_anchor = empty();
+    },
+    m(target, anchor) {
+      if (if_block)
+        if_block.m(target, anchor);
+      insert(target, if_block_anchor, anchor);
+      current = true;
+    },
+    p(ctx2, [dirty]) {
+      if (!ctx2[1]) {
+        if (if_block) {
+          if_block.p(ctx2, dirty);
+          if (dirty & 2) {
+            transition_in(if_block, 1);
+          }
+        } else {
+          if_block = create_if_block$3(ctx2);
+          if_block.c();
+          transition_in(if_block, 1);
+          if_block.m(if_block_anchor.parentNode, if_block_anchor);
+        }
+      } else if (if_block) {
+        group_outros();
+        transition_out(if_block, 1, 1, () => {
+          if_block = null;
+        });
+        check_outros();
+      }
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(if_block);
+      current = true;
+    },
+    o(local) {
+      transition_out(if_block);
+      current = false;
+    },
+    d(detaching) {
+      if (if_block)
+        if_block.d(detaching);
+      if (detaching)
+        detach(if_block_anchor);
+    }
+  };
+}
+function instance$3($$self, $$props, $$invalidate) {
+  let { progressValue = 0 } = $$props;
   let { disabled = true } = $$props;
   $$self.$$set = ($$props2) => {
     if ("progressValue" in $$props2)
@@ -469,7 +545,7 @@ function instance$2($$self, $$props, $$invalidate) {
 class LoadBar extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance$2, create_fragment$3, safe_not_equal, { progressValue: 0, disabled: 1 });
+    init(this, options, instance$3, create_fragment$4, safe_not_equal, { progressValue: 0, disabled: 1 });
   }
 }
 var ColorMenu_svelte_svelte_type_style_lang = "";
@@ -478,35 +554,7 @@ function get_each_context(ctx, list, i) {
   child_ctx[12] = list[i];
   return child_ctx;
 }
-function create_each_block(ctx) {
-  let div;
-  let mounted;
-  let dispose;
-  return {
-    c() {
-      div = element("div");
-      attr(div, "class", "color-button svelte-asm9mb");
-      set_style(div, "background-color", ctx[12]);
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-      if (!mounted) {
-        dispose = listen(div, "click", ctx[8](ctx[12]));
-        mounted = true;
-      }
-    },
-    p(new_ctx, dirty) {
-      ctx = new_ctx;
-    },
-    d(detaching) {
-      if (detaching)
-        detach(div);
-      mounted = false;
-      dispose();
-    }
-  };
-}
-function create_fragment$2(ctx) {
+function create_if_block_1(ctx) {
   let div5;
   let div2;
   let div0;
@@ -516,8 +564,8 @@ function create_fragment$2(ctx) {
   let div3;
   let t6;
   let div4;
-  let t8;
-  let div6;
+  let div5_outro;
+  let current;
   let mounted;
   let dispose;
   let each_value = ctx[4];
@@ -542,20 +590,15 @@ function create_fragment$2(ctx) {
       t6 = space();
       div4 = element("div");
       div4.innerHTML = `<span class="material-icons-outlined">close</span>`;
-      t8 = space();
-      div6 = element("div");
-      div6.innerHTML = `<span class="material-icons-outlined">face</span>`;
-      attr(div0, "class", "object-button svelte-asm9mb");
+      attr(div0, "class", "object-button svelte-1sucbb4");
       toggle_class(div0, "buttonSelected", ctx[2] === ctx[0].HAT);
-      attr(div1, "class", "object-button svelte-asm9mb");
+      attr(div1, "class", "object-button svelte-1sucbb4");
       toggle_class(div1, "buttonSelected", ctx[2] === ctx[0].HAIR);
-      attr(div2, "class", "object-selection svelte-asm9mb");
-      attr(div3, "class", "colors svelte-asm9mb");
-      attr(div4, "class", "close-button svelte-asm9mb");
-      attr(div5, "class", "color-menu svelte-asm9mb");
+      attr(div2, "class", "object-selection svelte-1sucbb4");
+      attr(div3, "class", "colors svelte-1sucbb4");
+      attr(div4, "class", "close-button svelte-1sucbb4");
+      attr(div5, "class", "color-menu svelte-1sucbb4");
       toggle_class(div5, "modalActive", ctx[3]);
-      attr(div6, "class", "open-menu close-button svelte-asm9mb");
-      toggle_class(div6, "hidden", !ctx[3]);
     },
     m(target, anchor) {
       insert(target, div5, anchor);
@@ -572,8 +615,7 @@ function create_fragment$2(ctx) {
       }
       append(div5, t6);
       append(div5, div4);
-      insert(target, t8, anchor);
-      insert(target, div6, anchor);
+      current = true;
       if (!mounted) {
         dispose = [
           listen(div0, "click", function() {
@@ -584,13 +626,12 @@ function create_fragment$2(ctx) {
             if (is_function(ctx[5](ctx[0].HAIR)))
               ctx[5](ctx[0].HAIR).apply(this, arguments);
           }),
-          listen(div4, "click", ctx[6]),
-          listen(div6, "click", ctx[7])
+          listen(div4, "click", ctx[6])
         ];
         mounted = true;
       }
     },
-    p(new_ctx, [dirty]) {
+    p(new_ctx, dirty) {
       ctx = new_ctx;
       if (dirty & 5) {
         toggle_class(div0, "buttonSelected", ctx[2] === ctx[0].HAT);
@@ -619,28 +660,195 @@ function create_fragment$2(ctx) {
       if (dirty & 8) {
         toggle_class(div5, "modalActive", ctx[3]);
       }
-      if (dirty & 8) {
-        toggle_class(div6, "hidden", !ctx[3]);
-      }
     },
-    i: noop,
-    o: noop,
+    i(local) {
+      if (current)
+        return;
+      if (div5_outro)
+        div5_outro.end(1);
+      current = true;
+    },
+    o(local) {
+      div5_outro = create_out_transition(div5, fly, { duration: 200 });
+      current = false;
+    },
     d(detaching) {
       if (detaching)
         detach(div5);
       ctx[9](null);
       ctx[10](null);
       destroy_each(each_blocks, detaching);
-      if (detaching)
-        detach(t8);
-      if (detaching)
-        detach(div6);
+      if (detaching && div5_outro)
+        div5_outro.end();
       mounted = false;
       run_all(dispose);
     }
   };
 }
-function instance$1($$self, $$props, $$invalidate) {
+function create_each_block(ctx) {
+  let div;
+  let mounted;
+  let dispose;
+  return {
+    c() {
+      div = element("div");
+      attr(div, "class", "color-button svelte-1sucbb4");
+      set_style(div, "background-color", ctx[12]);
+    },
+    m(target, anchor) {
+      insert(target, div, anchor);
+      if (!mounted) {
+        dispose = listen(div, "click", ctx[8](ctx[12]));
+        mounted = true;
+      }
+    },
+    p(new_ctx, dirty) {
+      ctx = new_ctx;
+    },
+    d(detaching) {
+      if (detaching)
+        detach(div);
+      mounted = false;
+      dispose();
+    }
+  };
+}
+function create_if_block$2(ctx) {
+  let div;
+  let div_transition;
+  let current;
+  let mounted;
+  let dispose;
+  return {
+    c() {
+      div = element("div");
+      div.innerHTML = `<span class="material-icons-outlined">face</span>`;
+      attr(div, "class", "open-menu close-button svelte-1sucbb4");
+    },
+    m(target, anchor) {
+      insert(target, div, anchor);
+      current = true;
+      if (!mounted) {
+        dispose = listen(div, "click", ctx[7]);
+        mounted = true;
+      }
+    },
+    p: noop,
+    i(local) {
+      if (current)
+        return;
+      add_render_callback(() => {
+        if (!div_transition)
+          div_transition = create_bidirectional_transition(div, fade, {}, true);
+        div_transition.run(1);
+      });
+      current = true;
+    },
+    o(local) {
+      if (!div_transition)
+        div_transition = create_bidirectional_transition(div, fade, {}, false);
+      div_transition.run(0);
+      current = false;
+    },
+    d(detaching) {
+      if (detaching)
+        detach(div);
+      if (detaching && div_transition)
+        div_transition.end();
+      mounted = false;
+      dispose();
+    }
+  };
+}
+function create_fragment$3(ctx) {
+  let t;
+  let if_block1_anchor;
+  let current;
+  let if_block0 = !ctx[3] && create_if_block_1(ctx);
+  let if_block1 = ctx[3] && create_if_block$2(ctx);
+  return {
+    c() {
+      if (if_block0)
+        if_block0.c();
+      t = space();
+      if (if_block1)
+        if_block1.c();
+      if_block1_anchor = empty();
+    },
+    m(target, anchor) {
+      if (if_block0)
+        if_block0.m(target, anchor);
+      insert(target, t, anchor);
+      if (if_block1)
+        if_block1.m(target, anchor);
+      insert(target, if_block1_anchor, anchor);
+      current = true;
+    },
+    p(ctx2, [dirty]) {
+      if (!ctx2[3]) {
+        if (if_block0) {
+          if_block0.p(ctx2, dirty);
+          if (dirty & 8) {
+            transition_in(if_block0, 1);
+          }
+        } else {
+          if_block0 = create_if_block_1(ctx2);
+          if_block0.c();
+          transition_in(if_block0, 1);
+          if_block0.m(t.parentNode, t);
+        }
+      } else if (if_block0) {
+        group_outros();
+        transition_out(if_block0, 1, 1, () => {
+          if_block0 = null;
+        });
+        check_outros();
+      }
+      if (ctx2[3]) {
+        if (if_block1) {
+          if_block1.p(ctx2, dirty);
+          if (dirty & 8) {
+            transition_in(if_block1, 1);
+          }
+        } else {
+          if_block1 = create_if_block$2(ctx2);
+          if_block1.c();
+          transition_in(if_block1, 1);
+          if_block1.m(if_block1_anchor.parentNode, if_block1_anchor);
+        }
+      } else if (if_block1) {
+        group_outros();
+        transition_out(if_block1, 1, 1, () => {
+          if_block1 = null;
+        });
+        check_outros();
+      }
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(if_block0);
+      transition_in(if_block1);
+      current = true;
+    },
+    o(local) {
+      transition_out(if_block0);
+      transition_out(if_block1);
+      current = false;
+    },
+    d(detaching) {
+      if (if_block0)
+        if_block0.d(detaching);
+      if (detaching)
+        detach(t);
+      if (if_block1)
+        if_block1.d(detaching);
+      if (detaching)
+        detach(if_block1_anchor);
+    }
+  };
+}
+function instance$2($$self, $$props, $$invalidate) {
   var ButtonOptions;
   (function(ButtonOptions2) {
     ButtonOptions2["HAT"] = "hat";
@@ -721,12 +929,155 @@ function instance$1($$self, $$props, $$invalidate) {
 class ColorMenu extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance$1, create_fragment$2, safe_not_equal, {});
+    init(this, options, instance$2, create_fragment$3, safe_not_equal, {});
+  }
+}
+var StartMenu_svelte_svelte_type_style_lang = "";
+function create_if_block$1(ctx) {
+  let div1;
+  let img;
+  let img_src_value;
+  let t0;
+  let div0;
+  let button;
+  let div1_transition;
+  let current;
+  let mounted;
+  let dispose;
+  return {
+    c() {
+      div1 = element("div");
+      img = element("img");
+      t0 = space();
+      div0 = element("div");
+      button = element("button");
+      button.textContent = "Play!";
+      if (!src_url_equal(img.src, img_src_value = "images/escolinha.png"))
+        attr(img, "src", img_src_value);
+      attr(img, "alt", "Escolinha logo");
+      attr(img, "class", "svelte-1damn0o");
+      attr(button, "type", "button");
+      attr(button, "class", "button btn btn-primary svelte-1damn0o");
+      attr(div0, "class", "menu svelte-1damn0o");
+      attr(div1, "class", "load-bar svelte-1damn0o");
+    },
+    m(target, anchor) {
+      insert(target, div1, anchor);
+      append(div1, img);
+      append(div1, t0);
+      append(div1, div0);
+      append(div0, button);
+      current = true;
+      if (!mounted) {
+        dispose = listen(button, "click", ctx[1]);
+        mounted = true;
+      }
+    },
+    p: noop,
+    i(local) {
+      if (current)
+        return;
+      add_render_callback(() => {
+        if (!div1_transition)
+          div1_transition = create_bidirectional_transition(div1, fade, {}, true);
+        div1_transition.run(1);
+      });
+      current = true;
+    },
+    o(local) {
+      if (!div1_transition)
+        div1_transition = create_bidirectional_transition(div1, fade, {}, false);
+      div1_transition.run(0);
+      current = false;
+    },
+    d(detaching) {
+      if (detaching)
+        detach(div1);
+      if (detaching && div1_transition)
+        div1_transition.end();
+      mounted = false;
+      dispose();
+    }
+  };
+}
+function create_fragment$2(ctx) {
+  let if_block_anchor;
+  let current;
+  let if_block = !ctx[0] && create_if_block$1(ctx);
+  return {
+    c() {
+      if (if_block)
+        if_block.c();
+      if_block_anchor = empty();
+    },
+    m(target, anchor) {
+      if (if_block)
+        if_block.m(target, anchor);
+      insert(target, if_block_anchor, anchor);
+      current = true;
+    },
+    p(ctx2, [dirty]) {
+      if (!ctx2[0]) {
+        if (if_block) {
+          if_block.p(ctx2, dirty);
+          if (dirty & 1) {
+            transition_in(if_block, 1);
+          }
+        } else {
+          if_block = create_if_block$1(ctx2);
+          if_block.c();
+          transition_in(if_block, 1);
+          if_block.m(if_block_anchor.parentNode, if_block_anchor);
+        }
+      } else if (if_block) {
+        group_outros();
+        transition_out(if_block, 1, 1, () => {
+          if_block = null;
+        });
+        check_outros();
+      }
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(if_block);
+      current = true;
+    },
+    o(local) {
+      transition_out(if_block);
+      current = false;
+    },
+    d(detaching) {
+      if (if_block)
+        if_block.d(detaching);
+      if (detaching)
+        detach(if_block_anchor);
+    }
+  };
+}
+function instance$1($$self, $$props, $$invalidate) {
+  let { disabled = true } = $$props;
+  const dispatcher = createEventDispatcher();
+  const startGame = () => {
+    dispatcher("gameStateChanged", true);
+  };
+  $$self.$$set = ($$props2) => {
+    if ("disabled" in $$props2)
+      $$invalidate(0, disabled = $$props2.disabled);
+  };
+  return [disabled, startGame];
+}
+class StartMenu extends SvelteComponent {
+  constructor(options) {
+    super();
+    init(this, options, instance$1, create_fragment$2, safe_not_equal, { disabled: 0 });
   }
 }
 var Game_svelte_svelte_type_style_lang = "";
 function create_if_block(ctx) {
   let div;
+  let div_transition;
+  let current;
   return {
     c() {
       div = element("div");
@@ -736,70 +1087,148 @@ function create_if_block(ctx) {
     },
     m(target, anchor) {
       insert(target, div, anchor);
+      current = true;
+    },
+    i(local) {
+      if (current)
+        return;
+      add_render_callback(() => {
+        if (!div_transition)
+          div_transition = create_bidirectional_transition(div, fade, {}, true);
+        div_transition.run(1);
+      });
+      current = true;
+    },
+    o(local) {
+      if (!div_transition)
+        div_transition = create_bidirectional_transition(div, fade, {}, false);
+      div_transition.run(0);
+      current = false;
     },
     d(detaching) {
       if (detaching)
         detach(div);
+      if (detaching && div_transition)
+        div_transition.end();
     }
   };
 }
 function create_fragment$1(ctx) {
-  let loadbar;
+  let startmenu;
+  let updating_disabled;
   let t0;
+  let loadbar;
+  let updating_disabled_1;
+  let updating_progressValue;
   let t1;
-  let colormenu;
   let t2;
+  let colormenu;
+  let t3;
   let div;
   let current;
-  loadbar = new LoadBar({});
+  function startmenu_disabled_binding(value) {
+    ctx[9](value);
+  }
+  let startmenu_props = {};
+  if (ctx[3] !== void 0) {
+    startmenu_props.disabled = ctx[3];
+  }
+  startmenu = new StartMenu({ props: startmenu_props });
+  binding_callbacks.push(() => bind(startmenu, "disabled", startmenu_disabled_binding));
+  startmenu.$on("gameStateChanged", ctx[8]);
+  function loadbar_disabled_binding(value) {
+    ctx[10](value);
+  }
+  function loadbar_progressValue_binding(value) {
+    ctx[11](value);
+  }
+  let loadbar_props = {};
+  if (ctx[4] !== void 0) {
+    loadbar_props.disabled = ctx[4];
+  }
+  if (ctx[7] !== void 0) {
+    loadbar_props.progressValue = ctx[7];
+  }
+  loadbar = new LoadBar({ props: loadbar_props });
+  binding_callbacks.push(() => bind(loadbar, "disabled", loadbar_disabled_binding));
+  binding_callbacks.push(() => bind(loadbar, "progressValue", loadbar_progressValue_binding));
   let if_block = ctx[2] && create_if_block();
   colormenu = new ColorMenu({});
   colormenu.$on("colorChanged", function() {
-    if (is_function(ctx[3]))
-      ctx[3].apply(this, arguments);
+    if (is_function(ctx[5]))
+      ctx[5].apply(this, arguments);
   });
   colormenu.$on("menuStateChanged", function() {
-    if (is_function(ctx[4]))
-      ctx[4].apply(this, arguments);
+    if (is_function(ctx[6]))
+      ctx[6].apply(this, arguments);
   });
   return {
     c() {
-      create_component(loadbar.$$.fragment);
+      create_component(startmenu.$$.fragment);
       t0 = space();
+      create_component(loadbar.$$.fragment);
+      t1 = space();
       if (if_block)
         if_block.c();
-      t1 = space();
-      create_component(colormenu.$$.fragment);
       t2 = space();
+      create_component(colormenu.$$.fragment);
+      t3 = space();
       div = element("div");
       attr(div, "class", "canvas-area svelte-1kxyy8o");
       toggle_class(div, "focusedCamera", ctx[0]);
     },
     m(target, anchor) {
-      mount_component(loadbar, target, anchor);
+      mount_component(startmenu, target, anchor);
       insert(target, t0, anchor);
+      mount_component(loadbar, target, anchor);
+      insert(target, t1, anchor);
       if (if_block)
         if_block.m(target, anchor);
-      insert(target, t1, anchor);
-      mount_component(colormenu, target, anchor);
       insert(target, t2, anchor);
+      mount_component(colormenu, target, anchor);
+      insert(target, t3, anchor);
       insert(target, div, anchor);
-      ctx[5](div);
+      ctx[12](div);
       current = true;
     },
     p(new_ctx, [dirty]) {
       ctx = new_ctx;
+      const startmenu_changes = {};
+      if (!updating_disabled && dirty & 8) {
+        updating_disabled = true;
+        startmenu_changes.disabled = ctx[3];
+        add_flush_callback(() => updating_disabled = false);
+      }
+      startmenu.$set(startmenu_changes);
+      const loadbar_changes = {};
+      if (!updating_disabled_1 && dirty & 16) {
+        updating_disabled_1 = true;
+        loadbar_changes.disabled = ctx[4];
+        add_flush_callback(() => updating_disabled_1 = false);
+      }
+      if (!updating_progressValue && dirty & 128) {
+        updating_progressValue = true;
+        loadbar_changes.progressValue = ctx[7];
+        add_flush_callback(() => updating_progressValue = false);
+      }
+      loadbar.$set(loadbar_changes);
       if (ctx[2]) {
-        if (if_block)
-          ;
-        else {
+        if (if_block) {
+          if (dirty & 4) {
+            transition_in(if_block, 1);
+          }
+        } else {
           if_block = create_if_block();
           if_block.c();
-          if_block.m(t1.parentNode, t1);
+          transition_in(if_block, 1);
+          if_block.m(t2.parentNode, t2);
         }
       } else if (if_block) {
-        if_block.d(1);
-        if_block = null;
+        group_outros();
+        transition_out(if_block, 1, 1, () => {
+          if_block = null;
+        });
+        check_outros();
       }
       if (dirty & 1) {
         toggle_class(div, "focusedCamera", ctx[0]);
@@ -808,29 +1237,36 @@ function create_fragment$1(ctx) {
     i(local) {
       if (current)
         return;
+      transition_in(startmenu.$$.fragment, local);
       transition_in(loadbar.$$.fragment, local);
+      transition_in(if_block);
       transition_in(colormenu.$$.fragment, local);
       current = true;
     },
     o(local) {
+      transition_out(startmenu.$$.fragment, local);
       transition_out(loadbar.$$.fragment, local);
+      transition_out(if_block);
       transition_out(colormenu.$$.fragment, local);
       current = false;
     },
     d(detaching) {
-      destroy_component(loadbar, detaching);
+      destroy_component(startmenu, detaching);
       if (detaching)
         detach(t0);
+      destroy_component(loadbar, detaching);
+      if (detaching)
+        detach(t1);
       if (if_block)
         if_block.d(detaching);
       if (detaching)
-        detach(t1);
+        detach(t2);
       destroy_component(colormenu, detaching);
       if (detaching)
-        detach(t2);
+        detach(t3);
       if (detaching)
         detach(div);
-      ctx[5](null);
+      ctx[12](null);
     }
   };
 }
@@ -838,32 +1274,59 @@ function instance($$self, $$props, $$invalidate) {
   let focusedCamera = false;
   let canvasArea;
   let displayAlert = false;
+  let gameStarted = false;
+  let startMenuDisabled = false;
+  let loadBarDisabled = true;
   let colorChanged;
   let menuStateChanged;
-  onMount(() => {
-    const game = new MainGame(canvasArea, true);
-    const resizeAndControlGame = () => {
-      game.setRenderSize();
-      if (game.isPageRatioAllowed()) {
-        $$invalidate(2, displayAlert = false);
+  let game;
+  const resizeAndControlGame = () => {
+    game.setRenderSize();
+    if (game.isPageRatioAllowed()) {
+      $$invalidate(2, displayAlert = false);
+      if (gameStarted) {
         game.run();
-      } else {
-        $$invalidate(2, displayAlert = true);
-        game.stop();
       }
-    };
+    } else {
+      $$invalidate(2, displayAlert = true);
+      game.stop();
+    }
+  };
+  let progressValue = 0;
+  const gameStateChanged = () => {
+    $$invalidate(3, startMenuDisabled = true);
+    $$invalidate(4, loadBarDisabled = false);
+    gameStarted = true;
+    game = new MainGame(canvasArea, true, (progress, finished) => {
+      if (finished) {
+        setTimeout(() => $$invalidate(4, loadBarDisabled = true), 600);
+      }
+      $$invalidate(7, progressValue = progress);
+    });
     window.addEventListener("resize", resizeAndControlGame);
-    resizeAndControlGame();
-    $$invalidate(3, colorChanged = (event) => {
+    $$invalidate(5, colorChanged = (event) => {
       const val = JSON.parse(event.detail);
       console.log(JSON.parse(event.detail));
       game.changePlayerMaterial(val.materialName, val.materialColor);
     });
-    $$invalidate(4, menuStateChanged = (event) => {
+    $$invalidate(6, menuStateChanged = (event) => {
       $$invalidate(0, focusedCamera = !JSON.parse(event.detail));
       game.useFrontCamera = focusedCamera;
     });
-  });
+    resizeAndControlGame();
+  };
+  function startmenu_disabled_binding(value) {
+    startMenuDisabled = value;
+    $$invalidate(3, startMenuDisabled);
+  }
+  function loadbar_disabled_binding(value) {
+    loadBarDisabled = value;
+    $$invalidate(4, loadBarDisabled);
+  }
+  function loadbar_progressValue_binding(value) {
+    progressValue = value;
+    $$invalidate(7, progressValue);
+  }
   function div_binding($$value) {
     binding_callbacks[$$value ? "unshift" : "push"](() => {
       canvasArea = $$value;
@@ -874,8 +1337,15 @@ function instance($$self, $$props, $$invalidate) {
     focusedCamera,
     canvasArea,
     displayAlert,
+    startMenuDisabled,
+    loadBarDisabled,
     colorChanged,
     menuStateChanged,
+    progressValue,
+    gameStateChanged,
+    startmenu_disabled_binding,
+    loadbar_disabled_binding,
+    loadbar_progressValue_binding,
     div_binding
   ];
 }
