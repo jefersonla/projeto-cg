@@ -391,9 +391,10 @@ export class MainGame {
         if (!!this.player) {
             this.player.updateAnimation();
             this.player.updatePlayerMovement();
+            this.player.updateFrontCamera();
             this.player.updateIsometricCamera(this.camera);
 
-            if (this.player.checkColision(new Vector3(0, 0, 0), 2)) {
+            if (this.player.checkCollision(new Vector3(0, 0, 0), 2)) {
                 console.log('COLLISION!');
             }
         }
@@ -403,6 +404,10 @@ export class MainGame {
 
         // Chama o próximo frame
         this.animationFrameHandler = requestAnimationFrame(() => this.step());
+    }
+
+    updateDebugOptions() {
+        
     }
 
     /**
