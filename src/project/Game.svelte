@@ -4,13 +4,16 @@
     import { MainGame } from './main-game';
 
     /* ------ Svelte Components ------ */
-    
     import LoadBar from '../components/LoadBar.svelte';
     import ColorMenu  from '../components/ColorMenu.svelte';
 
+    let focusedCamera = false;
+
     let canvasArea: HTMLDivElement;
     let displayAlert: boolean = false;
-    let colorChanged;
+
+    let colorChanged: (event: CustomEvent) => void;
+    let menuStateChanged: (event: CustomEvent) => void;
 
     // Aguarda o componente carregar
     onMount(() => {
@@ -35,16 +38,22 @@
         window.addEventListener('resize', resizeAndControlGame);
         resizeAndControlGame();
 
-        colorChanged = (event) => {
+        colorChanged = (event: CustomEvent) => {
             const val: {materialColor: string, materialName: string} = JSON.parse(event.detail);
             console.log(JSON.parse(event.detail));
             game.changePlayerMaterial(val.materialName, val.materialColor);
         };
+
+        menuStateChanged = (event: CustomEvent) => {
+            focusedCamera = !JSON.parse(event.detail);
+            game.useFrontCamera = focusedCamera;
+        };
     });
 </script>
 
-
-
+<!-- LoadBar -->
+<LoadBar />
+<!-- ./LoadBar -->
 
 <!-- AlertOverlay -->
 {#if displayAlert}
@@ -58,13 +67,11 @@
 <!-- ./AlertOverlay -->
 
 <!-- ColorMenu -->
-<ColorMenu on:colorChanged={colorChanged} />
+<ColorMenu on:colorChanged={colorChanged} on:menuStateChanged={menuStateChanged} />
 <!-- ./ColorMenu -->
 
-<LoadBar></LoadBar>
-
 <!-- GameArea -->
-<div class="canvas-area" bind:this={canvasArea}>
+<div class="canvas-area" class:focusedCamera bind:this={canvasArea}>
 </div>
 <!-- ./GameArea -->
 
@@ -90,10 +97,17 @@
         flex-direction: column;        
     }
 
-    .alert-overlay h1{
+    .alert-overlay h1 {
         font-size: 18px;
         font-family: sans-serif, 'sans-serif','Roboto';
         max-width: 75vw;
         margin-top: 10px;
+    }
+
+    :global(.focusedCamera > canvas) {
+        position: absolute;
+        top: 0;
+        left: -25%;
+        z-index: -1;
     }
 </style>

@@ -38,10 +38,17 @@
         return () => { buttonSelected = buttonName; };
     };
 
-    const closeMenu = () => modalActive = true;
-    const openMenu = () => modalActive = false;
+    const closeMenu = () => {
+        modalActive = true;
+        dispatch('menuStateChanged', modalActive);
+    }
+    const openMenu = () => {
+        modalActive = false;
+        dispatch('menuStateChanged', modalActive);
+    }
 
     const dispatch = createEventDispatcher();
+
     const colorChanged = (colorName) => {
         return () => dispatch('colorChanged', JSON.stringify({
             materialColor: colorName,
