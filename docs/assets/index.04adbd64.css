@@ -1,0 +1,128 @@
+.color-menu.svelte-cesdah{position:absolute;left:50%;top:0;margin:0;padding:0;width:50%;height:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;background:#badce3}.object-selection.svelte-cesdah{width:100%;height:19%;display:flex;flex-direction:row;align-items:center;justify-content:center;padding:8px 0;background:#0c63e4}.object-button.svelte-cesdah{height:80%;background:#ffffff;padding:2px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #888;border-radius:8px;min-width:calc(min(50vw / 4, 50vh / 4) - 20px);margin:0 10px;aspect-ratio:1;cursor:pointer}.object-button.svelte-cesdah:hover,.buttonSelected.svelte-cesdah{background-color:#333333;color:#ffffff;border-color:#ffffff}@media only screen and (min-device-height: 380px)
+        and (max-device-width: 480px)
+        and (orientation: landscape){.object-button.svelte-cesdah{height:100%}}.colors.svelte-cesdah{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;height:81%;width:100%}.color-button.svelte-cesdah{--margin:1rem;--border-size:4px;--elements-per-line:4;--side-size:calc(max(50vw / var(--elements-per-line), 50vh / var(--elements-per-line)) - (2 * var(--margin)) - (2 * var(--border-size)));flex:1 0 var(--side-size);max-width:var(--side-size);height:var(--side-size);border:var(--border-size) solid #e2e6f3;margin:0 var(--margin) 0;border-radius:1rem}.color-button.svelte-cesdah:hover{border-color:#333333;--border-size:4px;cursor:pointer}.close-button.svelte-cesdah{--size-button:6vh;position:absolute;right:calc((19vh / 2) - (var(--size-button) / 2));top:calc((19vh / 2) - (var(--size-button) / 2));color:#fff;cursor:pointer;border-radius:50%;width:var(--size-button);height:var(--size-button);display:flex;align-items:center;justify-content:center;border:0.15rem solid #ffffff}.close-button.svelte-cesdah:hover{color:#ff3e00;background-color:#ffffff}.object-selection.svelte-cesdah,.close-button.svelte-cesdah{-webkit-touch-callout:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.modalActive.svelte-cesdah{background-color:#ff3e00;display:none}.hidden.svelte-cesdah{display:none}.alert-overlay.svelte-83zkka.svelte-83zkka{position:absolute;left:0;top:0;width:100%;height:100%;margin:0;padding:0;background:#333;color:white;margin-top:20px;display:flex;align-items:center;justify-content:center;flex-direction:column}.alert-overlay.svelte-83zkka h1.svelte-83zkka{font-size:18px;font-family:sans-serif, 'sans-serif','Roboto';max-width:75vw;margin-top:10px}@font-face {
+  font-family: "Material Icons";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("/assets/material-icons.a5d10094.woff2") format("woff2"), url("/assets/material-icons.2d6c5fde.woff") format("woff");
+}
+.material-icons {
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "liga";
+}
+@font-face {
+  font-family: "Material Icons Outlined";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("/assets/material-icons-outlined.23cd2c17.woff2") format("woff2"), url("/assets/material-icons-outlined.851dc177.woff") format("woff");
+}
+.material-icons-outlined {
+  font-family: "Material Icons Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "liga";
+}
+@font-face {
+  font-family: "Material Icons Round";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("/assets/material-icons-round.ef42d849.woff2") format("woff2"), url("/assets/material-icons-round.9121921b.woff") format("woff");
+}
+.material-icons-round {
+  font-family: "Material Icons Round";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "liga";
+}
+@font-face {
+  font-family: "Material Icons Sharp";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("/assets/material-icons-sharp.07408036.woff2") format("woff2"), url("/assets/material-icons-sharp.b7304091.woff") format("woff");
+}
+.material-icons-sharp {
+  font-family: "Material Icons Sharp";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "liga";
+}
+@font-face {
+  font-family: "Material Icons Two Tone";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("/assets/material-icons-two-tone.67be5c72.woff2") format("woff2"), url("/assets/material-icons-two-tone.b47f01f1.woff") format("woff");
+}
+.material-icons-two-tone {
+  font-family: "Material Icons Two Tone";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "liga";
+}
+:root{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+      Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif}
+html{height:100%}
+body{margin:0;padding:0;min-height:100%;display:flex;align-content:center;justify-content:center;background-color:#222}
+body > div{display:flex;justify-content:center;align-items:center}
+main.svelte-1jgdhcb{text-align:center;margin:0 auto}
