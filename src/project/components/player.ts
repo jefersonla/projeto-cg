@@ -1,4 +1,4 @@
-import {AnimationMixer, Camera, MathUtils, Object3D, PerspectiveCamera, Vector2, Vector3} from "three";
+import {AnimationMixer, Object3D, PerspectiveCamera, Vector3} from "three";
 import type { AnimationAction } from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import { CustomLoader } from "./custom-loader";
@@ -42,6 +42,9 @@ export class Player {
 
     runAction: AnimationAction;
     idleAction: AnimationAction;
+
+    previousAction: AnimationAction;
+    activeAction: AnimationAction;
 
     static async loadPlayer(frontCamera: PerspectiveCamera) {
         return new Player(await CustomLoader.load('game/models/cau.glb'), frontCamera);
@@ -96,6 +99,9 @@ export class Player {
         this.idleAction.enabled = true;
         this.idleAction.setEffectiveTimeScale(1);
         this.idleAction.setEffectiveWeight(1);
+
+        this.previousAction = this.idleAction;
+        this.activeAction = this.idleAction;
     }
 
     convertCommandToMovementVector() {
@@ -110,8 +116,6 @@ export class Player {
         } else {
             this.movementVector.x = 0;
         }
-
-        // this.movementVector = this.movementVector.normalize();
     }
 
     get hasMovement() {
@@ -130,6 +134,10 @@ export class Player {
             .clone()
             .add(this.movementVector.normalize());
 
+        this.model.lookAt(this.currentLookingVector);
+    }
+
+    updateFrontCamera() {
         const cameraPosition = this.model.position
             .clone()
             .add(this.movementVector
@@ -144,8 +152,6 @@ export class Player {
         targetPosition.y = 3;
 
         this.frontCamera.lookAt(targetPosition);
-
-        this.model.lookAt(this.currentLookingVector);
     }
 
     updateIsometricCamera(camera: PerspectiveCamera) {
@@ -153,8 +159,24 @@ export class Player {
         camera.position.z += this.movementVector.z * Player.baseSpeed;
     }
 
-    checkColision(obj: Vector3, diameter: number) {
+    checkCollision(obj: Vector3, diameter: number) {
         return this.model.position.distanceTo(obj) < (diameter / 2);
+    }
+
+    private fadeToAction(duration) {
+        this.previousAction = this.activeAction;
+        this.activeAction = this.currentRunState ? this.runAction : this.idleAction;
+
+        if (this.previousAction !== this.activeAction) {
+            this.previousAction.fadeOut(duration);
+        }
+
+        this.activeAction
+            .reset()
+            .setEffectiveTimeScale(1)
+            .setEffectiveWeight(0.8)
+            .fadeIn(duration)
+            .play();
     }
 
     updateAnimation() {
@@ -164,17 +186,19 @@ export class Player {
 
             // Atualiza a animação
             if (this.currentRunState) {
-                this.idleAction.paused = true;
-                this.idleAction.stopFading();
-
-                this.runAction.paused = false;
-                this.runAction.play();
+                this.fadeToAction(0.5);
+                // this.idleAction.paused = true;
+                // this.idleAction.stopFading();
+                //
+                // this.runAction.paused = false;
+                // this.runAction.play();
             } else {
-                this.runAction.paused = true;
-                this.runAction.stopFading();
-
-                this.idleAction.paused = false;
-                this.idleAction.play();
+                this.fadeToAction(0.5);
+                // this.runAction.paused = true;
+                // this.runAction.stopFading();
+                //
+                // this.idleAction.paused = false;
+                // this.idleAction.play();
             }
         }
     }
