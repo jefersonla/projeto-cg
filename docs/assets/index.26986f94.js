@@ -590,14 +590,14 @@ function create_if_block_1(ctx) {
       t6 = space();
       div4 = element("div");
       div4.innerHTML = `<span class="material-icons-outlined">close</span>`;
-      attr(div0, "class", "object-button svelte-1sucbb4");
+      attr(div0, "class", "object-button svelte-qk5yo2");
       toggle_class(div0, "buttonSelected", ctx[2] === ctx[0].HAT);
-      attr(div1, "class", "object-button svelte-1sucbb4");
+      attr(div1, "class", "object-button svelte-qk5yo2");
       toggle_class(div1, "buttonSelected", ctx[2] === ctx[0].HAIR);
-      attr(div2, "class", "object-selection svelte-1sucbb4");
-      attr(div3, "class", "colors svelte-1sucbb4");
-      attr(div4, "class", "close-button svelte-1sucbb4");
-      attr(div5, "class", "color-menu svelte-1sucbb4");
+      attr(div2, "class", "object-selection svelte-qk5yo2");
+      attr(div3, "class", "colors svelte-qk5yo2");
+      attr(div4, "class", "close-button svelte-qk5yo2");
+      attr(div5, "class", "color-menu svelte-qk5yo2");
       toggle_class(div5, "modalActive", ctx[3]);
     },
     m(target, anchor) {
@@ -692,7 +692,7 @@ function create_each_block(ctx) {
   return {
     c() {
       div = element("div");
-      attr(div, "class", "color-button svelte-1sucbb4");
+      attr(div, "class", "color-button svelte-qk5yo2");
       set_style(div, "background-color", ctx[12]);
     },
     m(target, anchor) {
@@ -723,7 +723,7 @@ function create_if_block$2(ctx) {
     c() {
       div = element("div");
       div.innerHTML = `<span class="material-icons-outlined">face</span>`;
-      attr(div, "class", "open-menu close-button svelte-1sucbb4");
+      attr(div, "class", "open-menu close-button svelte-qk5yo2");
     },
     m(target, anchor) {
       insert(target, div, anchor);
@@ -1365,7 +1365,7 @@ function create_fragment(ctx) {
     c() {
       main = element("main");
       create_component(game.$$.fragment);
-      attr(main, "class", "svelte-1jgdhcb");
+      attr(main, "class", "svelte-pmke04");
     },
     m(target, anchor) {
       insert(target, main, anchor);
