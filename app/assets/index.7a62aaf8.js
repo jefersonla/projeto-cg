@@ -88,6 +88,8 @@ const _Player = class {
     __publicField(this, "currentRunState");
     __publicField(this, "runAction");
     __publicField(this, "idleAction");
+    __publicField(this, "previousAction");
+    __publicField(this, "activeAction");
     this.gltf = gltf;
     this.frontCamera = frontCamera;
     this.model = gltf.scene.children[0];
@@ -124,6 +126,8 @@ const _Player = class {
     this.idleAction.enabled = true;
     this.idleAction.setEffectiveTimeScale(1);
     this.idleAction.setEffectiveWeight(1);
+    this.previousAction = this.idleAction;
+    this.activeAction = this.idleAction;
   }
   convertCommandToMovementVector() {
     if (this.activeCommands[0] || this.activeCommands[1]) {
@@ -147,35 +151,36 @@ const _Player = class {
     this.model.position.x += this.movementVector.x * _Player.baseSpeed;
     this.model.position.z += this.movementVector.z * _Player.baseSpeed;
     this.currentLookingVector = this.model.position.clone().add(this.movementVector.normalize());
+    this.updateFrontCamera();
+    this.model.lookAt(this.currentLookingVector);
+  }
+  updateFrontCamera() {
     const cameraPosition = this.model.position.clone().add(this.movementVector.clone().normalize().multiplyScalar(6));
     this.frontCamera.position.x = cameraPosition.x;
     this.frontCamera.position.z = cameraPosition.z;
     const targetPosition = this.model.position.clone();
     targetPosition.y = 3;
     this.frontCamera.lookAt(targetPosition);
-    this.model.lookAt(this.currentLookingVector);
   }
   updateIsometricCamera(camera) {
     camera.position.x += this.movementVector.x * _Player.baseSpeed;
     camera.position.z += this.movementVector.z * _Player.baseSpeed;
   }
-  checkColision(obj, diameter) {
+  checkCollision(obj, diameter) {
     return this.model.position.distanceTo(obj) < diameter / 2;
+  }
+  fadeToAction(duration) {
+    this.previousAction = this.activeAction;
+    this.activeAction = this.currentRunState ? this.runAction : this.idleAction;
+    if (this.previousAction !== this.activeAction) {
+      this.previousAction.fadeOut(duration);
+    }
+    this.activeAction.reset().setEffectiveTimeScale(1).setEffectiveWeight(0.8).fadeIn(duration).play();
   }
   updateAnimation() {
     if (this.hasMovement != this.currentRunState) {
       this.currentRunState = this.hasMovement;
-      if (this.currentRunState) {
-        this.idleAction.paused = true;
-        this.idleAction.stopFading();
-        this.runAction.paused = false;
-        this.runAction.play();
-      } else {
-        this.runAction.paused = true;
-        this.runAction.stopFading();
-        this.idleAction.paused = false;
-        this.idleAction.play();
-      }
+      this.fadeToAction(0.5);
     }
   }
 };
@@ -190,7 +195,7 @@ __publicField(Player, "keysToCommand", {
   "ARROWRIGHT": 3,
   "ARROWLEFT": 2
 });
-__publicField(Player, "baseSpeed", 0.1);
+__publicField(Player, "baseSpeed", 0.15);
 __publicField(Player, "movementBaseVector", new Vector3(0, 0, 1));
 class MainGame {
   constructor(canvasContainer, debugEnabled = false, loadCallback = () => {
@@ -366,6 +371,8 @@ class MainGame {
     }
     this.render();
     this.animationFrameHandler = requestAnimationFrame(() => this.step());
+  }
+  updateDebugOptions() {
   }
   run() {
     if (!this.isRunning) {

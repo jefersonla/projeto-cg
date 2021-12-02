@@ -1,16 +1,19 @@
 <script lang="ts">
-    export let progressValue = 24;
+    import {fade} from "svelte/transition";
+
+    export let progressValue = 0;
     export let disabled = true;
 </script>
 
-<div class="load-bar" class:disabled>
-    <img src="images/escolinha.png" alt="Escolinha logo">
-    
-    <div class="progress">
-        <div class="progress-bar" role="progressbar" style="width: {progressValue}%;" aria-valuenow="{progressValue}" aria-valuemin="0" aria-valuemax="100">{progressValue}%</div>
-    </div>
+{#if !disabled}
+    <div out:fade class="load-bar">
+        <img src="images/escolinha.png" alt="Escolinha logo">
 
-</div>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: {progressValue}%;" aria-valuenow="{progressValue}" aria-valuemin="0" aria-valuemax="100">{progressValue}%</div>
+        </div>
+    </div>
+{/if}
 
 <style>
     .load-bar{
@@ -42,9 +45,5 @@
     .progress-bar {
         background-color: #d63384;
         font-size: 2em;
-    }
-
-    .disabled {
-        display: none;
     }
 </style>

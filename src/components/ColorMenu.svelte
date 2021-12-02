@@ -1,5 +1,6 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
+    import {fly, fade} from "svelte/transition";
 
     enum ButtonOptions {
         HAT = 'hat',
@@ -58,52 +59,56 @@
 </script>
 
 <!-- ColorMenu -->
-<div class:modalActive class="color-menu" >
-    
-    <!-- MaterialSelection -->
-    <div class="object-selection">
-        
-        <!-- HatMaterial -->
-        <div class:buttonSelected={buttonSelected === ButtonOptions.HAT}
-            class="object-button" 
-            bind:this={buttonElements[ButtonOptions.HAT]} 
-            on:click={toggleButton(ButtonOptions.HAT)}>
-            <span class="material-icons-outlined"> school </span> Hat
+{#if !modalActive}
+    <div out:fly="{{duration: 200}}" class:modalActive class="color-menu" >
+
+        <!-- MaterialSelection -->
+        <div class="object-selection">
+
+            <!-- HatMaterial -->
+            <div class:buttonSelected={buttonSelected === ButtonOptions.HAT}
+                class="object-button"
+                bind:this={buttonElements[ButtonOptions.HAT]}
+                on:click={toggleButton(ButtonOptions.HAT)}>
+                <span class="material-icons-outlined"> school </span> Hat
+            </div>
+            <!-- ./HatMaterial -->
+
+            <!-- HairMaterial -->
+            <div class:buttonSelected={buttonSelected === ButtonOptions.HAIR}
+                class="object-button"
+                bind:this={buttonElements[ButtonOptions.HAIR]}
+                on:click={toggleButton(ButtonOptions.HAIR)}>
+                <span class="material-icons-outlined"> face </span> Hair
+            </div>
+            <!-- HairMaterial -->
+
         </div>
-        <!-- ./HatMaterial -->
+        <!-- ./MaterialSelection -->
 
-        <!-- HairMaterial -->
-        <div class:buttonSelected={buttonSelected === ButtonOptions.HAIR} 
-            class="object-button"
-            bind:this={buttonElements[ButtonOptions.HAIR]} 
-            on:click={toggleButton(ButtonOptions.HAIR)}>
-            <span class="material-icons-outlined"> face </span> Hair
+        <!-- ColorsButtons -->
+        <div class="colors">
+            {#each cores as cor}
+                <div class="color-button" on:click={colorChanged(cor)} style="background-color: {cor}"></div>
+            {/each}
         </div>
-        <!-- HairMaterial -->
+        <!-- ./ColorsButtons -->
 
+        <!-- CloseButton -->
+        <div class="close-button" on:click={closeMenu}>
+            <span class="material-icons-outlined"> close </span>
+        </div>
+        <!-- ./CloseButton -->
     </div>
-    <!-- ./MaterialSelection -->
-
-    <!-- ColorsButtons -->
-    <div class="colors">
-        {#each cores as cor}
-            <div class="color-button" on:click={colorChanged(cor)} style="background-color: {cor}"></div>
-        {/each}
-    </div>
-    <!-- ./ColorsButtons -->
-
-    <!-- CloseButton -->
-    <div class="close-button" on:click={closeMenu}>
-        <span class="material-icons-outlined"> close </span>
-    </div>
-    <!-- ./CloseButton -->
-</div>
+{/if}
 <!-- ./ColorMenu -->
 
 <!-- OpenMenuButton -->
-<div class="open-menu close-button" class:hidden={!modalActive} on:click={openMenu}>
-    <span class="material-icons-outlined"> face </span>
-</div>
+{#if modalActive}
+    <div transition:fade class="open-menu close-button" on:click={openMenu}>
+        <span class="material-icons-outlined"> face </span>
+    </div>
+{/if}
 <!-- ./OpenMenuButton -->
 
 <style>
@@ -225,10 +230,6 @@
 
     .modalActive {
         background-color: #ff3e00;
-        display: none;
-    }
-
-    .hidden {
         display: none;
     }
 </style>

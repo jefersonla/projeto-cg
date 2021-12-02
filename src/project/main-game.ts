@@ -124,12 +124,17 @@ export class MainGame {
         this.initCamera();
         this.initLights();
 
+        loadCallback(25, false);
+
         // Animação e controle
         this.initAnimationMixer();
         this.initBasicControl();
 
+        loadCallback(50, false);
+
         // Inicia a cena
-        this.initScene();
+        this.initScene()
+            .then(() => loadCallback(100, true));
     }
 
     // Cria a camera
@@ -310,7 +315,15 @@ export class MainGame {
         this.canvasContainer.appendChild(this.debugStats.dom);
 
         this.debugMenu = new dat.GUI();
-        // this.debugMenu.show();
+        this.debugMenu.close();
+
+        const debug = this.debugMenu.addFolder('helpers');
+
+        debug.add(this.debugOptions, 'enableSkeleton', false);
+        debug.add(this.debugOptions, 'enableSpotlightHelper', false);
+        debug.add(this.debugOptions, 'enableCameraHelper', false);
+        debug.add(this.debugOptions, 'enableAxesHelper', false);
+
     }
 
     /**
@@ -385,7 +398,7 @@ export class MainGame {
         let mixerUpdateDelta = this.clock.getDelta();
         for (const animationMixer of this.animationsMixer) {
             animationMixer.update(mixerUpdateDelta);
-        } 0.3
+        }
 
         // Update player movement
         if (!!this.player) {

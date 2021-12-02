@@ -1,4 +1,4 @@
-import {AnimationMixer, Object3D, PerspectiveCamera, Vector3} from "three";
+import {AnimationMixer, Object3D, PerspectiveCamera, Vector2, Vector3} from "three";
 import type { AnimationAction } from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import { CustomLoader } from "./custom-loader";
@@ -103,6 +103,10 @@ export class Player {
         this.previousAction = this.idleAction;
         this.activeAction = this.idleAction;
     }
+
+    setMovementVector(movement: Vector3) {
+        this.movementVector = movement;
+    };
 
     convertCommandToMovementVector() {
         if (this.activeCommands[Movements.FRONT] || this.activeCommands[Movements.BACK]) {
