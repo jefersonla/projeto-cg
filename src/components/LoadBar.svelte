@@ -17,6 +17,7 @@
 
 <style>
     .load-bar{
+    z-index: 2;
         position: absolute;
         margin: 0;
         padding: 0;

@@ -15,7 +15,7 @@ import {
     sRGBEncoding,
     Clock,
     WebGLRenderer,
-    PerspectiveCamera, Scene, Vector3, AxesHelper, Camera
+    PerspectiveCamera, Scene, Vector3, AxesHelper, Camera, CameraHelper
 } from "three";
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -89,6 +89,9 @@ export class MainGame {
         enableCameraHelper: false,
         cameraHelper: null,
 
+        enableFrontCameraHelper: false,
+        frontCameraHelper: null,
+
         enableAxesHelper: false,
         axesHelper: null
     };
@@ -146,14 +149,12 @@ export class MainGame {
             1000
         );
 
-        // this.camera.rotateOnAxis(new Vector3(0, 1, 0), 45);
-        // this.camera.rotateOnAxis(new Vector3(1, 0, 0), MathUtils.degToRad(-45));
-
         this.camera.position.z = 15;
         this.camera.position.y = 20;
-        // this.camera.position.z = 15;
 
         this.camera.lookAt(new Vector3(0, 0, 0));
+
+        this.debugOptions.cameraHelper = new CameraHelper(this.camera);
     }
 
     private initRender() {
@@ -175,8 +176,7 @@ export class MainGame {
         // this.renderer.gammaOutput = true;
         this.renderer.shadowMap.enabled = true;
 
-        const axesHelper = new AxesHelper(5);
-        this.scene.add(axesHelper);
+        this.debugOptions.axesHelper = new AxesHelper(10,);
     }
 
     private initLights() {
@@ -205,14 +205,13 @@ export class MainGame {
         this.scene.add(spotLight);
 
         // Add a spotlight helper to help orientation
-        const spotLightHelper = new SpotLightHelper(spotLight);
-        this.scene.add(spotLightHelper);
+        this.debugOptions.spotlightHelper = new SpotLightHelper(spotLight);
     }
 
     private initGrounPlane() {
         // Add a plane to represent ground on this scene
         const planeGeometry = new PlaneBufferGeometry(4000, 4000, 32, 32);
-        const planeMaterial = new MeshStandardMaterial({ color: 0xfffffff });
+        const planeMaterial = new MeshStandardMaterial({ color: 0x32d04e });
         const groundPlane = new Mesh(planeGeometry, planeMaterial);
         groundPlane.rotation.x = MathUtils.degToRad(-90);
         groundPlane.receiveShadow = true;
@@ -251,6 +250,8 @@ export class MainGame {
 
         this.frontCamera.lookAt(new Vector3(0, 3, 0));
 
+        this.debugOptions.frontCameraHelper = new CameraHelper(this.frontCamera);
+
         // Carrega o player
         this.player = await Player.loadPlayer(this.frontCamera);
 
@@ -268,6 +269,9 @@ export class MainGame {
 
         // Salva as demais propriedades
         this.animationsMixer.push(this.player.animationMixer);
+
+        // Debug
+        this.debugOptions.skeletonHelper = new SkeletonHelper(this.player.model);
 
         // Adiciona elementos a cena
         this.scene.add(this.frontCamera);
@@ -335,6 +339,11 @@ export class MainGame {
                             ? this.scene.add(this.debugOptions.cameraHelper)
                             : this.scene.remove(this.debugOptions.cameraHelper);
                         break;
+                    case 'enableFrontCameraHelper':
+                        state
+                            ? this.scene.add(this.debugOptions.frontCameraHelper)
+                            : this.scene.remove(this.debugOptions.frontCameraHelper);
+                        break;
                     case 'enableAxesHelper':
                         state
                             ? this.scene.add(this.debugOptions.axesHelper)
@@ -348,6 +357,7 @@ export class MainGame {
             debug.add(this.debugOptions, 'enableSkeleton', false),
             debug.add(this.debugOptions, 'enableSpotlightHelper', false),
             debug.add(this.debugOptions, 'enableCameraHelper', false),
+            debug.add(this.debugOptions, 'enableFrontCameraHelper', false),
             debug.add(this.debugOptions, 'enableAxesHelper', false),
         ];
         debugProperties.forEach(debugProperty => debugProperty.onChange(updateDebug(debugProperty.property)));
