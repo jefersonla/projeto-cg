@@ -200,7 +200,6 @@ class MainGame {
     __publicField(this, "scene");
     __publicField(this, "camera");
     __publicField(this, "renderer");
-    __publicField(this, "controls");
     __publicField(this, "animationsMixer");
     __publicField(this, "clock");
     __publicField(this, "cube");

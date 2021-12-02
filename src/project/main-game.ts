@@ -58,7 +58,7 @@ export class MainGame {
     renderer: WebGLRenderer;
 
     /* Controle de Orbita */
-    controls: OrbitControls;
+    // controls: OrbitControls;
 
     /* Controle de animação */
     animationsMixer: AnimationMixer[];
