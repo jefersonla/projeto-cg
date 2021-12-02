@@ -22,7 +22,7 @@ export class Player {
         'ARROWLEFT': Movements.LEFT,
     };
 
-    static readonly baseSpeed = 0.1;
+    static readonly baseSpeed = 0.15;
     static readonly movementBaseVector = new Vector3(0, 0, 1);
 
     model: Object3D;
@@ -183,23 +183,7 @@ export class Player {
         // Se o movimento mudou de estado
         if (this.hasMovement != this.currentRunState) {
             this.currentRunState = this.hasMovement;
-
-            // Atualiza a animação
-            if (this.currentRunState) {
-                this.fadeToAction(0.5);
-                // this.idleAction.paused = true;
-                // this.idleAction.stopFading();
-                //
-                // this.runAction.paused = false;
-                // this.runAction.play();
-            } else {
-                this.fadeToAction(0.5);
-                // this.runAction.paused = true;
-                // this.runAction.stopFading();
-                //
-                // this.idleAction.paused = false;
-                // this.idleAction.play();
-            }
+            this.fadeToAction(0.5);
         }
     }
 }
