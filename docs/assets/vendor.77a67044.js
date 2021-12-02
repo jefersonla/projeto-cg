@@ -16,6 +16,7 @@ var __spreadValues = (a, b) => {
 };
 function noop() {
 }
+const identity = (x) => x;
 function run(fn) {
   return fn();
 }
@@ -42,8 +43,52 @@ function src_url_equal(element_src, url) {
 function is_empty(obj) {
   return Object.keys(obj).length === 0;
 }
+const is_client = typeof window !== "undefined";
+let now$1 = is_client ? () => window.performance.now() : () => Date.now();
+let raf = is_client ? (cb) => requestAnimationFrame(cb) : noop;
+const tasks = new Set();
+function run_tasks(now2) {
+  tasks.forEach((task) => {
+    if (!task.c(now2)) {
+      tasks.delete(task);
+      task.f();
+    }
+  });
+  if (tasks.size !== 0)
+    raf(run_tasks);
+}
+function loop(callback) {
+  let task;
+  if (tasks.size === 0)
+    raf(run_tasks);
+  return {
+    promise: new Promise((fulfill) => {
+      tasks.add(task = { c: callback, f: fulfill });
+    }),
+    abort() {
+      tasks.delete(task);
+    }
+  };
+}
 function append(target, node) {
   target.appendChild(node);
+}
+function get_root_for_style(node) {
+  if (!node)
+    return document;
+  const root = node.getRootNode ? node.getRootNode() : node.ownerDocument;
+  if (root && root.host) {
+    return root;
+  }
+  return node.ownerDocument;
+}
+function append_empty_stylesheet(node) {
+  const style_element = element("style");
+  append_stylesheet(get_root_for_style(node), style_element);
+  return style_element;
+}
+function append_stylesheet(node, style) {
+  append(node.head || node, style);
 }
 function insert(target, node, anchor) {
   target.insertBefore(node, anchor || null);
@@ -65,6 +110,9 @@ function text(data) {
 }
 function space() {
   return text(" ");
+}
+function empty() {
+  return text("");
 }
 function listen(node, event, handler, options) {
   node.addEventListener(event, handler, options);
@@ -95,6 +143,64 @@ function custom_event(type, detail, bubbles = false) {
   e.initCustomEvent(type, bubbles, false, detail);
   return e;
 }
+const active_docs = new Set();
+let active = 0;
+function hash(str) {
+  let hash2 = 5381;
+  let i = str.length;
+  while (i--)
+    hash2 = (hash2 << 5) - hash2 ^ str.charCodeAt(i);
+  return hash2 >>> 0;
+}
+function create_rule(node, a, b, duration, delay, ease, fn, uid = 0) {
+  const step = 16.666 / duration;
+  let keyframes = "{\n";
+  for (let p = 0; p <= 1; p += step) {
+    const t = a + (b - a) * ease(p);
+    keyframes += p * 100 + `%{${fn(t, 1 - t)}}
+`;
+  }
+  const rule = keyframes + `100% {${fn(b, 1 - b)}}
+}`;
+  const name = `__svelte_${hash(rule)}_${uid}`;
+  const doc = get_root_for_style(node);
+  active_docs.add(doc);
+  const stylesheet = doc.__svelte_stylesheet || (doc.__svelte_stylesheet = append_empty_stylesheet(node).sheet);
+  const current_rules = doc.__svelte_rules || (doc.__svelte_rules = {});
+  if (!current_rules[name]) {
+    current_rules[name] = true;
+    stylesheet.insertRule(`@keyframes ${name} ${rule}`, stylesheet.cssRules.length);
+  }
+  const animation = node.style.animation || "";
+  node.style.animation = `${animation ? `${animation}, ` : ""}${name} ${duration}ms linear ${delay}ms 1 both`;
+  active += 1;
+  return name;
+}
+function delete_rule(node, name) {
+  const previous = (node.style.animation || "").split(", ");
+  const next = previous.filter(name ? (anim) => anim.indexOf(name) < 0 : (anim) => anim.indexOf("__svelte") === -1);
+  const deleted = previous.length - next.length;
+  if (deleted) {
+    node.style.animation = next.join(", ");
+    active -= deleted;
+    if (!active)
+      clear_rules();
+  }
+}
+function clear_rules() {
+  raf(() => {
+    if (active)
+      return;
+    active_docs.forEach((doc) => {
+      const stylesheet = doc.__svelte_stylesheet;
+      let i = stylesheet.cssRules.length;
+      while (i--)
+        stylesheet.deleteRule(i);
+      doc.__svelte_rules = {};
+    });
+    active_docs.clear();
+  });
+}
 let current_component;
 function set_current_component(component) {
   current_component = component;
@@ -103,9 +209,6 @@ function get_current_component() {
   if (!current_component)
     throw new Error("Function called outside component initialization");
   return current_component;
-}
-function onMount(fn) {
-  get_current_component().$$.on_mount.push(fn);
 }
 function createEventDispatcher() {
   const component = get_current_component();
@@ -133,6 +236,9 @@ function schedule_update() {
 }
 function add_render_callback(fn) {
   render_callbacks.push(fn);
+}
+function add_flush_callback(fn) {
+  flush_callbacks.push(fn);
 }
 let flushing = false;
 const seen_callbacks = new Set();
@@ -176,8 +282,34 @@ function update($$) {
     $$.after_update.forEach(add_render_callback);
   }
 }
+let promise;
+function wait() {
+  if (!promise) {
+    promise = Promise.resolve();
+    promise.then(() => {
+      promise = null;
+    });
+  }
+  return promise;
+}
+function dispatch(node, direction, kind) {
+  node.dispatchEvent(custom_event(`${direction ? "intro" : "outro"}${kind}`));
+}
 const outroing = new Set();
 let outros;
+function group_outros() {
+  outros = {
+    r: 0,
+    c: [],
+    p: outros
+  };
+}
+function check_outros() {
+  if (!outros.r) {
+    run_all(outros.c);
+  }
+  outros = outros.p;
+}
 function transition_in(block, local) {
   if (block && block.i) {
     outroing.delete(block);
@@ -198,6 +330,160 @@ function transition_out(block, local, detach2, callback) {
       }
     });
     block.o(local);
+  }
+}
+const null_transition = { duration: 0 };
+function create_out_transition(node, fn, params) {
+  let config = fn(node, params);
+  let running = true;
+  let animation_name;
+  const group = outros;
+  group.r += 1;
+  function go() {
+    const { delay = 0, duration = 300, easing = identity, tick = noop, css: css2 } = config || null_transition;
+    if (css2)
+      animation_name = create_rule(node, 1, 0, duration, delay, easing, css2);
+    const start_time = now$1() + delay;
+    const end_time = start_time + duration;
+    add_render_callback(() => dispatch(node, false, "start"));
+    loop((now2) => {
+      if (running) {
+        if (now2 >= end_time) {
+          tick(0, 1);
+          dispatch(node, false, "end");
+          if (!--group.r) {
+            run_all(group.c);
+          }
+          return false;
+        }
+        if (now2 >= start_time) {
+          const t = easing((now2 - start_time) / duration);
+          tick(1 - t, t);
+        }
+      }
+      return running;
+    });
+  }
+  if (is_function(config)) {
+    wait().then(() => {
+      config = config();
+      go();
+    });
+  } else {
+    go();
+  }
+  return {
+    end(reset) {
+      if (reset && config.tick) {
+        config.tick(1, 0);
+      }
+      if (running) {
+        if (animation_name)
+          delete_rule(node, animation_name);
+        running = false;
+      }
+    }
+  };
+}
+function create_bidirectional_transition(node, fn, params, intro) {
+  let config = fn(node, params);
+  let t = intro ? 0 : 1;
+  let running_program = null;
+  let pending_program = null;
+  let animation_name = null;
+  function clear_animation() {
+    if (animation_name)
+      delete_rule(node, animation_name);
+  }
+  function init2(program, duration) {
+    const d = program.b - t;
+    duration *= Math.abs(d);
+    return {
+      a: t,
+      b: program.b,
+      d,
+      duration,
+      start: program.start,
+      end: program.start + duration,
+      group: program.group
+    };
+  }
+  function go(b) {
+    const { delay = 0, duration = 300, easing = identity, tick = noop, css: css2 } = config || null_transition;
+    const program = {
+      start: now$1() + delay,
+      b
+    };
+    if (!b) {
+      program.group = outros;
+      outros.r += 1;
+    }
+    if (running_program || pending_program) {
+      pending_program = program;
+    } else {
+      if (css2) {
+        clear_animation();
+        animation_name = create_rule(node, t, b, duration, delay, easing, css2);
+      }
+      if (b)
+        tick(0, 1);
+      running_program = init2(program, duration);
+      add_render_callback(() => dispatch(node, b, "start"));
+      loop((now2) => {
+        if (pending_program && now2 > pending_program.start) {
+          running_program = init2(pending_program, duration);
+          pending_program = null;
+          dispatch(node, running_program.b, "start");
+          if (css2) {
+            clear_animation();
+            animation_name = create_rule(node, t, running_program.b, running_program.duration, 0, easing, config.css);
+          }
+        }
+        if (running_program) {
+          if (now2 >= running_program.end) {
+            tick(t = running_program.b, 1 - t);
+            dispatch(node, running_program.b, "end");
+            if (!pending_program) {
+              if (running_program.b) {
+                clear_animation();
+              } else {
+                if (!--running_program.group.r)
+                  run_all(running_program.group.c);
+              }
+            }
+            running_program = null;
+          } else if (now2 >= running_program.start) {
+            const p = now2 - running_program.start;
+            t = running_program.a + running_program.d * easing(p / running_program.duration);
+            tick(t, 1 - t);
+          }
+        }
+        return !!(running_program || pending_program);
+      });
+    }
+  }
+  return {
+    run(b) {
+      if (is_function(config)) {
+        wait().then(() => {
+          config = config();
+          go(b);
+        });
+      } else {
+        go(b);
+      }
+    },
+    end() {
+      clear_animation();
+      running_program = pending_program = null;
+    }
+  };
+}
+function bind(component, name, callback) {
+  const index = component.$$.props[name];
+  if (index !== void 0) {
+    component.$$.bound[index] = callback;
+    callback(component.$$.ctx[index]);
   }
 }
 function create_component(block) {
@@ -309,6 +595,33 @@ class SvelteComponent {
       this.$$.skip_bound = false;
     }
   }
+}
+function cubicOut(t) {
+  const f = t - 1;
+  return f * f * f + 1;
+}
+function fade(node, { delay = 0, duration = 400, easing = identity } = {}) {
+  const o = +getComputedStyle(node).opacity;
+  return {
+    delay,
+    duration,
+    easing,
+    css: (t) => `opacity: ${t * o}`
+  };
+}
+function fly(node, { delay = 0, duration = 400, easing = cubicOut, x = 0, y = 0, opacity = 0 } = {}) {
+  const style = getComputedStyle(node);
+  const target_opacity = +style.opacity;
+  const transform = style.transform === "none" ? "" : style.transform;
+  const od = target_opacity * (1 - opacity);
+  return {
+    delay,
+    duration,
+    easing,
+    css: (t, u) => `
+			transform: ${transform} translate(${(1 - t) * x}px, ${(1 - t) * y}px);
+			opacity: ${target_opacity - od * u}`
+  };
 }
 function ___$insertStyle(css2) {
   if (!css2) {
@@ -1089,7 +1402,7 @@ var dom = {
     Common.defaults(evt, aux);
     elem.dispatchEvent(evt);
   },
-  bind: function bind(elem, event, func, newBool) {
+  bind: function bind2(elem, event, func, newBool) {
     var bool = newBool || false;
     if (elem.addEventListener) {
       elem.addEventListener(event, func, bool);
@@ -14632,8 +14945,8 @@ function WebGLLights(extensions, capabilities) {
     state.ambient[0] = r;
     state.ambient[1] = g;
     state.ambient[2] = b;
-    const hash = state.hash;
-    if (hash.directionalLength !== directionalLength || hash.pointLength !== pointLength || hash.spotLength !== spotLength || hash.rectAreaLength !== rectAreaLength || hash.hemiLength !== hemiLength || hash.numDirectionalShadows !== numDirectionalShadows || hash.numPointShadows !== numPointShadows || hash.numSpotShadows !== numSpotShadows) {
+    const hash2 = state.hash;
+    if (hash2.directionalLength !== directionalLength || hash2.pointLength !== pointLength || hash2.spotLength !== spotLength || hash2.rectAreaLength !== rectAreaLength || hash2.hemiLength !== hemiLength || hash2.numDirectionalShadows !== numDirectionalShadows || hash2.numPointShadows !== numPointShadows || hash2.numSpotShadows !== numSpotShadows) {
       state.directional.length = directionalLength;
       state.spot.length = spotLength;
       state.rectArea.length = rectAreaLength;
@@ -14648,14 +14961,14 @@ function WebGLLights(extensions, capabilities) {
       state.directionalShadowMatrix.length = numDirectionalShadows;
       state.pointShadowMatrix.length = numPointShadows;
       state.spotShadowMatrix.length = numSpotShadows;
-      hash.directionalLength = directionalLength;
-      hash.pointLength = pointLength;
-      hash.spotLength = spotLength;
-      hash.rectAreaLength = rectAreaLength;
-      hash.hemiLength = hemiLength;
-      hash.numDirectionalShadows = numDirectionalShadows;
-      hash.numPointShadows = numPointShadows;
-      hash.numSpotShadows = numSpotShadows;
+      hash2.directionalLength = directionalLength;
+      hash2.pointLength = pointLength;
+      hash2.spotLength = spotLength;
+      hash2.rectAreaLength = rectAreaLength;
+      hash2.hemiLength = hemiLength;
+      hash2.numDirectionalShadows = numDirectionalShadows;
+      hash2.numPointShadows = numPointShadows;
+      hash2.numSpotShadows = numSpotShadows;
       state.version = nextVersion++;
     }
   }
@@ -25016,16 +25329,16 @@ class AnimationAction {
   }
   _updateTime(deltaTime) {
     const duration = this._clip.duration;
-    const loop = this.loop;
+    const loop2 = this.loop;
     let time = this.time + deltaTime;
     let loopCount = this._loopCount;
-    const pingPong = loop === LoopPingPong;
+    const pingPong = loop2 === LoopPingPong;
     if (deltaTime === 0) {
       if (loopCount === -1)
         return time;
       return pingPong && (loopCount & 1) === 1 ? duration - time : time;
     }
-    if (loop === LoopOnce) {
+    if (loop2 === LoopOnce) {
       if (loopCount === -1) {
         this._loopCount = 0;
         this._setEndings(true, true, false);
@@ -28152,7 +28465,7 @@ class GLTFParser {
     } else if (source.uri === void 0) {
       throw new Error("THREE.GLTFLoader: Image " + textureIndex + " is missing URI and bufferView");
     }
-    const promise = Promise.resolve(sourceURI).then(function(sourceURI2) {
+    const promise2 = Promise.resolve(sourceURI).then(function(sourceURI2) {
       return new Promise(function(resolve, reject) {
         let onLoad = resolve;
         if (loader.isImageBitmapLoader === true) {
@@ -28183,8 +28496,8 @@ class GLTFParser {
       console.error("THREE.GLTFLoader: Couldn't load texture", sourceURI);
       return null;
     });
-    this.textureCache[cacheKey] = promise;
-    return promise;
+    this.textureCache[cacheKey] = promise2;
+    return promise2;
   }
   assignTexture(materialParams, mapName, mapDef) {
     const parser = this;
@@ -28637,8 +28950,8 @@ class GLTFParser {
       }
       parser._invokeAll(function(ext) {
         return ext.createNodeAttachment && ext.createNodeAttachment(nodeIndex);
-      }).forEach(function(promise) {
-        pending.push(promise);
+      }).forEach(function(promise2) {
+        pending.push(promise2);
       });
       return Promise.all(pending);
     }().then(function(objects) {
@@ -28988,4 +29301,4 @@ Stats.Panel = function(name, fg, bg) {
   };
 };
 var Stats$1 = Stats;
-export { AnimationMixer as A, BoxGeometry as B, Clock as C, listen as D, is_function as E, destroy_each as F, GLTFLoader as G, HemisphereLight as H, run_all as I, createEventDispatcher as J, binding_callbacks as K, create_component as L, MeshStandardMaterial as M, mount_component as N, transition_in as O, PerspectiveCamera as P, transition_out as Q, destroy_component as R, Scene as S, onMount as T, Vector3 as V, WebGLRenderer as W, AxesHelper as a, SpotLight as b, SpotLightHelper as c, PlaneGeometry as d, Mesh as e, MathUtils as f, Color as g, MeshPhongMaterial as h, Stats$1 as i, GUI$1 as j, SvelteComponent as k, init as l, safe_not_equal as m, element as n, space as o, src_url_equal as p, attr as q, set_style as r, sRGBEncoding as s, text as t, toggle_class as u, insert as v, append as w, set_data as x, noop as y, detach as z };
+export { create_component as $, AnimationMixer as A, BoxGeometry as B, Clock as C, transition_in as D, group_outros as E, transition_out as F, GLTFLoader as G, HemisphereLight as H, check_outros as I, fade as J, toggle_class as K, listen as L, MeshStandardMaterial as M, is_function as N, destroy_each as O, PerspectiveCamera as P, run_all as Q, noop as R, Scene as S, add_render_callback as T, create_bidirectional_transition as U, Vector3 as V, WebGLRenderer as W, createEventDispatcher as X, fly as Y, binding_callbacks as Z, bind as _, AxesHelper as a, mount_component as a0, add_flush_callback as a1, destroy_component as a2, SpotLight as b, SpotLightHelper as c, PlaneGeometry as d, Mesh as e, MathUtils as f, Color as g, MeshPhongMaterial as h, Stats$1 as i, GUI$1 as j, SvelteComponent as k, init as l, safe_not_equal as m, element as n, space as o, src_url_equal as p, attr as q, set_style as r, sRGBEncoding as s, text as t, insert as u, append as v, set_data as w, create_out_transition as x, detach as y, empty as z };
