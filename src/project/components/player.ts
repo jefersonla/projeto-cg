@@ -134,6 +134,8 @@ export class Player {
             .clone()
             .add(this.movementVector.normalize());
 
+        this.updateFrontCamera();
+
         this.model.lookAt(this.currentLookingVector);
     }
 
