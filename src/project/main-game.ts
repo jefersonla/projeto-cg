@@ -1,4 +1,4 @@
-import * as dat from 'dat.gui';
+﻿import * as dat from 'dat.gui';
 import {
     Mesh,
     Color,
@@ -15,17 +15,21 @@ import {
     sRGBEncoding,
     Clock,
     WebGLRenderer,
-    PerspectiveCamera, Scene
+    PerspectiveCamera, Scene, Vector3, AxesHelper
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import type { GLTF, } from 'three/examples/jsm/loaders/GLTFLoader';
 import Stats from 'three/examples/jsm/libs/stats.module';
+import { Player } from './components/player';
 
 /**
  * Classe principal do jogo
  */
 export class MainGame {
     /** ---------- System Properties --------- **/
+
+    player: Player;
 
     /* Indica que o jogo está rodando ou não */
     isRunning: boolean;
@@ -57,7 +61,7 @@ export class MainGame {
     controls: OrbitControls;
 
     /* Controle de animação */
-    mixers: AnimationMixer[];
+    animationsMixer: AnimationMixer[];
 
     /* Controle de tempo de execução */
     clock: Clock;
@@ -65,8 +69,8 @@ export class MainGame {
     // TODO REMOVER - usado apenas no teste
     cube: Mesh;
 
-    private hatMaterial: MeshStandardMaterial;
-    private hairMaterial: MeshStandardMaterial;
+    private hatMaterial?: MeshStandardMaterial;
+    private hairMaterial?: MeshStandardMaterial;
 
     /**
      * Constrói a aplicação
@@ -76,7 +80,8 @@ export class MainGame {
      */
     constructor(
         canvasContainer: HTMLDivElement,
-        public debugEnabled = false
+        public debugEnabled = false,
+        loadCallback: (state: true) => {}
     ) {
         this.canvasContainer = canvasContainer;
 
@@ -88,47 +93,72 @@ export class MainGame {
         // Cria a cena que irá abrigar os dados
         this.scene = new Scene();
 
-        // Cria a camera
+        // Configura o jogo
+        this.initRender();
+        this.initCamera();
+        this.initLights();
+
+        // Animação e controle
+        this.initAnimationMixer();
+        this.initBasicControl();
+
+        // Inicia a cena
+        this.initScene();
+    }
+
+    // Cria a camera
+    private initCamera() {
         this.camera = new PerspectiveCamera(
             75,
-            window.innerWidth/window.innerHeight,
+            window.innerWidth / window.innerHeight,
             0.1,
             1000
         );
-        this.camera.position.x = 5;
-        this.camera.position.y = 5;
-        this.camera.position.z = 5;
 
+        // this.camera.rotateOnAxis(new Vector3(0, 1, 0), 45);
+        // this.camera.rotateOnAxis(new Vector3(1, 0, 0), MathUtils.degToRad(-45));
+
+        this.camera.position.x = 15;
+        this.camera.position.y = 20;
+        this.camera.position.z = 15;
+
+        this.camera.lookAt(new Vector3(0, 0, 0));
+    }
+
+    private initRender() {
         // Cria o render
         this.renderer = new WebGLRenderer();
         this.renderer.setSize(
             window.innerWidth * 0.95,
             window.innerHeight * 0.95
         );
-        this.renderer.setPixelRatio( window.devicePixelRatio );
+        this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.outputEncoding = sRGBEncoding;
         this.renderer.shadowMap.enabled = true;
 
-        this.clock = new Clock();
 
         // Insere o render a página
         this.canvasContainer.appendChild(this.renderer.domElement);
 
-        // Adiciona controles de órbita para a aplicação
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.renderer.setClearColor(0x72645b, 1);
+        // this.renderer.ga = true;
+        // this.renderer.gammaOutput = true;
+        this.renderer.shadowMap.enabled = true;
 
-        // this.controls.target.set( 0, 0.5, 0 );
-        this.controls.update();
-        this.controls.enablePan = true;
-        this.controls.enableDamping = true;
+        const axesHelper = new AxesHelper(5);
+        this.scene.add(axesHelper);
 
+    }
+
+    private initLights() {
         // Create an hemisphere light and add it to scene
         const hemisphereLight = new HemisphereLight(0x443333, 0x111122);
         this.scene.add(hemisphereLight);
 
         // Create an spotlight, which can cast shadows
-        const spotLight = new SpotLight( 0xffffff );
-        spotLight.position.set( 10, 10, 10 );
+        const spotLight = new SpotLight(0xffffff, 0.7);
+        spotLight.position.set(25, 60, 25);
+
 
         // Enable shadow
         spotLight.castShadow = true;
@@ -138,7 +168,7 @@ export class MainGame {
         spotLight.shadow.mapSize.height = 1024;
 
         // Configure shadow
-        spotLight.shadow.camera.near = 10;
+        spotLight.shadow.camera.near = 25;
         spotLight.shadow.camera.far = 130;
         spotLight.shadow.camera.fov = 1;
 
@@ -146,9 +176,11 @@ export class MainGame {
         this.scene.add(spotLight);
 
         // Add a spotlight helper to help orientation
-        const spotLightHelper = new SpotLightHelper( spotLight );
-        this.scene.add( spotLightHelper );
+        const spotLightHelper = new SpotLightHelper(spotLight);
+        this.scene.add(spotLightHelper);
+    }
 
+    private initGrounPlane() {
         // Add a plane to represent ground on this scene
         const planeGeometry = new PlaneBufferGeometry(4000, 4000, 32, 32);
         const planeMaterial = new MeshStandardMaterial({ color: 0xfffffff });
@@ -157,10 +189,48 @@ export class MainGame {
         groundPlane.receiveShadow = true;
         this.scene.add(groundPlane);
 
-        // TODO REMOVER - Apenas para teste
+    }
+
+    private initAnimationMixer() {
+        this.animationsMixer = [];
+
+        this.clock = new Clock();
+    }
+
+    private initBasicControl() {
+        // Adiciona controles de órbita para a aplicação
+        // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+
+        // this.controls.target.set(0, 0.5, 0);
+        // this.controls.target
+        // this.controls.update();
+        // this.controls.enablePan = true;
+        // this.controls.enableDamping = true;
+    }
+
+    private async initPlayer() {
+        this.player = await Player.loadPlayer();
+        this.scene.add(this.player.model);
+        this.animationsMixer.push(this.player.animationMixer);
+
+        this.player.model.traverse(o => {
+            if (o instanceof Mesh) {
+                if (o.name == 'Hat') {
+                    this.hatMaterial = (o.material as MeshStandardMaterial);
+                    (o.material as MeshStandardMaterial).color = new Color('#2e7bd9');
+                } else if (o.name == 'Hair') {
+                    this.hairMaterial = (o.material as MeshStandardMaterial);
+                    (o.material as MeshStandardMaterial).color = new Color('#b109d7');
+                }
+            }
+        });
+    }
+
+    private createDummyCube() {
         // Cria um elemento qualquer
-        const geometry = new BoxGeometry();
-        geometry.translate(0, 0.5, 0)
+        const cubeSize = 1;
+        const geometry = new BoxGeometry(cubeSize, cubeSize, cubeSize);
+        geometry.translate(0, (cubeSize / 2), 0)
 
         const material = new MeshPhongMaterial({
             color: 0xff3e00,
@@ -172,151 +242,18 @@ export class MainGame {
         this.cube.receiveShadow = true;
 
         this.scene.add(this.cube);
+    }
+
+    private async initScene() {
+        this.initGrounPlane();
+
+        // TODO REMOVER - Apenas para teste
+        this.createDummyCube();
+
+        // TODO REMOVE ou USA
         // this.scene.fog = new Fog( 0x72645b, 10, 30 );
 
-        this.renderer.setClearColor(0x72645b, 1);
-        // this.renderer.ga = true;
-        // this.renderer.gammaOutput = true;
-        this.renderer.shadowMap.enabled = true;
-
-        this.mixers = [];
-
-        const loader = new GLTFLoader();
-        loader.load( 'game/models/cau.glb', ( gltf ) => {
-
-            const model = gltf.scene.children[0];
-
-            console.log(gltf)
-
-            model.traverse(o => {
-                if (o instanceof Mesh) {
-                    o.castShadow = true;
-
-                    if (o.name == 'Hat') {
-                        this.hatMaterial = (o.material as MeshStandardMaterial);
-                        (o.material as MeshStandardMaterial).color = new Color('#2e7bd9');
-                    } else if (o.name == 'Hair') {
-                        this.hairMaterial = (o.material as MeshStandardMaterial);
-                        (o.material as MeshStandardMaterial).color = new Color('#b109d7');
-                    }
-                }
-            });
-
-            // model.children.forEach((o) => {
-            //     console.log(o)
-            //
-            //     if (o.type == 'SkinnedMesh') {
-            //         const child: SkinnedMesh = o as any;
-            //
-            //         const uniforms = {
-            //             u_helmet_texture: { value: null }
-            //         };
-            //
-            //         uniforms.u_helmet_texture.value = (child.material as any).map;
-            //
-            //         if (child.name == "Hair") {
-            //             (child.material as MeshStandardMaterial).color = new Color('#333');
-            //         }
-            //         // child.material =  new ShaderMaterial({
-            //         //     uniforms: mergeUniforms( [
-            //         //         UniformsLib.common,
-            //         //         UniformsLib.envmap,
-            //         //         UniformsLib.aomap,
-            //         //         UniformsLib.lightmap,
-            //         //         UniformsLib.emissivemap,
-            //         //         UniformsLib.bumpmap,
-            //         //         UniformsLib.normalmap,
-            //         //         UniformsLib.displacementmap,
-            //         //         UniformsLib.roughnessmap,
-            //         //         UniformsLib.metalnessmap,
-            //         //         UniformsLib.fog,
-            //         //         UniformsLib.lights,
-            //         //         {
-            //         //             emissive: { value: new Color( 0x000000 ) },
-            //         //             roughness: { value: 1.0 },
-            //         //             metalness: { value: 0.0 },
-            //         //             envMapIntensity: { value: 1 } // temporary
-            //         //         }
-            //         //     ] ),
-            //         //     vertexShader: ShaderChunk.meshphysical_vert,
-            //         //     fragmentShader: ShaderChunk.meshphysical_frag
-            //         // });
-            //
-            //         o.castShadow = true;
-            //         // o.receiveShadow = true; -- checar problemas
-            //     }
-            // });
-
-            this.scene.add( model );
-            model.castShadow = true;
-            model.receiveShadow = true;
-
-            model.translateX(2);
-
-            const skeleton = new SkeletonHelper( model );
-            skeleton.visible = true;
-
-            this.scene.add( skeleton );
-
-            const animations = gltf.animations;
-
-            const objMixer = new AnimationMixer( model );
-            this.mixers.push(objMixer);
-
-            const idleAction = objMixer.clipAction( animations[ 0 ] );
-            const runAction = objMixer.clipAction( animations[ 1 ] );
-
-            runAction.enabled = true;
-            runAction.setEffectiveTimeScale( 1 );
-            runAction.setEffectiveWeight( 1 );
-
-            idleAction.enabled = true;
-            idleAction.setEffectiveTimeScale( 1 );
-            idleAction.setEffectiveWeight( 1 );
-
-            idleAction.paused = false;
-            idleAction.play();
-
-            document.addEventListener('keydown', (evt) => {
-                const allowedKeys = [
-                    'A',
-                    'W',
-                    'S',
-                    'D'
-                ];
-
-                if (allowedKeys.includes(evt.key.toUpperCase())) {
-                    idleAction.paused = true;
-                    idleAction.stopFading();
-
-                    runAction.paused = false;
-                    runAction.play();
-
-                    switch (evt.key.toUpperCase()) {
-                        case 'W':
-                            model.position.z += 0.15;
-                            break;
-                        case 'A':
-                            model.position.x -= 0.15;
-                            break;
-                        case 'S':
-                            model.position.z -= 0.15;
-                            break;
-                        case 'D':
-                            model.position.x += 0.15;
-                            break;
-                    }
-                }
-            });
-
-            document.addEventListener('keyup', () => {
-                runAction.paused = true;
-                runAction.stopFading();
-
-                idleAction.paused = false;
-                idleAction.play();
-            });
-        } );
+        this.initPlayer();
     }
 
     /**
@@ -325,7 +262,7 @@ export class MainGame {
      */
     private initDebugOptions() {
         this.debugStats = Stats();
-        this.canvasContainer.appendChild( this.debugStats.dom );
+        this.canvasContainer.appendChild(this.debugStats.dom);
 
         this.debugMenu = new dat.GUI();
         // this.debugMenu.show();
@@ -345,9 +282,9 @@ export class MainGame {
      * @param materialColor
      */
     changePlayerMaterial(materialName: string, materialColor) {
-        if (materialName == 'hat') {
+        if (materialName == 'hat' && !!this.hatMaterial) {
             this.hatMaterial.color = new Color(materialColor);
-        } else if (materialName == 'hair') {
+        } else if (materialName == 'hair' && !!this.hairMaterial) {
             this.hairMaterial.color = new Color(materialColor);
         }
     }
@@ -391,15 +328,26 @@ export class MainGame {
 
         // TODO REMOVER - Rotaciona o cubo
         // this.cube.rotation.x += 0.01;
-        this.cube.rotation.y += 0.01;
+        // this.cube.rotation.y += 0.01;
         this.cube.castShadow = true;
 
         // Atualiza o controle de órbita
-        this.controls.update();
+        // this.controls.update();
 
         let mixerUpdateDelta = this.clock.getDelta();
-        for (const mixer of this.mixers) {
-            mixer.update( mixerUpdateDelta );
+        for (const animationMixer of this.animationsMixer) {
+            animationMixer.update(mixerUpdateDelta);
+        } 0.3
+
+        // Update player movement
+        if (!!this.player) {
+            this.player.updateAnimation();
+            this.player.updatePlayerMovement();
+            this.player.updateIsometricCamera(this.camera);
+
+            if (this.player.checkColision(new Vector3(0, 0, 0), 2)) {
+                console.log('COLLISION!');
+            }
         }
 
         // Renderiza a cena
