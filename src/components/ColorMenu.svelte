@@ -1,5 +1,11 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
+    import {fly, fade} from "svelte/transition";
+
+    enum ButtonOptions {
+        HAT = 'hat',
+        HAIR = 'hair'
+    }
 
     // Cores possíveis
     const cores = [
@@ -21,12 +27,11 @@
         "#F44331",
     ];
 
-    type ButtonOptions = 'hat' | 'hair';
-    const buttonElements: { [key: ButtonOptions]: HTMLDivElement | null } = {
-        'hat': null,
-        'hair': null
+    const buttonElements = {
+        [ButtonOptions.HAT]: (null as HTMLDivElement),
+        [ButtonOptions.HAIR]: (null as HTMLDivElement)
     };
-    let buttonSelected: ButtonOptions = 'hat';
+    let buttonSelected: ButtonOptions = ButtonOptions.HAT;
 
     let modalActive: boolean = true;
 
@@ -34,10 +39,17 @@
         return () => { buttonSelected = buttonName; };
     };
 
-    const closeMenu = () => modalActive = true;
-    const openMenu = () => modalActive = false;
+    const closeMenu = () => {
+        modalActive = true;
+        dispatch('menuStateChanged', modalActive);
+    }
+    const openMenu = () => {
+        modalActive = false;
+        dispatch('menuStateChanged', modalActive);
+    }
 
     const dispatch = createEventDispatcher();
+
     const colorChanged = (colorName) => {
         return () => dispatch('colorChanged', JSON.stringify({
             materialColor: colorName,
@@ -46,26 +58,58 @@
     };
 </script>
 
-<div class:modalActive class="color-menu" >
-    <div class="object-selection">
-        <div class:buttonSelected={buttonSelected === 'hat'} class="object-button" bind:this={buttonElements.hat} on:click={toggleButton('hat')}>
-            <span class="material-icons-outlined"> school </span> Hat
-        </div>
-        <div class:buttonSelected={buttonSelected === 'hair'} class="object-button" bind:this={buttonElements.hair} on:click={toggleButton('hair')}>
-            <span class="material-icons-outlined"> face </span> Hair
-        </div>
-    </div>
-    <div class="colors">
-        {#each cores as cor}
-            <div class="color-button" on:click={colorChanged(cor)} style="background-color: {cor}"></div>
-        {/each}
-    </div>
-    <div class="close-button" on:click={closeMenu}> <span class="material-icons-outlined"> close </span> </div>
-</div>
+<!-- ColorMenu -->
+{#if !modalActive}
+    <div out:fly="{{duration: 200}}" class:modalActive class="color-menu" >
 
-<div class="open-menu close-button" class:hidden={!modalActive} on:click={openMenu}>
-    <span class="material-icons-outlined"> face </span>
-</div>
+        <!-- MaterialSelection -->
+        <div class="object-selection">
+
+            <!-- HatMaterial -->
+            <div class:buttonSelected={buttonSelected === ButtonOptions.HAT}
+                class="object-button"
+                bind:this={buttonElements[ButtonOptions.HAT]}
+                on:click={toggleButton(ButtonOptions.HAT)}>
+                <span class="material-icons-outlined"> school </span> Hat
+            </div>
+            <!-- ./HatMaterial -->
+
+            <!-- HairMaterial -->
+            <div class:buttonSelected={buttonSelected === ButtonOptions.HAIR}
+                class="object-button"
+                bind:this={buttonElements[ButtonOptions.HAIR]}
+                on:click={toggleButton(ButtonOptions.HAIR)}>
+                <span class="material-icons-outlined"> face </span> Hair
+            </div>
+            <!-- HairMaterial -->
+
+        </div>
+        <!-- ./MaterialSelection -->
+
+        <!-- ColorsButtons -->
+        <div class="colors">
+            {#each cores as cor}
+                <div class="color-button" on:click={colorChanged(cor)} style="background-color: {cor}"></div>
+            {/each}
+        </div>
+        <!-- ./ColorsButtons -->
+
+        <!-- CloseButton -->
+        <div class="close-button" on:click={closeMenu}>
+            <span class="material-icons-outlined"> close </span>
+        </div>
+        <!-- ./CloseButton -->
+    </div>
+{/if}
+<!-- ./ColorMenu -->
+
+<!-- OpenMenuButton -->
+{#if modalActive}
+    <div transition:fade class="open-menu close-button" on:click={openMenu}>
+        <span class="material-icons-outlined"> face </span>
+    </div>
+{/if}
+<!-- ./OpenMenuButton -->
 
 <style>
     .color-menu {
@@ -132,16 +176,18 @@
         justify-content: center;
         height: 81%;
         width: 100%;
+        overflow-y: scroll;
     }
 
     .color-button {
         --margin: 1rem;
         --border-size: 4px;
         --elements-per-line: 4;
-        --side-size: calc(max(50vw / var(--elements-per-line), 50vh / var(--elements-per-line)) - (2 * var(--margin)) - (2 * var(--border-size)));
+        --side-size: calc((50vw / var(--elements-per-line)) - (2 * var(--margin)) - (2 * var(--border-size)));
         flex: 1 0 var(--side-size);
         max-width: var(--side-size);
         height: var(--side-size);
+        max-height: calc((50vh / 4));
         border: var(--border-size) solid #e2e6f3;
         margin: 0 var(--margin) 0;
         border-radius: 1rem;
@@ -184,10 +230,6 @@
 
     .modalActive {
         background-color: #ff3e00;
-        display: none;
-    }
-
-    .hidden {
         display: none;
     }
 </style>

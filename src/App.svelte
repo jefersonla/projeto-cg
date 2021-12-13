@@ -24,6 +24,7 @@
   :root {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
       Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: calc(5px + 1vw);
   }
 
   :global(html) {
@@ -40,7 +41,7 @@
     background-color: #222;
   }
 
-  :global(body > div) {
+  :global(#app) {
     display: flex;
     justify-content: center;
     align-items: center;
