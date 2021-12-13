@@ -99,7 +99,7 @@ export class Player {
                 return sound;
             });
 
-        return new Player(await CustomModelLoader.load('game/models/cau.glb'), frontCamera, stepSound);
+        return new Player(await CustomModelLoader.load('game/models/players/cau.glb'), frontCamera, stepSound);
     }
 
     /**
@@ -291,7 +291,7 @@ export class Player {
      * @param diameter
      */
     checkCollision(obj: Vector3, diameter: number) {
-        return this.model.position.distanceTo(obj) < (diameter / 2);
+        return this.model.position.distanceTo(obj.clone()) < (diameter / 2);
     }
 
     /**

@@ -5,7 +5,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: block;
-  src: url("/assets/material-icons.a5d10094.woff2") format("woff2"), url("/assets/material-icons.2d6c5fde.woff") format("woff");
+  src: url("assets/material-icons.a5d10094.woff2") format("woff2"), url("assets/material-icons.2d6c5fde.woff") format("woff");
 }
 .material-icons {
   font-family: "Material Icons";
@@ -29,7 +29,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: block;
-  src: url("/assets/material-icons-outlined.23cd2c17.woff2") format("woff2"), url("/assets/material-icons-outlined.851dc177.woff") format("woff");
+  src: url("assets/material-icons-outlined.23cd2c17.woff2") format("woff2"), url("assets/material-icons-outlined.851dc177.woff") format("woff");
 }
 .material-icons-outlined {
   font-family: "Material Icons Outlined";
@@ -53,7 +53,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: block;
-  src: url("/assets/material-icons-round.ef42d849.woff2") format("woff2"), url("/assets/material-icons-round.9121921b.woff") format("woff");
+  src: url("assets/material-icons-round.ef42d849.woff2") format("woff2"), url("assets/material-icons-round.9121921b.woff") format("woff");
 }
 .material-icons-round {
   font-family: "Material Icons Round";
@@ -77,7 +77,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: block;
-  src: url("/assets/material-icons-sharp.07408036.woff2") format("woff2"), url("/assets/material-icons-sharp.b7304091.woff") format("woff");
+  src: url("assets/material-icons-sharp.07408036.woff2") format("woff2"), url("assets/material-icons-sharp.b7304091.woff") format("woff");
 }
 .material-icons-sharp {
   font-family: "Material Icons Sharp";
@@ -101,7 +101,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: block;
-  src: url("/assets/material-icons-two-tone.67be5c72.woff2") format("woff2"), url("/assets/material-icons-two-tone.b47f01f1.woff") format("woff");
+  src: url("assets/material-icons-two-tone.67be5c72.woff2") format("woff2"), url("assets/material-icons-two-tone.b47f01f1.woff") format("woff");
 }
 .material-icons-two-tone {
   font-family: "Material Icons Two Tone";

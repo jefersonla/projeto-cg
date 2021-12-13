@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync, readFileSync } from 'fs';
+import { existsSync, writeFileSync, readFileSync, readdirSync } from 'fs';
 import { join, resolve, dirname }from 'path';
 import { fileURLToPath } from 'url';
 
@@ -24,8 +24,11 @@ export const getRootDir = (pathDir = __dirname) => {
     return getRootDir(join(pathDir, ".."));
 };
 
+// Define pasta root (raiz do projeto com arquivo package.json
+const rootDir = getRootDir(__dirname);
+
 // Define a pasta do arquivo
-const arqPath = resolve(getRootDir(__dirname), 'docs', 'index.html');
+const arqPath = resolve(rootDir, 'docs', 'index.html');
 
 // Checa se o arquivo index.html da pasta de build docs existe
 if (!existsSync(arqPath)) {
@@ -33,10 +36,27 @@ if (!existsSync(arqPath)) {
     process.exit(1);
 }
 
-// Pega e modifica conteudo
+// Pega e modifica o conteúdo
 const arqContent = readFileSync(arqPath, 'utf-8')
     .replace(/="\//gm, '="');
 
 // Grava o arquivo
 writeFileSync(arqPath, arqContent);
-console.log('Reparando arquivo index.html');
+console.log('Arquivo index.html reparado');
+
+// Define a pasta do arquivo
+const cssPath = resolve(rootDir, 'docs', 'assets');
+const cssFilenames = readdirSync(cssPath)
+    .filter(file => file.endsWith('.css'));
+
+// Para cada arquivo css
+for (const cssFilename of cssFilenames) {
+    // Pega e modifica o conteúdo
+    const cssFilePath = resolve(cssPath, cssFilename);
+    const cssContent = readFileSync(cssFilePath, 'utf-8')
+        .replace(/url\("\//gm, 'url("');
+
+    // Grava o arquivo
+    writeFileSync(cssFilePath, cssContent);
+    console.log(`Arquivo ${cssFilename} reparado`);
+}
