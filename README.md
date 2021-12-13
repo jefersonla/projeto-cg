@@ -233,9 +233,19 @@ Desenvolvido com ❤️ em Salvador-BA na **UFBA** (Universidade Federal da Bahi
 
 - **Alana Bispo** ([@alanabispo](https://github.com/alanabispo))
 - **Alexandre Campos** ([@alexandrefscampos](https://github.com/alexandrefscampos))
-- **André Luiz Silva*** ([@andresantosufba](https://github.com/andresantosufba))
+- **André Luiz Silva** ([@andresantosufba](https://github.com/andresantosufba))
 - **Cainan Neves** ([@CainanNeves](https://github.com/CainanNeves))
 - **Jeferson Lima** ([@jefersonla](https://github.com/jefersonla))
 - **Rafael Nobre** ([@rafaelnsacramento](https://github.com/rafaelnsacramento))
 
 **⚠ Hospedado também em https://github.com/jefersonla/projeto-cg**
+
+## Other Licenses
+
+```text
+https://www.chosic.com/download-audio/27248/
+Fluffing a Duck Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 3.0 License
+http://creativecommons.org/licenses/by/3.0/
+Music promoted by https://www.chosic.com/free-music/all/ 
+```
