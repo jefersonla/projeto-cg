@@ -592,21 +592,27 @@ export class MainGame {
         for (const el of this.gameElements) {
             if (this.player.checkCollision(el.position, 6)) {
                 if (i == 0 && this.gameElements[1].correct == true) {
-                    this.resetGameElements();
-                    // this.randomizeGameItemsPositions();
-                    this.failureSound.play();
+                    if (!el.cube.material.transparent) {
+                        // this.randomizeGameItemsPositions();
+                        this.resetGameElements();
+                        this.failureSound.play();
+                    }
                 } else if (
-                    i == 0 && this.gameElements[1].correct == false ||
+                    (i == 0 && this.gameElements[1].correct == false) ||
                     this.gameElements[i - 1].correct === true
                 ) {
-                    this.successSound.play();
-                    el.correct = true;
-                    el.cube.material.transparent = true;
-                    el.cube.material.opacity = 0.3;
+                    if (!el.cube.material.transparent) {
+                        this.successSound.play();
+                        el.correct = true;
+                        el.cube.material.transparent = true;
+                        el.cube.material.opacity = 0.3;
+                    }
                 } else {
-                    this.resetGameElements();
-                    // this.randomizeGameItemsPositions();
-                    this.failureSound.play();
+                    if (!el.cube.material.transparent) {
+                        // this.randomizeGameItemsPositions();
+                        this.resetGameElements();
+                        this.failureSound.play();
+                    }
                 }
 
                 this.notify();
