@@ -10,14 +10,14 @@
         <img src="images/escolinha.png" alt="Escolinha logo">
 
         <div class="progress">
-            <div class="progress-bar" role="progressbar" style="width: {progressValue}%;" aria-valuenow="{progressValue}" aria-valuemin="0" aria-valuemax="100">{progressValue}%</div>
+            <div class="progress-bar" role="progressbar" style="width: {progressValue.toFixed(0)}%;" aria-valuenow="{progressValue.toFixed(0)}" aria-valuemin="0" aria-valuemax="100">{progressValue.toFixed(0)}%</div>
         </div>
     </div>
 {/if}
 
 <style>
     .load-bar{
-    z-index: 2;
+        z-index: 2;
         position: absolute;
         margin: 0;
         padding: 0;
@@ -45,6 +45,6 @@
 
     .progress-bar {
         background-color: #d63384;
-        font-size: 2em;
+        font-size: 2rem;
     }
 </style>

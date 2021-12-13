@@ -1,41 +1,10 @@
 <script lang="ts">
     import {fade} from "svelte/transition";
+    import {GameElement} from "../project/entities/game-element.entity";
 
-    export let progressValue = 0;
     export let disabled = false;
 
-    export let elements = [
-        {
-            name: 'Verde',
-            color: 'blue',
-            correct: true
-        },
-        {
-            name: 'Azul',
-            color: 'orange',
-            correct: false
-        },
-        {
-            name: 'Preto',
-            color: 'red',
-            correct: false
-        },
-        {
-            name: 'Vermelho',
-            color: 'verde',
-            correct: false
-        },
-        {
-            name: 'Amarelo',
-            color: 'green',
-            correct: false
-        },
-        {
-            name: 'Verde',
-            color: 'orange',
-            correct: false
-        },
-    ];
+    export let elements: GameElement[] = [];
 </script>
 
 {#if !disabled}
@@ -49,7 +18,7 @@
         </div>
         <div class="elements">
             {#each elements as element}
-                <div class="cor-element" class:correct={element.correct} style="color: {element.color};"> {element.name} </div>
+                <div class="cor-element" class:correct={element.correct} style="color: {element.textColor};"> {element.name} </div>
             {/each}
         </div>
     </div>
@@ -64,7 +33,7 @@
         height: 14vh;
         background: #fffeee;
         border: 4px solid #333333;
-        border-radius: 3em;
+        border-radius: 3rem;
         top: 80vh;
         left: 5vw;
         display: flex;
@@ -111,5 +80,7 @@
     .correct {
         border-width: 5px;
         border-color: green;
+        background-color: #c3f3de;
+        text-decoration: line-through;
     }
 </style>

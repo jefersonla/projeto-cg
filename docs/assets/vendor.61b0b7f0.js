@@ -210,6 +210,9 @@ function get_current_component() {
     throw new Error("Function called outside component initialization");
   return current_component;
 }
+function onMount(fn) {
+  get_current_component().$$.on_mount.push(fn);
+}
 function createEventDispatcher() {
   const component = get_current_component();
   return (type, detail) => {
@@ -1739,7 +1742,7 @@ var NumberControllerBox = function(_NumberController) {
   }]);
   return NumberControllerBox2;
 }(NumberController);
-function map(v, i1, i2, o1, o2) {
+function map$1(v, i1, i2, o1, o2) {
   return o1 + (o2 - o1) * ((v - i1) / (i2 - i1));
 }
 var NumberControllerSlider = function(_NumberController) {
@@ -1763,7 +1766,7 @@ var NumberControllerSlider = function(_NumberController) {
     function onMouseDrag(e) {
       e.preventDefault();
       var bgRect = _this.__background.getBoundingClientRect();
-      _this.setValue(map(e.clientX, bgRect.left, bgRect.right, _this.__min, _this.__max));
+      _this.setValue(map$1(e.clientX, bgRect.left, bgRect.right, _this.__min, _this.__max));
       return false;
     }
     function onMouseUp() {
@@ -1784,7 +1787,7 @@ var NumberControllerSlider = function(_NumberController) {
     function onTouchMove(e) {
       var clientX = e.touches[0].clientX;
       var bgRect = _this.__background.getBoundingClientRect();
-      _this.setValue(map(clientX, bgRect.left, bgRect.right, _this.__min, _this.__max));
+      _this.setValue(map$1(clientX, bgRect.left, bgRect.right, _this.__min, _this.__max));
     }
     function onTouchEnd() {
       dom.unbind(window, "touchmove", onTouchMove);
@@ -3063,6 +3066,8 @@ var GUI$1 = GUI;
  * SPDX-License-Identifier: MIT
  */
 const REVISION = "134";
+const MOUSE = { LEFT: 0, MIDDLE: 1, RIGHT: 2, ROTATE: 0, DOLLY: 1, PAN: 2 };
+const TOUCH = { ROTATE: 0, PAN: 1, DOLLY_PAN: 2, DOLLY_ROTATE: 3 };
 const CullFaceNone = 0;
 const CullFaceBack = 1;
 const CullFaceFront = 2;
@@ -3289,7 +3294,7 @@ function generateUUID() {
   const uuid = _lut[d0 & 255] + _lut[d0 >> 8 & 255] + _lut[d0 >> 16 & 255] + _lut[d0 >> 24 & 255] + "-" + _lut[d1 & 255] + _lut[d1 >> 8 & 255] + "-" + _lut[d1 >> 16 & 15 | 64] + _lut[d1 >> 24 & 255] + "-" + _lut[d2 & 63 | 128] + _lut[d2 >> 8 & 255] + "-" + _lut[d2 >> 16 & 255] + _lut[d2 >> 24 & 255] + _lut[d3 & 255] + _lut[d3 >> 8 & 255] + _lut[d3 >> 16 & 255] + _lut[d3 >> 24 & 255];
   return uuid.toUpperCase();
 }
-function clamp(value, min, max) {
+function clamp$1(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 function euclideanModulo(n, m) {
@@ -3345,11 +3350,11 @@ function seededRandom(s) {
   _seed = _seed * 16807 % 2147483647;
   return (_seed - 1) / 2147483646;
 }
-function degToRad(degrees) {
-  return degrees * DEG2RAD;
+function degToRad(degrees2) {
+  return degrees2 * DEG2RAD;
 }
-function radToDeg(radians) {
-  return radians * RAD2DEG;
+function radToDeg(radians2) {
+  return radians2 * RAD2DEG;
 }
 function isPowerOfTwo(value) {
   return (value & value - 1) === 0 && value !== 0;
@@ -3399,7 +3404,7 @@ var MathUtils = /* @__PURE__ */ Object.freeze({
   DEG2RAD,
   RAD2DEG,
   generateUUID,
-  clamp,
+  clamp: clamp$1,
   euclideanModulo,
   mapLinear,
   inverseLerp,
@@ -3621,8 +3626,8 @@ class Vector2 {
     return this.divideScalar(this.length() || 1);
   }
   angle() {
-    const angle = Math.atan2(-this.y, -this.x) + Math.PI;
-    return angle;
+    const angle2 = Math.atan2(-this.y, -this.x) + Math.PI;
+    return angle2;
   }
   distanceTo(v) {
     return Math.sqrt(this.distanceToSquared(v));
@@ -3668,8 +3673,8 @@ class Vector2 {
     this.y = attribute.getY(index);
     return this;
   }
-  rotateAround(center, angle) {
-    const c = Math.cos(angle), s = Math.sin(angle);
+  rotateAround(center, angle2) {
+    const c = Math.cos(angle2), s = Math.sin(angle2);
     const x = this.x - center.x;
     const y = this.y - center.y;
     this.x = x * c - y * s + center.x;
@@ -4357,14 +4362,14 @@ class Vector4 {
     return this;
   }
   setAxisAngleFromRotationMatrix(m) {
-    let angle, x, y, z;
+    let angle2, x, y, z;
     const epsilon = 0.01, epsilon2 = 0.1, te = m.elements, m11 = te[0], m12 = te[4], m13 = te[8], m21 = te[1], m22 = te[5], m23 = te[9], m31 = te[2], m32 = te[6], m33 = te[10];
     if (Math.abs(m12 - m21) < epsilon && Math.abs(m13 - m31) < epsilon && Math.abs(m23 - m32) < epsilon) {
       if (Math.abs(m12 + m21) < epsilon2 && Math.abs(m13 + m31) < epsilon2 && Math.abs(m23 + m32) < epsilon2 && Math.abs(m11 + m22 + m33 - 3) < epsilon2) {
         this.set(1, 0, 0, 0);
         return this;
       }
-      angle = Math.PI;
+      angle2 = Math.PI;
       const xx = (m11 + 1) / 2;
       const yy = (m22 + 1) / 2;
       const zz = (m33 + 1) / 2;
@@ -4402,7 +4407,7 @@ class Vector4 {
           y = yz / z;
         }
       }
-      this.set(x, y, z, angle);
+      this.set(x, y, z, angle2);
       return this;
     }
     let s = Math.sqrt((m32 - m23) * (m32 - m23) + (m13 - m31) * (m13 - m31) + (m21 - m12) * (m21 - m12));
@@ -4843,8 +4848,8 @@ class Quaternion {
       this._onChangeCallback();
     return this;
   }
-  setFromAxisAngle(axis, angle) {
-    const halfAngle = angle / 2, s = Math.sin(halfAngle);
+  setFromAxisAngle(axis, angle2) {
+    const halfAngle = angle2 / 2, s = Math.sin(halfAngle);
     this._x = axis.x * s;
     this._y = axis.y * s;
     this._z = axis.z * s;
@@ -4906,13 +4911,13 @@ class Quaternion {
     return this.normalize();
   }
   angleTo(q) {
-    return 2 * Math.acos(Math.abs(clamp(this.dot(q), -1, 1)));
+    return 2 * Math.acos(Math.abs(clamp$1(this.dot(q), -1, 1)));
   }
   rotateTowards(q, step) {
-    const angle = this.angleTo(q);
-    if (angle === 0)
+    const angle2 = this.angleTo(q);
+    if (angle2 === 0)
       return this;
-    const t = Math.min(1, step / angle);
+    const t = Math.min(1, step / angle2);
     this.slerp(q, t);
     return this;
   }
@@ -5210,8 +5215,8 @@ class Vector3 {
     }
     return this.applyQuaternion(_quaternion$4.setFromEuler(euler));
   }
-  applyAxisAngle(axis, angle) {
-    return this.applyQuaternion(_quaternion$4.setFromAxisAngle(axis, angle));
+  applyAxisAngle(axis, angle2) {
+    return this.applyQuaternion(_quaternion$4.setFromAxisAngle(axis, angle2));
   }
   applyMatrix3(m) {
     const x = this.x, y = this.y, z = this.z;
@@ -5390,7 +5395,7 @@ class Vector3 {
     if (denominator === 0)
       return Math.PI / 2;
     const theta = this.dot(v) / denominator;
-    return Math.acos(clamp(theta, -1, 1));
+    return Math.acos(clamp$1(theta, -1, 1));
   }
   distanceTo(v) {
     return Math.sqrt(this.distanceToSquared(v));
@@ -6569,9 +6574,9 @@ class Matrix4 {
     this.set(c, -s, 0, 0, s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     return this;
   }
-  makeRotationAxis(axis, angle) {
-    const c = Math.cos(angle);
-    const s = Math.sin(angle);
+  makeRotationAxis(axis, angle2) {
+    const c = Math.cos(angle2);
+    const s = Math.sin(angle2);
     const t = 1 - c;
     const x = axis.x, y = axis.y, z = axis.z;
     const tx = t * x, ty = t * y;
@@ -6804,7 +6809,7 @@ class Euler {
     const m31 = te[2], m32 = te[6], m33 = te[10];
     switch (order) {
       case "XYZ":
-        this._y = Math.asin(clamp(m13, -1, 1));
+        this._y = Math.asin(clamp$1(m13, -1, 1));
         if (Math.abs(m13) < 0.9999999) {
           this._x = Math.atan2(-m23, m33);
           this._z = Math.atan2(-m12, m11);
@@ -6814,7 +6819,7 @@ class Euler {
         }
         break;
       case "YXZ":
-        this._x = Math.asin(-clamp(m23, -1, 1));
+        this._x = Math.asin(-clamp$1(m23, -1, 1));
         if (Math.abs(m23) < 0.9999999) {
           this._y = Math.atan2(m13, m33);
           this._z = Math.atan2(m21, m22);
@@ -6824,7 +6829,7 @@ class Euler {
         }
         break;
       case "ZXY":
-        this._x = Math.asin(clamp(m32, -1, 1));
+        this._x = Math.asin(clamp$1(m32, -1, 1));
         if (Math.abs(m32) < 0.9999999) {
           this._y = Math.atan2(-m31, m33);
           this._z = Math.atan2(-m12, m22);
@@ -6834,7 +6839,7 @@ class Euler {
         }
         break;
       case "ZYX":
-        this._y = Math.asin(-clamp(m31, -1, 1));
+        this._y = Math.asin(-clamp$1(m31, -1, 1));
         if (Math.abs(m31) < 0.9999999) {
           this._x = Math.atan2(m32, m33);
           this._z = Math.atan2(m21, m11);
@@ -6844,7 +6849,7 @@ class Euler {
         }
         break;
       case "YZX":
-        this._z = Math.asin(clamp(m21, -1, 1));
+        this._z = Math.asin(clamp$1(m21, -1, 1));
         if (Math.abs(m21) < 0.9999999) {
           this._x = Math.atan2(-m23, m22);
           this._y = Math.atan2(-m31, m11);
@@ -6854,7 +6859,7 @@ class Euler {
         }
         break;
       case "XZY":
-        this._z = Math.asin(-clamp(m12, -1, 1));
+        this._z = Math.asin(-clamp$1(m12, -1, 1));
         if (Math.abs(m12) < 0.9999999) {
           this._x = Math.atan2(m32, m22);
           this._y = Math.atan2(m13, m11);
@@ -7034,8 +7039,8 @@ class Object3D extends EventDispatcher {
     this.quaternion.premultiply(q);
     return this;
   }
-  setRotationFromAxisAngle(axis, angle) {
-    this.quaternion.setFromAxisAngle(axis, angle);
+  setRotationFromAxisAngle(axis, angle2) {
+    this.quaternion.setFromAxisAngle(axis, angle2);
   }
   setRotationFromEuler(euler) {
     this.quaternion.setFromEuler(euler, true);
@@ -7046,38 +7051,38 @@ class Object3D extends EventDispatcher {
   setRotationFromQuaternion(q) {
     this.quaternion.copy(q);
   }
-  rotateOnAxis(axis, angle) {
-    _q1.setFromAxisAngle(axis, angle);
+  rotateOnAxis(axis, angle2) {
+    _q1.setFromAxisAngle(axis, angle2);
     this.quaternion.multiply(_q1);
     return this;
   }
-  rotateOnWorldAxis(axis, angle) {
-    _q1.setFromAxisAngle(axis, angle);
+  rotateOnWorldAxis(axis, angle2) {
+    _q1.setFromAxisAngle(axis, angle2);
     this.quaternion.premultiply(_q1);
     return this;
   }
-  rotateX(angle) {
-    return this.rotateOnAxis(_xAxis, angle);
+  rotateX(angle2) {
+    return this.rotateOnAxis(_xAxis, angle2);
   }
-  rotateY(angle) {
-    return this.rotateOnAxis(_yAxis, angle);
+  rotateY(angle2) {
+    return this.rotateOnAxis(_yAxis, angle2);
   }
-  rotateZ(angle) {
-    return this.rotateOnAxis(_zAxis, angle);
+  rotateZ(angle2) {
+    return this.rotateOnAxis(_zAxis, angle2);
   }
-  translateOnAxis(axis, distance) {
+  translateOnAxis(axis, distance2) {
     _v1$4.copy(axis).applyQuaternion(this.quaternion);
-    this.position.add(_v1$4.multiplyScalar(distance));
+    this.position.add(_v1$4.multiplyScalar(distance2));
     return this;
   }
-  translateX(distance) {
-    return this.translateOnAxis(_xAxis, distance);
+  translateX(distance2) {
+    return this.translateOnAxis(_xAxis, distance2);
   }
-  translateY(distance) {
-    return this.translateOnAxis(_yAxis, distance);
+  translateY(distance2) {
+    return this.translateOnAxis(_yAxis, distance2);
   }
-  translateZ(distance) {
-    return this.translateOnAxis(_zAxis, distance);
+  translateZ(distance2) {
+    return this.translateOnAxis(_zAxis, distance2);
   }
   localToWorld(vector) {
     return vector.applyMatrix4(this.matrixWorld);
@@ -8200,8 +8205,8 @@ class Color {
   }
   setHSL(h, s, l) {
     h = euclideanModulo(h, 1);
-    s = clamp(s, 0, 1);
-    l = clamp(l, 0, 1);
+    s = clamp$1(s, 0, 1);
+    l = clamp$1(l, 0, 1);
     if (s === 0) {
       this.r = this.g = this.b = l;
     } else {
@@ -8861,18 +8866,18 @@ class BufferGeometry extends EventDispatcher {
     this.applyMatrix4(_m1);
     return this;
   }
-  rotateX(angle) {
-    _m1.makeRotationX(angle);
+  rotateX(angle2) {
+    _m1.makeRotationX(angle2);
     this.applyMatrix4(_m1);
     return this;
   }
-  rotateY(angle) {
-    _m1.makeRotationY(angle);
+  rotateY(angle2) {
+    _m1.makeRotationY(angle2);
     this.applyMatrix4(_m1);
     return this;
   }
-  rotateZ(angle) {
-    _m1.makeRotationZ(angle);
+  rotateZ(angle2) {
+    _m1.makeRotationZ(angle2);
     this.applyMatrix4(_m1);
     return this;
   }
@@ -9516,11 +9521,11 @@ function checkIntersection(object, material, raycaster, ray, pA, pB, pC, point) 
     return null;
   _intersectionPointWorld.copy(point);
   _intersectionPointWorld.applyMatrix4(object.matrixWorld);
-  const distance = raycaster.ray.origin.distanceTo(_intersectionPointWorld);
-  if (distance < raycaster.near || distance > raycaster.far)
+  const distance2 = raycaster.ray.origin.distanceTo(_intersectionPointWorld);
+  if (distance2 < raycaster.near || distance2 > raycaster.far)
     return null;
   return {
-    distance,
+    distance: distance2,
     point: _intersectionPointWorld.clone(),
     object
   };
@@ -10286,8 +10291,8 @@ class Frustum {
     const center = sphere.center;
     const negRadius = -sphere.radius;
     for (let i = 0; i < 6; i++) {
-      const distance = planes[i].distanceToPoint(center);
-      if (distance < negRadius) {
+      const distance2 = planes[i].distanceToPoint(center);
+      if (distance2 < negRadius) {
         return false;
       }
     }
@@ -14841,7 +14846,7 @@ function WebGLLights(extensions, capabilities) {
       const light = lights[i];
       const color = light.color;
       const intensity = light.intensity;
-      const distance = light.distance;
+      const distance2 = light.distance;
       const shadowMap = light.shadow && light.shadow.map ? light.shadow.map.texture : null;
       if (light.isAmbientLight) {
         r += color.r * intensity * scaleFactor;
@@ -14872,7 +14877,7 @@ function WebGLLights(extensions, capabilities) {
         const uniforms = cache.get(light);
         uniforms.position.setFromMatrixPosition(light.matrixWorld);
         uniforms.color.copy(color).multiplyScalar(intensity * scaleFactor);
-        uniforms.distance = distance;
+        uniforms.distance = distance2;
         uniforms.coneCos = Math.cos(light.angle);
         uniforms.penumbraCos = Math.cos(light.angle * (1 - light.penumbra));
         uniforms.decay = light.decay;
@@ -16965,17 +16970,17 @@ class WebXRController {
         }
         const indexTip = hand.joints["index-finger-tip"];
         const thumbTip = hand.joints["thumb-tip"];
-        const distance = indexTip.position.distanceTo(thumbTip.position);
+        const distance2 = indexTip.position.distanceTo(thumbTip.position);
         const distanceToPinch = 0.02;
         const threshold = 5e-3;
-        if (hand.inputState.pinching && distance > distanceToPinch + threshold) {
+        if (hand.inputState.pinching && distance2 > distanceToPinch + threshold) {
           hand.inputState.pinching = false;
           this.dispatchEvent({
             type: "pinchend",
             handedness: inputSource.handedness,
             target: this
           });
-        } else if (!hand.inputState.pinching && distance <= distanceToPinch - threshold) {
+        } else if (!hand.inputState.pinching && distance2 <= distanceToPinch - threshold) {
           hand.inputState.pinching = true;
           this.dispatchEvent({
             type: "pinchstart",
@@ -18960,6 +18965,26 @@ WebGLRenderer.prototype.isWebGLRenderer = true;
 class WebGL1Renderer extends WebGLRenderer {
 }
 WebGL1Renderer.prototype.isWebGL1Renderer = true;
+class Fog {
+  constructor(color, near = 1, far = 1e3) {
+    this.name = "";
+    this.color = new Color(color);
+    this.near = near;
+    this.far = far;
+  }
+  clone() {
+    return new Fog(this.color, this.near, this.far);
+  }
+  toJSON() {
+    return {
+      type: "Fog",
+      color: this.color.getHex(),
+      near: this.near,
+      far: this.far
+    };
+  }
+}
+Fog.prototype.isFog = true;
 class Scene extends Object3D {
   constructor() {
     super();
@@ -19330,11 +19355,11 @@ class Sprite extends Object3D {
         return;
       }
     }
-    const distance = raycaster.ray.origin.distanceTo(_intersectPoint);
-    if (distance < raycaster.near || distance > raycaster.far)
+    const distance2 = raycaster.ray.origin.distanceTo(_intersectPoint);
+    if (distance2 < raycaster.near || distance2 > raycaster.far)
       return;
     intersects2.push({
-      distance,
+      distance: distance2,
       point: _intersectPoint.clone(),
       uv: Triangle.getUV(_intersectPoint, _vA, _vB, _vC, _uvA, _uvB, _uvC, new Vector2()),
       face: null,
@@ -19786,11 +19811,11 @@ class Line extends Object3D {
           if (distSq > localThresholdSq)
             continue;
           interRay.applyMatrix4(this.matrixWorld);
-          const distance = raycaster.ray.origin.distanceTo(interRay);
-          if (distance < raycaster.near || distance > raycaster.far)
+          const distance2 = raycaster.ray.origin.distanceTo(interRay);
+          if (distance2 < raycaster.near || distance2 > raycaster.far)
             continue;
           intersects2.push({
-            distance,
+            distance: distance2,
             point: interSegment.clone().applyMatrix4(this.matrixWorld),
             index: i,
             face: null,
@@ -19808,11 +19833,11 @@ class Line extends Object3D {
           if (distSq > localThresholdSq)
             continue;
           interRay.applyMatrix4(this.matrixWorld);
-          const distance = raycaster.ray.origin.distanceTo(interRay);
-          if (distance < raycaster.near || distance > raycaster.far)
+          const distance2 = raycaster.ray.origin.distanceTo(interRay);
+          if (distance2 < raycaster.near || distance2 > raycaster.far)
             continue;
           intersects2.push({
-            distance,
+            distance: distance2,
             point: interSegment.clone().applyMatrix4(this.matrixWorld),
             index: i,
             face: null,
@@ -20000,11 +20025,11 @@ function testPoint(point, index, localThresholdSq, matrixWorld, raycaster, inter
     const intersectPoint = new Vector3();
     _ray.closestPointToPoint(point, intersectPoint);
     intersectPoint.applyMatrix4(matrixWorld);
-    const distance = raycaster.ray.origin.distanceTo(intersectPoint);
-    if (distance < raycaster.near || distance > raycaster.far)
+    const distance2 = raycaster.ray.origin.distanceTo(intersectPoint);
+    if (distance2 < raycaster.near || distance2 > raycaster.far)
       return;
     intersects2.push({
-      distance,
+      distance: distance2,
       distanceToRay: Math.sqrt(rayPointDistanceSq),
       point: intersectPoint,
       index,
@@ -20134,13 +20159,13 @@ class Curve {
     this.needsUpdate = true;
     this.getLengths();
   }
-  getUtoTmapping(u, distance) {
+  getUtoTmapping(u, distance2) {
     const arcLengths = this.getLengths();
     let i = 0;
     const il = arcLengths.length;
     let targetArcLength;
-    if (distance) {
-      targetArcLength = distance;
+    if (distance2) {
+      targetArcLength = distance2;
     } else {
       targetArcLength = u * arcLengths[il - 1];
     }
@@ -20223,13 +20248,13 @@ class Curve {
       vec.crossVectors(tangents[i - 1], tangents[i]);
       if (vec.length() > Number.EPSILON) {
         vec.normalize();
-        const theta = Math.acos(clamp(tangents[i - 1].dot(tangents[i]), -1, 1));
+        const theta = Math.acos(clamp$1(tangents[i - 1].dot(tangents[i]), -1, 1));
         normals[i].applyMatrix4(mat.makeRotationAxis(vec, theta));
       }
       binormals[i].crossVectors(tangents[i], normals[i]);
     }
     if (closed === true) {
-      let theta = Math.acos(clamp(normals[0].dot(normals[segments]), -1, 1));
+      let theta = Math.acos(clamp$1(normals[0].dot(normals[segments]), -1, 1));
       theta /= segments;
       if (tangents[0].dot(vec.crossVectors(normals[0], normals[segments])) > 0) {
         theta = -theta;
@@ -20305,9 +20330,9 @@ class EllipseCurve extends Curve {
         deltaAngle = deltaAngle - twoPi;
       }
     }
-    const angle = this.aStartAngle + t * deltaAngle;
-    let x = this.aX + this.xRadius * Math.cos(angle);
-    let y = this.aY + this.yRadius * Math.sin(angle);
+    const angle2 = this.aStartAngle + t * deltaAngle;
+    let x = this.aX + this.xRadius * Math.cos(angle2);
+    let y = this.aY + this.yRadius * Math.sin(angle2);
     if (this.aRotation !== 0) {
       const cos = Math.cos(this.aRotation);
       const sin = Math.sin(this.aRotation);
@@ -22141,7 +22166,7 @@ class MeshPhysicalMaterial extends MeshStandardMaterial {
     this.ior = 1.5;
     Object.defineProperty(this, "reflectivity", {
       get: function() {
-        return clamp(2.5 * (this.ior - 1) / (this.ior + 1), 0, 1);
+        return clamp$1(2.5 * (this.ior - 1) / (this.ior + 1), 0, 1);
       },
       set: function(reflectivity) {
         this.ior = (1 + 0.4 * reflectivity) / (1 - 0.4 * reflectivity);
@@ -23869,14 +23894,14 @@ class SpotLightShadow extends LightShadow {
 }
 SpotLightShadow.prototype.isSpotLightShadow = true;
 class SpotLight extends Light {
-  constructor(color, intensity, distance = 0, angle = Math.PI / 3, penumbra = 0, decay = 1) {
+  constructor(color, intensity, distance2 = 0, angle2 = Math.PI / 3, penumbra = 0, decay = 1) {
     super(color, intensity);
     this.type = "SpotLight";
     this.position.copy(Object3D.DefaultUp);
     this.updateMatrix();
     this.target = new Object3D();
-    this.distance = distance;
-    this.angle = angle;
+    this.distance = distance2;
+    this.angle = angle2;
     this.penumbra = penumbra;
     this.decay = decay;
     this.shadow = new SpotLightShadow();
@@ -23957,10 +23982,10 @@ class PointLightShadow extends LightShadow {
 }
 PointLightShadow.prototype.isPointLightShadow = true;
 class PointLight extends Light {
-  constructor(color, intensity, distance = 0, decay = 1) {
+  constructor(color, intensity, distance2 = 0, decay = 1) {
     super(color, intensity);
     this.type = "PointLight";
-    this.distance = distance;
+    this.distance = distance2;
     this.decay = decay;
     this.shadow = new PointLightShadow();
   }
@@ -24392,6 +24417,79 @@ class Clock {
 }
 function now() {
   return (typeof performance === "undefined" ? Date : performance).now();
+}
+const _position$1 = /* @__PURE__ */ new Vector3();
+const _quaternion$1 = /* @__PURE__ */ new Quaternion();
+const _scale$1 = /* @__PURE__ */ new Vector3();
+const _orientation$1 = /* @__PURE__ */ new Vector3();
+class AudioListener extends Object3D {
+  constructor() {
+    super();
+    this.type = "AudioListener";
+    this.context = AudioContext.getContext();
+    this.gain = this.context.createGain();
+    this.gain.connect(this.context.destination);
+    this.filter = null;
+    this.timeDelta = 0;
+    this._clock = new Clock();
+  }
+  getInput() {
+    return this.gain;
+  }
+  removeFilter() {
+    if (this.filter !== null) {
+      this.gain.disconnect(this.filter);
+      this.filter.disconnect(this.context.destination);
+      this.gain.connect(this.context.destination);
+      this.filter = null;
+    }
+    return this;
+  }
+  getFilter() {
+    return this.filter;
+  }
+  setFilter(value) {
+    if (this.filter !== null) {
+      this.gain.disconnect(this.filter);
+      this.filter.disconnect(this.context.destination);
+    } else {
+      this.gain.disconnect(this.context.destination);
+    }
+    this.filter = value;
+    this.gain.connect(this.filter);
+    this.filter.connect(this.context.destination);
+    return this;
+  }
+  getMasterVolume() {
+    return this.gain.gain.value;
+  }
+  setMasterVolume(value) {
+    this.gain.gain.setTargetAtTime(value, this.context.currentTime, 0.01);
+    return this;
+  }
+  updateMatrixWorld(force) {
+    super.updateMatrixWorld(force);
+    const listener = this.context.listener;
+    const up = this.up;
+    this.timeDelta = this._clock.getDelta();
+    this.matrixWorld.decompose(_position$1, _quaternion$1, _scale$1);
+    _orientation$1.set(0, 0, -1).applyQuaternion(_quaternion$1);
+    if (listener.positionX) {
+      const endTime = this.context.currentTime + this.timeDelta;
+      listener.positionX.linearRampToValueAtTime(_position$1.x, endTime);
+      listener.positionY.linearRampToValueAtTime(_position$1.y, endTime);
+      listener.positionZ.linearRampToValueAtTime(_position$1.z, endTime);
+      listener.forwardX.linearRampToValueAtTime(_orientation$1.x, endTime);
+      listener.forwardY.linearRampToValueAtTime(_orientation$1.y, endTime);
+      listener.forwardZ.linearRampToValueAtTime(_orientation$1.z, endTime);
+      listener.upX.linearRampToValueAtTime(up.x, endTime);
+      listener.upY.linearRampToValueAtTime(up.y, endTime);
+      listener.upZ.linearRampToValueAtTime(up.z, endTime);
+    } else {
+      listener.setPosition(_position$1.x, _position$1.y, _position$1.z);
+      listener.setOrientation(_orientation$1.x, _orientation$1.y, _orientation$1.z, up.x, up.y, up.z);
+    }
+  }
 }
 class Audio extends Object3D {
   constructor(listener) {
@@ -25803,6 +25901,48 @@ class InstancedInterleavedBuffer extends InterleavedBuffer {
   }
 }
 InstancedInterleavedBuffer.prototype.isInstancedInterleavedBuffer = true;
+class Spherical {
+  constructor(radius = 1, phi = 0, theta = 0) {
+    this.radius = radius;
+    this.phi = phi;
+    this.theta = theta;
+    return this;
+  }
+  set(radius, phi, theta) {
+    this.radius = radius;
+    this.phi = phi;
+    this.theta = theta;
+    return this;
+  }
+  copy(other) {
+    this.radius = other.radius;
+    this.phi = other.phi;
+    this.theta = other.theta;
+    return this;
+  }
+  makeSafe() {
+    const EPS = 1e-6;
+    this.phi = Math.max(EPS, Math.min(Math.PI - EPS, this.phi));
+    return this;
+  }
+  setFromVector3(v) {
+    return this.setFromCartesianCoords(v.x, v.y, v.z);
+  }
+  setFromCartesianCoords(x, y, z) {
+    this.radius = Math.sqrt(x * x + y * y + z * z);
+    if (this.radius === 0) {
+      this.theta = 0;
+      this.phi = 0;
+    } else {
+      this.theta = Math.atan2(x, z);
+      this.phi = Math.acos(clamp$1(y / this.radius, -1, 1));
+    }
+    return this;
+  }
+  clone() {
+    return new this.constructor().copy(this);
+  }
+}
 const _vector$3 = /* @__PURE__ */ new Vector3();
 class SpotLightHelper extends Object3D {
   constructor(light, color) {
@@ -25963,6 +26103,112 @@ class GridHelper extends LineSegments {
     const material = new LineBasicMaterial({ vertexColors: true, toneMapped: false });
     super(geometry, material);
     this.type = "GridHelper";
+  }
+}
+const _vector = /* @__PURE__ */ new Vector3();
+const _camera = /* @__PURE__ */ new Camera();
+class CameraHelper extends LineSegments {
+  constructor(camera) {
+    const geometry = new BufferGeometry();
+    const material = new LineBasicMaterial({ color: 16777215, vertexColors: true, toneMapped: false });
+    const vertices = [];
+    const colors = [];
+    const pointMap = {};
+    const colorFrustum = new Color(16755200);
+    const colorCone = new Color(16711680);
+    const colorUp = new Color(43775);
+    const colorTarget = new Color(16777215);
+    const colorCross = new Color(3355443);
+    addLine("n1", "n2", colorFrustum);
+    addLine("n2", "n4", colorFrustum);
+    addLine("n4", "n3", colorFrustum);
+    addLine("n3", "n1", colorFrustum);
+    addLine("f1", "f2", colorFrustum);
+    addLine("f2", "f4", colorFrustum);
+    addLine("f4", "f3", colorFrustum);
+    addLine("f3", "f1", colorFrustum);
+    addLine("n1", "f1", colorFrustum);
+    addLine("n2", "f2", colorFrustum);
+    addLine("n3", "f3", colorFrustum);
+    addLine("n4", "f4", colorFrustum);
+    addLine("p", "n1", colorCone);
+    addLine("p", "n2", colorCone);
+    addLine("p", "n3", colorCone);
+    addLine("p", "n4", colorCone);
+    addLine("u1", "u2", colorUp);
+    addLine("u2", "u3", colorUp);
+    addLine("u3", "u1", colorUp);
+    addLine("c", "t", colorTarget);
+    addLine("p", "c", colorCross);
+    addLine("cn1", "cn2", colorCross);
+    addLine("cn3", "cn4", colorCross);
+    addLine("cf1", "cf2", colorCross);
+    addLine("cf3", "cf4", colorCross);
+    function addLine(a, b, color) {
+      addPoint(a, color);
+      addPoint(b, color);
+    }
+    function addPoint(id, color) {
+      vertices.push(0, 0, 0);
+      colors.push(color.r, color.g, color.b);
+      if (pointMap[id] === void 0) {
+        pointMap[id] = [];
+      }
+      pointMap[id].push(vertices.length / 3 - 1);
+    }
+    geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    super(geometry, material);
+    this.type = "CameraHelper";
+    this.camera = camera;
+    if (this.camera.updateProjectionMatrix)
+      this.camera.updateProjectionMatrix();
+    this.matrix = camera.matrixWorld;
+    this.matrixAutoUpdate = false;
+    this.pointMap = pointMap;
+    this.update();
+  }
+  update() {
+    const geometry = this.geometry;
+    const pointMap = this.pointMap;
+    const w = 1, h = 1;
+    _camera.projectionMatrixInverse.copy(this.camera.projectionMatrixInverse);
+    setPoint("c", pointMap, geometry, _camera, 0, 0, -1);
+    setPoint("t", pointMap, geometry, _camera, 0, 0, 1);
+    setPoint("n1", pointMap, geometry, _camera, -w, -h, -1);
+    setPoint("n2", pointMap, geometry, _camera, w, -h, -1);
+    setPoint("n3", pointMap, geometry, _camera, -w, h, -1);
+    setPoint("n4", pointMap, geometry, _camera, w, h, -1);
+    setPoint("f1", pointMap, geometry, _camera, -w, -h, 1);
+    setPoint("f2", pointMap, geometry, _camera, w, -h, 1);
+    setPoint("f3", pointMap, geometry, _camera, -w, h, 1);
+    setPoint("f4", pointMap, geometry, _camera, w, h, 1);
+    setPoint("u1", pointMap, geometry, _camera, w * 0.7, h * 1.1, -1);
+    setPoint("u2", pointMap, geometry, _camera, -w * 0.7, h * 1.1, -1);
+    setPoint("u3", pointMap, geometry, _camera, 0, h * 2, -1);
+    setPoint("cf1", pointMap, geometry, _camera, -w, 0, 1);
+    setPoint("cf2", pointMap, geometry, _camera, w, 0, 1);
+    setPoint("cf3", pointMap, geometry, _camera, 0, -h, 1);
+    setPoint("cf4", pointMap, geometry, _camera, 0, h, 1);
+    setPoint("cn1", pointMap, geometry, _camera, -w, 0, -1);
+    setPoint("cn2", pointMap, geometry, _camera, w, 0, -1);
+    setPoint("cn3", pointMap, geometry, _camera, 0, -h, -1);
+    setPoint("cn4", pointMap, geometry, _camera, 0, h, -1);
+    geometry.getAttribute("position").needsUpdate = true;
+  }
+  dispose() {
+    this.geometry.dispose();
+    this.material.dispose();
+  }
+}
+function setPoint(point, pointMap, geometry, camera, x, y, z) {
+  _vector.set(x, y, z).unproject(camera);
+  const points = pointMap[point];
+  if (points !== void 0) {
+    const position = geometry.getAttribute("position");
+    for (let i = 0, l = points.length; i < l; i++) {
+      position.setXYZ(points[i], _vector.x, _vector.y, _vector.z);
+    }
   }
 }
 class AxesHelper extends LineSegments {
@@ -26308,9 +26554,9 @@ Object3D.prototype.getChildByName = function(name) {
 Object3D.prototype.renderDepth = function() {
   console.warn("THREE.Object3D: .renderDepth has been removed. Use .renderOrder, instead.");
 };
-Object3D.prototype.translate = function(distance, axis) {
+Object3D.prototype.translate = function(distance2, axis) {
   console.warn("THREE.Object3D: .translate() has been removed. Use .translateOnAxis( axis, distance ) instead.");
-  return this.translateOnAxis(axis, distance);
+  return this.translateOnAxis(axis, distance2);
 };
 Object3D.prototype.getWorldRotation = function() {
   console.error("THREE.Object3D: .getWorldRotation() has been removed. Use THREE.Object3D.getWorldQuaternion( target ) instead.");
@@ -26949,6 +27195,763 @@ if (typeof window !== "undefined") {
     window.__THREE__ = REVISION;
   }
 }
+const _changeEvent = { type: "change" };
+const _startEvent = { type: "start" };
+const _endEvent = { type: "end" };
+class OrbitControls extends EventDispatcher {
+  constructor(object, domElement) {
+    super();
+    if (domElement === void 0)
+      console.warn('THREE.OrbitControls: The second parameter "domElement" is now mandatory.');
+    if (domElement === document)
+      console.error('THREE.OrbitControls: "document" should not be used as the target "domElement". Please use "renderer.domElement" instead.');
+    this.object = object;
+    this.domElement = domElement;
+    this.domElement.style.touchAction = "none";
+    this.enabled = true;
+    this.target = new Vector3();
+    this.minDistance = 0;
+    this.maxDistance = Infinity;
+    this.minZoom = 0;
+    this.maxZoom = Infinity;
+    this.minPolarAngle = 0;
+    this.maxPolarAngle = Math.PI;
+    this.minAzimuthAngle = -Infinity;
+    this.maxAzimuthAngle = Infinity;
+    this.enableDamping = false;
+    this.dampingFactor = 0.05;
+    this.enableZoom = true;
+    this.zoomSpeed = 1;
+    this.enableRotate = true;
+    this.rotateSpeed = 1;
+    this.enablePan = true;
+    this.panSpeed = 1;
+    this.screenSpacePanning = true;
+    this.keyPanSpeed = 7;
+    this.autoRotate = false;
+    this.autoRotateSpeed = 2;
+    this.keys = { LEFT: "ArrowLeft", UP: "ArrowUp", RIGHT: "ArrowRight", BOTTOM: "ArrowDown" };
+    this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
+    this.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
+    this.target0 = this.target.clone();
+    this.position0 = this.object.position.clone();
+    this.zoom0 = this.object.zoom;
+    this._domElementKeyEvents = null;
+    this.getPolarAngle = function() {
+      return spherical.phi;
+    };
+    this.getAzimuthalAngle = function() {
+      return spherical.theta;
+    };
+    this.getDistance = function() {
+      return this.object.position.distanceTo(this.target);
+    };
+    this.listenToKeyEvents = function(domElement2) {
+      domElement2.addEventListener("keydown", onKeyDown);
+      this._domElementKeyEvents = domElement2;
+    };
+    this.saveState = function() {
+      scope.target0.copy(scope.target);
+      scope.position0.copy(scope.object.position);
+      scope.zoom0 = scope.object.zoom;
+    };
+    this.reset = function() {
+      scope.target.copy(scope.target0);
+      scope.object.position.copy(scope.position0);
+      scope.object.zoom = scope.zoom0;
+      scope.object.updateProjectionMatrix();
+      scope.dispatchEvent(_changeEvent);
+      scope.update();
+      state = STATE.NONE;
+    };
+    this.update = function() {
+      const offset = new Vector3();
+      const quat = new Quaternion().setFromUnitVectors(object.up, new Vector3(0, 1, 0));
+      const quatInverse = quat.clone().invert();
+      const lastPosition = new Vector3();
+      const lastQuaternion = new Quaternion();
+      const twoPI = 2 * Math.PI;
+      return function update2() {
+        const position = scope.object.position;
+        offset.copy(position).sub(scope.target);
+        offset.applyQuaternion(quat);
+        spherical.setFromVector3(offset);
+        if (scope.autoRotate && state === STATE.NONE) {
+          rotateLeft(getAutoRotationAngle());
+        }
+        if (scope.enableDamping) {
+          spherical.theta += sphericalDelta.theta * scope.dampingFactor;
+          spherical.phi += sphericalDelta.phi * scope.dampingFactor;
+        } else {
+          spherical.theta += sphericalDelta.theta;
+          spherical.phi += sphericalDelta.phi;
+        }
+        let min = scope.minAzimuthAngle;
+        let max = scope.maxAzimuthAngle;
+        if (isFinite(min) && isFinite(max)) {
+          if (min < -Math.PI)
+            min += twoPI;
+          else if (min > Math.PI)
+            min -= twoPI;
+          if (max < -Math.PI)
+            max += twoPI;
+          else if (max > Math.PI)
+            max -= twoPI;
+          if (min <= max) {
+            spherical.theta = Math.max(min, Math.min(max, spherical.theta));
+          } else {
+            spherical.theta = spherical.theta > (min + max) / 2 ? Math.max(min, spherical.theta) : Math.min(max, spherical.theta);
+          }
+        }
+        spherical.phi = Math.max(scope.minPolarAngle, Math.min(scope.maxPolarAngle, spherical.phi));
+        spherical.makeSafe();
+        spherical.radius *= scale;
+        spherical.radius = Math.max(scope.minDistance, Math.min(scope.maxDistance, spherical.radius));
+        if (scope.enableDamping === true) {
+          scope.target.addScaledVector(panOffset, scope.dampingFactor);
+        } else {
+          scope.target.add(panOffset);
+        }
+        offset.setFromSpherical(spherical);
+        offset.applyQuaternion(quatInverse);
+        position.copy(scope.target).add(offset);
+        scope.object.lookAt(scope.target);
+        if (scope.enableDamping === true) {
+          sphericalDelta.theta *= 1 - scope.dampingFactor;
+          sphericalDelta.phi *= 1 - scope.dampingFactor;
+          panOffset.multiplyScalar(1 - scope.dampingFactor);
+        } else {
+          sphericalDelta.set(0, 0, 0);
+          panOffset.set(0, 0, 0);
+        }
+        scale = 1;
+        if (zoomChanged || lastPosition.distanceToSquared(scope.object.position) > EPS || 8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
+          scope.dispatchEvent(_changeEvent);
+          lastPosition.copy(scope.object.position);
+          lastQuaternion.copy(scope.object.quaternion);
+          zoomChanged = false;
+          return true;
+        }
+        return false;
+      };
+    }();
+    this.dispose = function() {
+      scope.domElement.removeEventListener("contextmenu", onContextMenu);
+      scope.domElement.removeEventListener("pointerdown", onPointerDown);
+      scope.domElement.removeEventListener("pointercancel", onPointerCancel);
+      scope.domElement.removeEventListener("wheel", onMouseWheel);
+      scope.domElement.removeEventListener("pointermove", onPointerMove);
+      scope.domElement.removeEventListener("pointerup", onPointerUp);
+      if (scope._domElementKeyEvents !== null) {
+        scope._domElementKeyEvents.removeEventListener("keydown", onKeyDown);
+      }
+    };
+    const scope = this;
+    const STATE = {
+      NONE: -1,
+      ROTATE: 0,
+      DOLLY: 1,
+      PAN: 2,
+      TOUCH_ROTATE: 3,
+      TOUCH_PAN: 4,
+      TOUCH_DOLLY_PAN: 5,
+      TOUCH_DOLLY_ROTATE: 6
+    };
+    let state = STATE.NONE;
+    const EPS = 1e-6;
+    const spherical = new Spherical();
+    const sphericalDelta = new Spherical();
+    let scale = 1;
+    const panOffset = new Vector3();
+    let zoomChanged = false;
+    const rotateStart = new Vector2();
+    const rotateEnd = new Vector2();
+    const rotateDelta = new Vector2();
+    const panStart = new Vector2();
+    const panEnd = new Vector2();
+    const panDelta = new Vector2();
+    const dollyStart = new Vector2();
+    const dollyEnd = new Vector2();
+    const dollyDelta = new Vector2();
+    const pointers = [];
+    const pointerPositions = {};
+    function getAutoRotationAngle() {
+      return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+    }
+    function getZoomScale() {
+      return Math.pow(0.95, scope.zoomSpeed);
+    }
+    function rotateLeft(angle2) {
+      sphericalDelta.theta -= angle2;
+    }
+    function rotateUp(angle2) {
+      sphericalDelta.phi -= angle2;
+    }
+    const panLeft = function() {
+      const v = new Vector3();
+      return function panLeft2(distance2, objectMatrix) {
+        v.setFromMatrixColumn(objectMatrix, 0);
+        v.multiplyScalar(-distance2);
+        panOffset.add(v);
+      };
+    }();
+    const panUp = function() {
+      const v = new Vector3();
+      return function panUp2(distance2, objectMatrix) {
+        if (scope.screenSpacePanning === true) {
+          v.setFromMatrixColumn(objectMatrix, 1);
+        } else {
+          v.setFromMatrixColumn(objectMatrix, 0);
+          v.crossVectors(scope.object.up, v);
+        }
+        v.multiplyScalar(distance2);
+        panOffset.add(v);
+      };
+    }();
+    const pan = function() {
+      const offset = new Vector3();
+      return function pan2(deltaX, deltaY) {
+        const element2 = scope.domElement;
+        if (scope.object.isPerspectiveCamera) {
+          const position = scope.object.position;
+          offset.copy(position).sub(scope.target);
+          let targetDistance = offset.length();
+          targetDistance *= Math.tan(scope.object.fov / 2 * Math.PI / 180);
+          panLeft(2 * deltaX * targetDistance / element2.clientHeight, scope.object.matrix);
+          panUp(2 * deltaY * targetDistance / element2.clientHeight, scope.object.matrix);
+        } else if (scope.object.isOrthographicCamera) {
+          panLeft(deltaX * (scope.object.right - scope.object.left) / scope.object.zoom / element2.clientWidth, scope.object.matrix);
+          panUp(deltaY * (scope.object.top - scope.object.bottom) / scope.object.zoom / element2.clientHeight, scope.object.matrix);
+        } else {
+          console.warn("WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.");
+          scope.enablePan = false;
+        }
+      };
+    }();
+    function dollyOut(dollyScale) {
+      if (scope.object.isPerspectiveCamera) {
+        scale /= dollyScale;
+      } else if (scope.object.isOrthographicCamera) {
+        scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom * dollyScale));
+        scope.object.updateProjectionMatrix();
+        zoomChanged = true;
+      } else {
+        console.warn("WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.");
+        scope.enableZoom = false;
+      }
+    }
+    function dollyIn(dollyScale) {
+      if (scope.object.isPerspectiveCamera) {
+        scale *= dollyScale;
+      } else if (scope.object.isOrthographicCamera) {
+        scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom / dollyScale));
+        scope.object.updateProjectionMatrix();
+        zoomChanged = true;
+      } else {
+        console.warn("WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.");
+        scope.enableZoom = false;
+      }
+    }
+    function handleMouseDownRotate(event) {
+      rotateStart.set(event.clientX, event.clientY);
+    }
+    function handleMouseDownDolly(event) {
+      dollyStart.set(event.clientX, event.clientY);
+    }
+    function handleMouseDownPan(event) {
+      panStart.set(event.clientX, event.clientY);
+    }
+    function handleMouseMoveRotate(event) {
+      rotateEnd.set(event.clientX, event.clientY);
+      rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
+      const element2 = scope.domElement;
+      rotateLeft(2 * Math.PI * rotateDelta.x / element2.clientHeight);
+      rotateUp(2 * Math.PI * rotateDelta.y / element2.clientHeight);
+      rotateStart.copy(rotateEnd);
+      scope.update();
+    }
+    function handleMouseMoveDolly(event) {
+      dollyEnd.set(event.clientX, event.clientY);
+      dollyDelta.subVectors(dollyEnd, dollyStart);
+      if (dollyDelta.y > 0) {
+        dollyOut(getZoomScale());
+      } else if (dollyDelta.y < 0) {
+        dollyIn(getZoomScale());
+      }
+      dollyStart.copy(dollyEnd);
+      scope.update();
+    }
+    function handleMouseMovePan(event) {
+      panEnd.set(event.clientX, event.clientY);
+      panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
+      pan(panDelta.x, panDelta.y);
+      panStart.copy(panEnd);
+      scope.update();
+    }
+    function handleMouseWheel(event) {
+      if (event.deltaY < 0) {
+        dollyIn(getZoomScale());
+      } else if (event.deltaY > 0) {
+        dollyOut(getZoomScale());
+      }
+      scope.update();
+    }
+    function handleKeyDown(event) {
+      let needsUpdate = false;
+      switch (event.code) {
+        case scope.keys.UP:
+          pan(0, scope.keyPanSpeed);
+          needsUpdate = true;
+          break;
+        case scope.keys.BOTTOM:
+          pan(0, -scope.keyPanSpeed);
+          needsUpdate = true;
+          break;
+        case scope.keys.LEFT:
+          pan(scope.keyPanSpeed, 0);
+          needsUpdate = true;
+          break;
+        case scope.keys.RIGHT:
+          pan(-scope.keyPanSpeed, 0);
+          needsUpdate = true;
+          break;
+      }
+      if (needsUpdate) {
+        event.preventDefault();
+        scope.update();
+      }
+    }
+    function handleTouchStartRotate() {
+      if (pointers.length === 1) {
+        rotateStart.set(pointers[0].pageX, pointers[0].pageY);
+      } else {
+        const x = 0.5 * (pointers[0].pageX + pointers[1].pageX);
+        const y = 0.5 * (pointers[0].pageY + pointers[1].pageY);
+        rotateStart.set(x, y);
+      }
+    }
+    function handleTouchStartPan() {
+      if (pointers.length === 1) {
+        panStart.set(pointers[0].pageX, pointers[0].pageY);
+      } else {
+        const x = 0.5 * (pointers[0].pageX + pointers[1].pageX);
+        const y = 0.5 * (pointers[0].pageY + pointers[1].pageY);
+        panStart.set(x, y);
+      }
+    }
+    function handleTouchStartDolly() {
+      const dx = pointers[0].pageX - pointers[1].pageX;
+      const dy = pointers[0].pageY - pointers[1].pageY;
+      const distance2 = Math.sqrt(dx * dx + dy * dy);
+      dollyStart.set(0, distance2);
+    }
+    function handleTouchStartDollyPan() {
+      if (scope.enableZoom)
+        handleTouchStartDolly();
+      if (scope.enablePan)
+        handleTouchStartPan();
+    }
+    function handleTouchStartDollyRotate() {
+      if (scope.enableZoom)
+        handleTouchStartDolly();
+      if (scope.enableRotate)
+        handleTouchStartRotate();
+    }
+    function handleTouchMoveRotate(event) {
+      if (pointers.length == 1) {
+        rotateEnd.set(event.pageX, event.pageY);
+      } else {
+        const position = getSecondPointerPosition(event);
+        const x = 0.5 * (event.pageX + position.x);
+        const y = 0.5 * (event.pageY + position.y);
+        rotateEnd.set(x, y);
+      }
+      rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
+      const element2 = scope.domElement;
+      rotateLeft(2 * Math.PI * rotateDelta.x / element2.clientHeight);
+      rotateUp(2 * Math.PI * rotateDelta.y / element2.clientHeight);
+      rotateStart.copy(rotateEnd);
+    }
+    function handleTouchMovePan(event) {
+      if (pointers.length === 1) {
+        panEnd.set(event.pageX, event.pageY);
+      } else {
+        const position = getSecondPointerPosition(event);
+        const x = 0.5 * (event.pageX + position.x);
+        const y = 0.5 * (event.pageY + position.y);
+        panEnd.set(x, y);
+      }
+      panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
+      pan(panDelta.x, panDelta.y);
+      panStart.copy(panEnd);
+    }
+    function handleTouchMoveDolly(event) {
+      const position = getSecondPointerPosition(event);
+      const dx = event.pageX - position.x;
+      const dy = event.pageY - position.y;
+      const distance2 = Math.sqrt(dx * dx + dy * dy);
+      dollyEnd.set(0, distance2);
+      dollyDelta.set(0, Math.pow(dollyEnd.y / dollyStart.y, scope.zoomSpeed));
+      dollyOut(dollyDelta.y);
+      dollyStart.copy(dollyEnd);
+    }
+    function handleTouchMoveDollyPan(event) {
+      if (scope.enableZoom)
+        handleTouchMoveDolly(event);
+      if (scope.enablePan)
+        handleTouchMovePan(event);
+    }
+    function handleTouchMoveDollyRotate(event) {
+      if (scope.enableZoom)
+        handleTouchMoveDolly(event);
+      if (scope.enableRotate)
+        handleTouchMoveRotate(event);
+    }
+    function onPointerDown(event) {
+      if (scope.enabled === false)
+        return;
+      if (pointers.length === 0) {
+        scope.domElement.setPointerCapture(event.pointerId);
+        scope.domElement.addEventListener("pointermove", onPointerMove);
+        scope.domElement.addEventListener("pointerup", onPointerUp);
+      }
+      addPointer(event);
+      if (event.pointerType === "touch") {
+        onTouchStart(event);
+      } else {
+        onMouseDown(event);
+      }
+    }
+    function onPointerMove(event) {
+      if (scope.enabled === false)
+        return;
+      if (event.pointerType === "touch") {
+        onTouchMove(event);
+      } else {
+        onMouseMove(event);
+      }
+    }
+    function onPointerUp(event) {
+      if (scope.enabled === false)
+        return;
+      if (event.pointerType === "touch") {
+        onTouchEnd();
+      } else {
+        onMouseUp();
+      }
+      removePointer(event);
+      if (pointers.length === 0) {
+        scope.domElement.releasePointerCapture(event.pointerId);
+        scope.domElement.removeEventListener("pointermove", onPointerMove);
+        scope.domElement.removeEventListener("pointerup", onPointerUp);
+      }
+    }
+    function onPointerCancel(event) {
+      removePointer(event);
+    }
+    function onMouseDown(event) {
+      let mouseAction;
+      switch (event.button) {
+        case 0:
+          mouseAction = scope.mouseButtons.LEFT;
+          break;
+        case 1:
+          mouseAction = scope.mouseButtons.MIDDLE;
+          break;
+        case 2:
+          mouseAction = scope.mouseButtons.RIGHT;
+          break;
+        default:
+          mouseAction = -1;
+      }
+      switch (mouseAction) {
+        case MOUSE.DOLLY:
+          if (scope.enableZoom === false)
+            return;
+          handleMouseDownDolly(event);
+          state = STATE.DOLLY;
+          break;
+        case MOUSE.ROTATE:
+          if (event.ctrlKey || event.metaKey || event.shiftKey) {
+            if (scope.enablePan === false)
+              return;
+            handleMouseDownPan(event);
+            state = STATE.PAN;
+          } else {
+            if (scope.enableRotate === false)
+              return;
+            handleMouseDownRotate(event);
+            state = STATE.ROTATE;
+          }
+          break;
+        case MOUSE.PAN:
+          if (event.ctrlKey || event.metaKey || event.shiftKey) {
+            if (scope.enableRotate === false)
+              return;
+            handleMouseDownRotate(event);
+            state = STATE.ROTATE;
+          } else {
+            if (scope.enablePan === false)
+              return;
+            handleMouseDownPan(event);
+            state = STATE.PAN;
+          }
+          break;
+        default:
+          state = STATE.NONE;
+      }
+      if (state !== STATE.NONE) {
+        scope.dispatchEvent(_startEvent);
+      }
+    }
+    function onMouseMove(event) {
+      if (scope.enabled === false)
+        return;
+      switch (state) {
+        case STATE.ROTATE:
+          if (scope.enableRotate === false)
+            return;
+          handleMouseMoveRotate(event);
+          break;
+        case STATE.DOLLY:
+          if (scope.enableZoom === false)
+            return;
+          handleMouseMoveDolly(event);
+          break;
+        case STATE.PAN:
+          if (scope.enablePan === false)
+            return;
+          handleMouseMovePan(event);
+          break;
+      }
+    }
+    function onMouseUp(event) {
+      scope.dispatchEvent(_endEvent);
+      state = STATE.NONE;
+    }
+    function onMouseWheel(event) {
+      if (scope.enabled === false || scope.enableZoom === false || state !== STATE.NONE)
+        return;
+      event.preventDefault();
+      scope.dispatchEvent(_startEvent);
+      handleMouseWheel(event);
+      scope.dispatchEvent(_endEvent);
+    }
+    function onKeyDown(event) {
+      if (scope.enabled === false || scope.enablePan === false)
+        return;
+      handleKeyDown(event);
+    }
+    function onTouchStart(event) {
+      trackPointer(event);
+      switch (pointers.length) {
+        case 1:
+          switch (scope.touches.ONE) {
+            case TOUCH.ROTATE:
+              if (scope.enableRotate === false)
+                return;
+              handleTouchStartRotate();
+              state = STATE.TOUCH_ROTATE;
+              break;
+            case TOUCH.PAN:
+              if (scope.enablePan === false)
+                return;
+              handleTouchStartPan();
+              state = STATE.TOUCH_PAN;
+              break;
+            default:
+              state = STATE.NONE;
+          }
+          break;
+        case 2:
+          switch (scope.touches.TWO) {
+            case TOUCH.DOLLY_PAN:
+              if (scope.enableZoom === false && scope.enablePan === false)
+                return;
+              handleTouchStartDollyPan();
+              state = STATE.TOUCH_DOLLY_PAN;
+              break;
+            case TOUCH.DOLLY_ROTATE:
+              if (scope.enableZoom === false && scope.enableRotate === false)
+                return;
+              handleTouchStartDollyRotate();
+              state = STATE.TOUCH_DOLLY_ROTATE;
+              break;
+            default:
+              state = STATE.NONE;
+          }
+          break;
+        default:
+          state = STATE.NONE;
+      }
+      if (state !== STATE.NONE) {
+        scope.dispatchEvent(_startEvent);
+      }
+    }
+    function onTouchMove(event) {
+      trackPointer(event);
+      switch (state) {
+        case STATE.TOUCH_ROTATE:
+          if (scope.enableRotate === false)
+            return;
+          handleTouchMoveRotate(event);
+          scope.update();
+          break;
+        case STATE.TOUCH_PAN:
+          if (scope.enablePan === false)
+            return;
+          handleTouchMovePan(event);
+          scope.update();
+          break;
+        case STATE.TOUCH_DOLLY_PAN:
+          if (scope.enableZoom === false && scope.enablePan === false)
+            return;
+          handleTouchMoveDollyPan(event);
+          scope.update();
+          break;
+        case STATE.TOUCH_DOLLY_ROTATE:
+          if (scope.enableZoom === false && scope.enableRotate === false)
+            return;
+          handleTouchMoveDollyRotate(event);
+          scope.update();
+          break;
+        default:
+          state = STATE.NONE;
+      }
+    }
+    function onTouchEnd(event) {
+      scope.dispatchEvent(_endEvent);
+      state = STATE.NONE;
+    }
+    function onContextMenu(event) {
+      if (scope.enabled === false)
+        return;
+      event.preventDefault();
+    }
+    function addPointer(event) {
+      pointers.push(event);
+    }
+    function removePointer(event) {
+      delete pointerPositions[event.pointerId];
+      for (let i = 0; i < pointers.length; i++) {
+        if (pointers[i].pointerId == event.pointerId) {
+          pointers.splice(i, 1);
+          return;
+        }
+      }
+    }
+    function trackPointer(event) {
+      let position = pointerPositions[event.pointerId];
+      if (position === void 0) {
+        position = new Vector2();
+        pointerPositions[event.pointerId] = position;
+      }
+      position.set(event.pageX, event.pageY);
+    }
+    function getSecondPointerPosition(event) {
+      const pointer = event.pointerId === pointers[0].pointerId ? pointers[1] : pointers[0];
+      return pointerPositions[pointer.pointerId];
+    }
+    scope.domElement.addEventListener("contextmenu", onContextMenu);
+    scope.domElement.addEventListener("pointerdown", onPointerDown);
+    scope.domElement.addEventListener("pointercancel", onPointerCancel);
+    scope.domElement.addEventListener("wheel", onMouseWheel, { passive: false });
+    this.update();
+  }
+}
+var Stats = function() {
+  var mode = 0;
+  var container = document.createElement("div");
+  container.style.cssText = "position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000";
+  container.addEventListener("click", function(event) {
+    event.preventDefault();
+    showPanel(++mode % container.children.length);
+  }, false);
+  function addPanel(panel) {
+    container.appendChild(panel.dom);
+    return panel;
+  }
+  function showPanel(id) {
+    for (var i = 0; i < container.children.length; i++) {
+      container.children[i].style.display = i === id ? "block" : "none";
+    }
+    mode = id;
+  }
+  var beginTime = (performance || Date).now(), prevTime = beginTime, frames = 0;
+  var fpsPanel = addPanel(new Stats.Panel("FPS", "#0ff", "#002"));
+  var msPanel = addPanel(new Stats.Panel("MS", "#0f0", "#020"));
+  if (self.performance && self.performance.memory) {
+    var memPanel = addPanel(new Stats.Panel("MB", "#f08", "#201"));
+  }
+  showPanel(0);
+  return {
+    REVISION: 16,
+    dom: container,
+    addPanel,
+    showPanel,
+    begin: function() {
+      beginTime = (performance || Date).now();
+    },
+    end: function() {
+      frames++;
+      var time = (performance || Date).now();
+      msPanel.update(time - beginTime, 200);
+      if (time >= prevTime + 1e3) {
+        fpsPanel.update(frames * 1e3 / (time - prevTime), 100);
+        prevTime = time;
+        frames = 0;
+        if (memPanel) {
+          var memory = performance.memory;
+          memPanel.update(memory.usedJSHeapSize / 1048576, memory.jsHeapSizeLimit / 1048576);
+        }
+      }
+      return time;
+    },
+    update: function() {
+      beginTime = this.end();
+    },
+    domElement: container,
+    setMode: showPanel
+  };
+};
+Stats.Panel = function(name, fg, bg) {
+  var min = Infinity, max = 0, round = Math.round;
+  var PR = round(window.devicePixelRatio || 1);
+  var WIDTH = 80 * PR, HEIGHT = 48 * PR, TEXT_X = 3 * PR, TEXT_Y = 2 * PR, GRAPH_X = 3 * PR, GRAPH_Y = 15 * PR, GRAPH_WIDTH = 74 * PR, GRAPH_HEIGHT = 30 * PR;
+  var canvas = document.createElement("canvas");
+  canvas.width = WIDTH;
+  canvas.height = HEIGHT;
+  canvas.style.cssText = "width:80px;height:48px";
+  var context = canvas.getContext("2d");
+  context.font = "bold " + 9 * PR + "px Helvetica,Arial,sans-serif";
+  context.textBaseline = "top";
+  context.fillStyle = bg;
+  context.fillRect(0, 0, WIDTH, HEIGHT);
+  context.fillStyle = fg;
+  context.fillText(name, TEXT_X, TEXT_Y);
+  context.fillRect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT);
+  context.fillStyle = bg;
+  context.globalAlpha = 0.9;
+  context.fillRect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT);
+  return {
+    dom: canvas,
+    update: function(value, maxValue) {
+      min = Math.min(min, value);
+      max = Math.max(max, value);
+      context.fillStyle = bg;
+      context.globalAlpha = 1;
+      context.fillRect(0, 0, WIDTH, GRAPH_Y);
+      context.fillStyle = fg;
+      context.fillText(round(value) + " " + name + " (" + round(min) + "-" + round(max) + ")", TEXT_X, TEXT_Y);
+      context.drawImage(canvas, GRAPH_X + PR, GRAPH_Y, GRAPH_WIDTH - PR, GRAPH_HEIGHT, GRAPH_X, GRAPH_Y, GRAPH_WIDTH - PR, GRAPH_HEIGHT);
+      context.fillRect(GRAPH_X + GRAPH_WIDTH - PR, GRAPH_Y, PR, GRAPH_HEIGHT);
+      context.fillStyle = bg;
+      context.globalAlpha = 0.9;
+      context.fillRect(GRAPH_X + GRAPH_WIDTH - PR, GRAPH_Y, PR, round((1 - value / maxValue) * GRAPH_HEIGHT));
+    }
+  };
+};
+var Stats$1 = Stats;
 class GLTFLoader extends Loader {
   constructor(manager) {
     super(manager);
@@ -29208,97 +30211,1159 @@ function toTrianglesDrawMode(geometry, drawMode) {
   newGeometry.setIndex(newIndices);
   return newGeometry;
 }
-var Stats = function() {
-  var mode = 0;
-  var container = document.createElement("div");
-  container.style.cssText = "position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000";
-  container.addEventListener("click", function(event) {
-    event.preventDefault();
-    showPanel(++mode % container.children.length);
-  }, false);
-  function addPanel(panel) {
-    container.appendChild(panel.dom);
-    return panel;
+const distance = (p1, p2) => {
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  return Math.sqrt(dx * dx + dy * dy);
+};
+const angle = (p1, p2) => {
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  return degrees(Math.atan2(dy, dx));
+};
+const findCoord = (p, d, a) => {
+  const b = { x: 0, y: 0 };
+  a = radians(a);
+  b.x = p.x - d * Math.cos(a);
+  b.y = p.y - d * Math.sin(a);
+  return b;
+};
+const radians = (a) => {
+  return a * (Math.PI / 180);
+};
+const degrees = (a) => {
+  return a * (180 / Math.PI);
+};
+const isPressed = (evt) => {
+  if (isNaN(evt.buttons)) {
+    return evt.pressure !== 0;
   }
-  function showPanel(id) {
-    for (var i = 0; i < container.children.length; i++) {
-      container.children[i].style.display = i === id ? "block" : "none";
+  return evt.buttons !== 0;
+};
+const timers = new Map();
+const throttle = (cb) => {
+  if (timers.has(cb)) {
+    clearTimeout(timers.get(cb));
+  }
+  timers.set(cb, setTimeout(cb, 100));
+};
+const bindEvt = (el, arg, handler) => {
+  const types = arg.split(/[ ,]+/g);
+  let type;
+  for (let i = 0; i < types.length; i += 1) {
+    type = types[i];
+    if (el.addEventListener) {
+      el.addEventListener(type, handler, false);
+    } else if (el.attachEvent) {
+      el.attachEvent(type, handler);
     }
-    mode = id;
   }
-  var beginTime = (performance || Date).now(), prevTime = beginTime, frames = 0;
-  var fpsPanel = addPanel(new Stats.Panel("FPS", "#0ff", "#002"));
-  var msPanel = addPanel(new Stats.Panel("MS", "#0f0", "#020"));
-  if (self.performance && self.performance.memory) {
-    var memPanel = addPanel(new Stats.Panel("MB", "#f08", "#201"));
+};
+const unbindEvt = (el, arg, handler) => {
+  const types = arg.split(/[ ,]+/g);
+  let type;
+  for (let i = 0; i < types.length; i += 1) {
+    type = types[i];
+    if (el.removeEventListener) {
+      el.removeEventListener(type, handler);
+    } else if (el.detachEvent) {
+      el.detachEvent(type, handler);
+    }
   }
-  showPanel(0);
+};
+const prepareEvent = (evt) => {
+  evt.preventDefault();
+  return evt.type.match(/^touch/) ? evt.changedTouches : evt;
+};
+const getScroll = () => {
+  const x = window.pageXOffset !== void 0 ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft;
+  const y = window.pageYOffset !== void 0 ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
   return {
-    REVISION: 16,
-    dom: container,
-    addPanel,
-    showPanel,
-    begin: function() {
-      beginTime = (performance || Date).now();
-    },
-    end: function() {
-      frames++;
-      var time = (performance || Date).now();
-      msPanel.update(time - beginTime, 200);
-      if (time >= prevTime + 1e3) {
-        fpsPanel.update(frames * 1e3 / (time - prevTime), 100);
-        prevTime = time;
-        frames = 0;
-        if (memPanel) {
-          var memory = performance.memory;
-          memPanel.update(memory.usedJSHeapSize / 1048576, memory.jsHeapSizeLimit / 1048576);
+    x,
+    y
+  };
+};
+const applyPosition = (el, pos) => {
+  if (pos.top || pos.right || pos.bottom || pos.left) {
+    el.style.top = pos.top;
+    el.style.right = pos.right;
+    el.style.bottom = pos.bottom;
+    el.style.left = pos.left;
+  } else {
+    el.style.left = pos.x + "px";
+    el.style.top = pos.y + "px";
+  }
+};
+const getTransitionStyle = (property, values, time) => {
+  const obj = configStylePropertyObject(property);
+  for (let i in obj) {
+    if (obj.hasOwnProperty(i)) {
+      if (typeof values === "string") {
+        obj[i] = values + " " + time;
+      } else {
+        let st = "";
+        for (let j = 0, max = values.length; j < max; j += 1) {
+          st += values[j] + " " + time + ", ";
         }
+        obj[i] = st.slice(0, -2);
       }
-      return time;
-    },
-    update: function() {
-      beginTime = this.end();
-    },
-    domElement: container,
-    setMode: showPanel
-  };
+    }
+  }
+  return obj;
 };
-Stats.Panel = function(name, fg, bg) {
-  var min = Infinity, max = 0, round = Math.round;
-  var PR = round(window.devicePixelRatio || 1);
-  var WIDTH = 80 * PR, HEIGHT = 48 * PR, TEXT_X = 3 * PR, TEXT_Y = 2 * PR, GRAPH_X = 3 * PR, GRAPH_Y = 15 * PR, GRAPH_WIDTH = 74 * PR, GRAPH_HEIGHT = 30 * PR;
-  var canvas = document.createElement("canvas");
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT;
-  canvas.style.cssText = "width:80px;height:48px";
-  var context = canvas.getContext("2d");
-  context.font = "bold " + 9 * PR + "px Helvetica,Arial,sans-serif";
-  context.textBaseline = "top";
-  context.fillStyle = bg;
-  context.fillRect(0, 0, WIDTH, HEIGHT);
-  context.fillStyle = fg;
-  context.fillText(name, TEXT_X, TEXT_Y);
-  context.fillRect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT);
-  context.fillStyle = bg;
-  context.globalAlpha = 0.9;
-  context.fillRect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT);
-  return {
-    dom: canvas,
-    update: function(value, maxValue) {
-      min = Math.min(min, value);
-      max = Math.max(max, value);
-      context.fillStyle = bg;
-      context.globalAlpha = 1;
-      context.fillRect(0, 0, WIDTH, GRAPH_Y);
-      context.fillStyle = fg;
-      context.fillText(round(value) + " " + name + " (" + round(min) + "-" + round(max) + ")", TEXT_X, TEXT_Y);
-      context.drawImage(canvas, GRAPH_X + PR, GRAPH_Y, GRAPH_WIDTH - PR, GRAPH_HEIGHT, GRAPH_X, GRAPH_Y, GRAPH_WIDTH - PR, GRAPH_HEIGHT);
-      context.fillRect(GRAPH_X + GRAPH_WIDTH - PR, GRAPH_Y, PR, GRAPH_HEIGHT);
-      context.fillStyle = bg;
-      context.globalAlpha = 0.9;
-      context.fillRect(GRAPH_X + GRAPH_WIDTH - PR, GRAPH_Y, PR, round((1 - value / maxValue) * GRAPH_HEIGHT));
+const getVendorStyle = (property, value) => {
+  const obj = configStylePropertyObject(property);
+  for (let i in obj) {
+    if (obj.hasOwnProperty(i)) {
+      obj[i] = value;
+    }
+  }
+  return obj;
+};
+const configStylePropertyObject = (prop) => {
+  const obj = {};
+  obj[prop] = "";
+  const vendors2 = ["webkit", "Moz", "o"];
+  vendors2.forEach(function(vendor) {
+    obj[vendor + prop.charAt(0).toUpperCase() + prop.slice(1)] = "";
+  });
+  return obj;
+};
+const extend2 = (objA, objB) => {
+  for (let i in objB) {
+    if (objB.hasOwnProperty(i)) {
+      objA[i] = objB[i];
+    }
+  }
+  return objA;
+};
+const safeExtend = (objA, objB) => {
+  const obj = {};
+  for (let i in objA) {
+    if (objA.hasOwnProperty(i) && objB.hasOwnProperty(i)) {
+      obj[i] = objB[i];
+    } else if (objA.hasOwnProperty(i)) {
+      obj[i] = objA[i];
+    }
+  }
+  return obj;
+};
+const map = (ar, fn) => {
+  if (ar.length) {
+    for (let i = 0, max = ar.length; i < max; i += 1) {
+      fn(ar[i]);
+    }
+  } else {
+    fn(ar);
+  }
+};
+const clamp = (pos, nipplePos, size) => ({
+  x: Math.min(Math.max(pos.x, nipplePos.x - size), nipplePos.x + size),
+  y: Math.min(Math.max(pos.y, nipplePos.y - size), nipplePos.y + size)
+});
+var isTouch = !!("ontouchstart" in window);
+var isPointer = window.PointerEvent ? true : false;
+var isMSPointer = window.MSPointerEvent ? true : false;
+var events = {
+  touch: {
+    start: "touchstart",
+    move: "touchmove",
+    end: "touchend, touchcancel"
+  },
+  mouse: {
+    start: "mousedown",
+    move: "mousemove",
+    end: "mouseup"
+  },
+  pointer: {
+    start: "pointerdown",
+    move: "pointermove",
+    end: "pointerup, pointercancel"
+  },
+  MSPointer: {
+    start: "MSPointerDown",
+    move: "MSPointerMove",
+    end: "MSPointerUp"
+  }
+};
+var toBind;
+var secondBind = {};
+if (isPointer) {
+  toBind = events.pointer;
+} else if (isMSPointer) {
+  toBind = events.MSPointer;
+} else if (isTouch) {
+  toBind = events.touch;
+  secondBind = events.mouse;
+} else {
+  toBind = events.mouse;
+}
+function Super() {
+}
+Super.prototype.on = function(arg, cb) {
+  var self2 = this;
+  var types = arg.split(/[ ,]+/g);
+  var type;
+  self2._handlers_ = self2._handlers_ || {};
+  for (var i = 0; i < types.length; i += 1) {
+    type = types[i];
+    self2._handlers_[type] = self2._handlers_[type] || [];
+    self2._handlers_[type].push(cb);
+  }
+  return self2;
+};
+Super.prototype.off = function(type, cb) {
+  var self2 = this;
+  self2._handlers_ = self2._handlers_ || {};
+  if (type === void 0) {
+    self2._handlers_ = {};
+  } else if (cb === void 0) {
+    self2._handlers_[type] = null;
+  } else if (self2._handlers_[type] && self2._handlers_[type].indexOf(cb) >= 0) {
+    self2._handlers_[type].splice(self2._handlers_[type].indexOf(cb), 1);
+  }
+  return self2;
+};
+Super.prototype.trigger = function(arg, data) {
+  var self2 = this;
+  var types = arg.split(/[ ,]+/g);
+  var type;
+  self2._handlers_ = self2._handlers_ || {};
+  for (var i = 0; i < types.length; i += 1) {
+    type = types[i];
+    if (self2._handlers_[type] && self2._handlers_[type].length) {
+      self2._handlers_[type].forEach(function(handler) {
+        handler.call(self2, {
+          type,
+          target: self2
+        }, data);
+      });
+    }
+  }
+};
+Super.prototype.config = function(options) {
+  var self2 = this;
+  self2.options = self2.defaults || {};
+  if (options) {
+    self2.options = safeExtend(self2.options, options);
+  }
+};
+Super.prototype.bindEvt = function(el, type) {
+  var self2 = this;
+  self2._domHandlers_ = self2._domHandlers_ || {};
+  self2._domHandlers_[type] = function() {
+    if (typeof self2["on" + type] === "function") {
+      self2["on" + type].apply(self2, arguments);
+    } else {
+      console.warn('[WARNING] : Missing "on' + type + '" handler.');
     }
   };
+  bindEvt(el, toBind[type], self2._domHandlers_[type]);
+  if (secondBind[type]) {
+    bindEvt(el, secondBind[type], self2._domHandlers_[type]);
+  }
+  return self2;
 };
-var Stats$1 = Stats;
-export { create_component as $, AnimationMixer as A, BoxGeometry as B, Clock as C, transition_in as D, group_outros as E, transition_out as F, GLTFLoader as G, HemisphereLight as H, check_outros as I, fade as J, toggle_class as K, listen as L, MeshStandardMaterial as M, is_function as N, destroy_each as O, PerspectiveCamera as P, run_all as Q, noop as R, Scene as S, add_render_callback as T, create_bidirectional_transition as U, Vector3 as V, WebGLRenderer as W, createEventDispatcher as X, fly as Y, binding_callbacks as Z, bind as _, AxesHelper as a, mount_component as a0, add_flush_callback as a1, destroy_component as a2, SpotLight as b, SpotLightHelper as c, PlaneGeometry as d, Mesh as e, MathUtils as f, Color as g, MeshPhongMaterial as h, Stats$1 as i, GUI$1 as j, SvelteComponent as k, init as l, safe_not_equal as m, element as n, space as o, src_url_equal as p, attr as q, set_style as r, sRGBEncoding as s, text as t, insert as u, append as v, set_data as w, create_out_transition as x, detach as y, empty as z };
+Super.prototype.unbindEvt = function(el, type) {
+  var self2 = this;
+  self2._domHandlers_ = self2._domHandlers_ || {};
+  unbindEvt(el, toBind[type], self2._domHandlers_[type]);
+  if (secondBind[type]) {
+    unbindEvt(el, secondBind[type], self2._domHandlers_[type]);
+  }
+  delete self2._domHandlers_[type];
+  return this;
+};
+function Nipple(collection, options) {
+  this.identifier = options.identifier;
+  this.position = options.position;
+  this.frontPosition = options.frontPosition;
+  this.collection = collection;
+  this.defaults = {
+    size: 100,
+    threshold: 0.1,
+    color: "white",
+    fadeTime: 250,
+    dataOnly: false,
+    restJoystick: true,
+    restOpacity: 0.5,
+    mode: "dynamic",
+    zone: document.body,
+    lockX: false,
+    lockY: false,
+    shape: "circle"
+  };
+  this.config(options);
+  if (this.options.mode === "dynamic") {
+    this.options.restOpacity = 0;
+  }
+  this.id = Nipple.id;
+  Nipple.id += 1;
+  this.buildEl().stylize();
+  this.instance = {
+    el: this.ui.el,
+    on: this.on.bind(this),
+    off: this.off.bind(this),
+    show: this.show.bind(this),
+    hide: this.hide.bind(this),
+    add: this.addToDom.bind(this),
+    remove: this.removeFromDom.bind(this),
+    destroy: this.destroy.bind(this),
+    setPosition: this.setPosition.bind(this),
+    resetDirection: this.resetDirection.bind(this),
+    computeDirection: this.computeDirection.bind(this),
+    trigger: this.trigger.bind(this),
+    position: this.position,
+    frontPosition: this.frontPosition,
+    ui: this.ui,
+    identifier: this.identifier,
+    id: this.id,
+    options: this.options
+  };
+  return this.instance;
+}
+Nipple.prototype = new Super();
+Nipple.constructor = Nipple;
+Nipple.id = 0;
+Nipple.prototype.buildEl = function(options) {
+  this.ui = {};
+  if (this.options.dataOnly) {
+    return this;
+  }
+  this.ui.el = document.createElement("div");
+  this.ui.back = document.createElement("div");
+  this.ui.front = document.createElement("div");
+  this.ui.el.className = "nipple collection_" + this.collection.id;
+  this.ui.back.className = "back";
+  this.ui.front.className = "front";
+  this.ui.el.setAttribute("id", "nipple_" + this.collection.id + "_" + this.id);
+  this.ui.el.appendChild(this.ui.back);
+  this.ui.el.appendChild(this.ui.front);
+  return this;
+};
+Nipple.prototype.stylize = function() {
+  if (this.options.dataOnly) {
+    return this;
+  }
+  var animTime = this.options.fadeTime + "ms";
+  var borderStyle = getVendorStyle("borderRadius", "50%");
+  var transitStyle = getTransitionStyle("transition", "opacity", animTime);
+  var styles = {};
+  styles.el = {
+    position: "absolute",
+    opacity: this.options.restOpacity,
+    display: "block",
+    "zIndex": 999
+  };
+  styles.back = {
+    position: "absolute",
+    display: "block",
+    width: this.options.size + "px",
+    height: this.options.size + "px",
+    marginLeft: -this.options.size / 2 + "px",
+    marginTop: -this.options.size / 2 + "px",
+    background: this.options.color,
+    "opacity": ".5"
+  };
+  styles.front = {
+    width: this.options.size / 2 + "px",
+    height: this.options.size / 2 + "px",
+    position: "absolute",
+    display: "block",
+    marginLeft: -this.options.size / 4 + "px",
+    marginTop: -this.options.size / 4 + "px",
+    background: this.options.color,
+    "opacity": ".5"
+  };
+  extend2(styles.el, transitStyle);
+  if (this.options.shape === "circle") {
+    extend2(styles.back, borderStyle);
+  }
+  extend2(styles.front, borderStyle);
+  this.applyStyles(styles);
+  return this;
+};
+Nipple.prototype.applyStyles = function(styles) {
+  for (var i in this.ui) {
+    if (this.ui.hasOwnProperty(i)) {
+      for (var j in styles[i]) {
+        this.ui[i].style[j] = styles[i][j];
+      }
+    }
+  }
+  return this;
+};
+Nipple.prototype.addToDom = function() {
+  if (this.options.dataOnly || document.body.contains(this.ui.el)) {
+    return this;
+  }
+  this.options.zone.appendChild(this.ui.el);
+  return this;
+};
+Nipple.prototype.removeFromDom = function() {
+  if (this.options.dataOnly || !document.body.contains(this.ui.el)) {
+    return this;
+  }
+  this.options.zone.removeChild(this.ui.el);
+  return this;
+};
+Nipple.prototype.destroy = function() {
+  clearTimeout(this.removeTimeout);
+  clearTimeout(this.showTimeout);
+  clearTimeout(this.restTimeout);
+  this.trigger("destroyed", this.instance);
+  this.removeFromDom();
+  this.off();
+};
+Nipple.prototype.show = function(cb) {
+  var self2 = this;
+  if (self2.options.dataOnly) {
+    return self2;
+  }
+  clearTimeout(self2.removeTimeout);
+  clearTimeout(self2.showTimeout);
+  clearTimeout(self2.restTimeout);
+  self2.addToDom();
+  self2.restCallback();
+  setTimeout(function() {
+    self2.ui.el.style.opacity = 1;
+  }, 0);
+  self2.showTimeout = setTimeout(function() {
+    self2.trigger("shown", self2.instance);
+    if (typeof cb === "function") {
+      cb.call(this);
+    }
+  }, self2.options.fadeTime);
+  return self2;
+};
+Nipple.prototype.hide = function(cb) {
+  var self2 = this;
+  if (self2.options.dataOnly) {
+    return self2;
+  }
+  self2.ui.el.style.opacity = self2.options.restOpacity;
+  clearTimeout(self2.removeTimeout);
+  clearTimeout(self2.showTimeout);
+  clearTimeout(self2.restTimeout);
+  self2.removeTimeout = setTimeout(function() {
+    var display = self2.options.mode === "dynamic" ? "none" : "block";
+    self2.ui.el.style.display = display;
+    if (typeof cb === "function") {
+      cb.call(self2);
+    }
+    self2.trigger("hidden", self2.instance);
+  }, self2.options.fadeTime);
+  if (self2.options.restJoystick) {
+    self2.setPosition(cb, { x: 0, y: 0 });
+  }
+  return self2;
+};
+Nipple.prototype.setPosition = function(cb, position) {
+  var self2 = this;
+  self2.frontPosition = {
+    x: position.x,
+    y: position.y
+  };
+  var animTime = self2.options.fadeTime + "ms";
+  var transitStyle = {};
+  transitStyle.front = getTransitionStyle("transition", ["top", "left"], animTime);
+  var styles = { front: {} };
+  styles.front = {
+    left: self2.frontPosition.x + "px",
+    top: self2.frontPosition.y + "px"
+  };
+  self2.applyStyles(transitStyle);
+  self2.applyStyles(styles);
+  self2.restTimeout = setTimeout(function() {
+    if (typeof cb === "function") {
+      cb.call(self2);
+    }
+    self2.restCallback();
+  }, self2.options.fadeTime);
+};
+Nipple.prototype.restCallback = function() {
+  var self2 = this;
+  var transitStyle = {};
+  transitStyle.front = getTransitionStyle("transition", "none", "");
+  self2.applyStyles(transitStyle);
+  self2.trigger("rested", self2.instance);
+};
+Nipple.prototype.resetDirection = function() {
+  this.direction = {
+    x: false,
+    y: false,
+    angle: false
+  };
+};
+Nipple.prototype.computeDirection = function(obj) {
+  var rAngle = obj.angle.radian;
+  var angle45 = Math.PI / 4;
+  var angle90 = Math.PI / 2;
+  var direction, directionX, directionY;
+  if (rAngle > angle45 && rAngle < angle45 * 3 && !obj.lockX) {
+    direction = "up";
+  } else if (rAngle > -angle45 && rAngle <= angle45 && !obj.lockY) {
+    direction = "left";
+  } else if (rAngle > -angle45 * 3 && rAngle <= -angle45 && !obj.lockX) {
+    direction = "down";
+  } else if (!obj.lockY) {
+    direction = "right";
+  }
+  if (!obj.lockY) {
+    if (rAngle > -angle90 && rAngle < angle90) {
+      directionX = "left";
+    } else {
+      directionX = "right";
+    }
+  }
+  if (!obj.lockX) {
+    if (rAngle > 0) {
+      directionY = "up";
+    } else {
+      directionY = "down";
+    }
+  }
+  if (obj.force > this.options.threshold) {
+    var oldDirection = {};
+    var i;
+    for (i in this.direction) {
+      if (this.direction.hasOwnProperty(i)) {
+        oldDirection[i] = this.direction[i];
+      }
+    }
+    var same = {};
+    this.direction = {
+      x: directionX,
+      y: directionY,
+      angle: direction
+    };
+    obj.direction = this.direction;
+    for (i in oldDirection) {
+      if (oldDirection[i] === this.direction[i]) {
+        same[i] = true;
+      }
+    }
+    if (same.x && same.y && same.angle) {
+      return obj;
+    }
+    if (!same.x || !same.y) {
+      this.trigger("plain", obj);
+    }
+    if (!same.x) {
+      this.trigger("plain:" + directionX, obj);
+    }
+    if (!same.y) {
+      this.trigger("plain:" + directionY, obj);
+    }
+    if (!same.angle) {
+      this.trigger("dir dir:" + direction, obj);
+    }
+  } else {
+    this.resetDirection();
+  }
+  return obj;
+};
+function Collection(manager, options) {
+  var self2 = this;
+  self2.nipples = [];
+  self2.idles = [];
+  self2.actives = [];
+  self2.ids = [];
+  self2.pressureIntervals = {};
+  self2.manager = manager;
+  self2.id = Collection.id;
+  Collection.id += 1;
+  self2.defaults = {
+    zone: document.body,
+    multitouch: false,
+    maxNumberOfNipples: 10,
+    mode: "dynamic",
+    position: { top: 0, left: 0 },
+    catchDistance: 200,
+    size: 100,
+    threshold: 0.1,
+    color: "white",
+    fadeTime: 250,
+    dataOnly: false,
+    restJoystick: true,
+    restOpacity: 0.5,
+    lockX: false,
+    lockY: false,
+    shape: "circle",
+    dynamicPage: false,
+    follow: false
+  };
+  self2.config(options);
+  if (self2.options.mode === "static" || self2.options.mode === "semi") {
+    self2.options.multitouch = false;
+  }
+  if (!self2.options.multitouch) {
+    self2.options.maxNumberOfNipples = 1;
+  }
+  self2.updateBox();
+  self2.prepareNipples();
+  self2.bindings();
+  self2.begin();
+  return self2.nipples;
+}
+Collection.prototype = new Super();
+Collection.constructor = Collection;
+Collection.id = 0;
+Collection.prototype.prepareNipples = function() {
+  var self2 = this;
+  var nips = self2.nipples;
+  nips.on = self2.on.bind(self2);
+  nips.off = self2.off.bind(self2);
+  nips.options = self2.options;
+  nips.destroy = self2.destroy.bind(self2);
+  nips.ids = self2.ids;
+  nips.id = self2.id;
+  nips.processOnMove = self2.processOnMove.bind(self2);
+  nips.processOnEnd = self2.processOnEnd.bind(self2);
+  nips.get = function(id) {
+    if (id === void 0) {
+      return nips[0];
+    }
+    for (var i = 0, max = nips.length; i < max; i += 1) {
+      if (nips[i].identifier === id) {
+        return nips[i];
+      }
+    }
+    return false;
+  };
+};
+Collection.prototype.bindings = function() {
+  var self2 = this;
+  self2.bindEvt(self2.options.zone, "start");
+  self2.options.zone.style.touchAction = "none";
+  self2.options.zone.style.msTouchAction = "none";
+};
+Collection.prototype.begin = function() {
+  var self2 = this;
+  var opts = self2.options;
+  if (opts.mode === "static") {
+    var nipple = self2.createNipple(opts.position, self2.manager.getIdentifier());
+    nipple.add();
+    self2.idles.push(nipple);
+  }
+};
+Collection.prototype.createNipple = function(position, identifier) {
+  var self2 = this;
+  var scroll = self2.manager.scroll;
+  var toPutOn = {};
+  var opts = self2.options;
+  if (position.x && position.y) {
+    toPutOn = {
+      x: position.x - (scroll.x + self2.box.left),
+      y: position.y - (scroll.y + self2.box.top)
+    };
+  } else if (position.top || position.right || position.bottom || position.left) {
+    var dumb = document.createElement("DIV");
+    dumb.style.display = "hidden";
+    dumb.style.top = position.top;
+    dumb.style.right = position.right;
+    dumb.style.bottom = position.bottom;
+    dumb.style.left = position.left;
+    dumb.style.position = "absolute";
+    opts.zone.appendChild(dumb);
+    var dumbBox = dumb.getBoundingClientRect();
+    opts.zone.removeChild(dumb);
+    toPutOn = position;
+    position = {
+      x: dumbBox.left + scroll.x,
+      y: dumbBox.top + scroll.y
+    };
+  }
+  var nipple = new Nipple(self2, {
+    color: opts.color,
+    size: opts.size,
+    threshold: opts.threshold,
+    fadeTime: opts.fadeTime,
+    dataOnly: opts.dataOnly,
+    restJoystick: opts.restJoystick,
+    restOpacity: opts.restOpacity,
+    mode: opts.mode,
+    identifier,
+    position,
+    zone: opts.zone,
+    frontPosition: {
+      x: 0,
+      y: 0
+    },
+    shape: opts.shape
+  });
+  if (!opts.dataOnly) {
+    applyPosition(nipple.ui.el, toPutOn);
+    applyPosition(nipple.ui.front, nipple.frontPosition);
+  }
+  self2.nipples.push(nipple);
+  self2.trigger("added " + nipple.identifier + ":added", nipple);
+  self2.manager.trigger("added " + nipple.identifier + ":added", nipple);
+  self2.bindNipple(nipple);
+  return nipple;
+};
+Collection.prototype.updateBox = function() {
+  var self2 = this;
+  self2.box = self2.options.zone.getBoundingClientRect();
+};
+Collection.prototype.bindNipple = function(nipple) {
+  var self2 = this;
+  var type;
+  var handler = function(evt, data) {
+    type = evt.type + " " + data.id + ":" + evt.type;
+    self2.trigger(type, data);
+  };
+  nipple.on("destroyed", self2.onDestroyed.bind(self2));
+  nipple.on("shown hidden rested dir plain", handler);
+  nipple.on("dir:up dir:right dir:down dir:left", handler);
+  nipple.on("plain:up plain:right plain:down plain:left", handler);
+};
+Collection.prototype.pressureFn = function(touch, nipple, identifier) {
+  var self2 = this;
+  var previousPressure = 0;
+  clearInterval(self2.pressureIntervals[identifier]);
+  self2.pressureIntervals[identifier] = setInterval(function() {
+    var pressure = touch.force || touch.pressure || touch.webkitForce || 0;
+    if (pressure !== previousPressure) {
+      nipple.trigger("pressure", pressure);
+      self2.trigger("pressure " + nipple.identifier + ":pressure", pressure);
+      previousPressure = pressure;
+    }
+  }.bind(self2), 100);
+};
+Collection.prototype.onstart = function(evt) {
+  var self2 = this;
+  var opts = self2.options;
+  var origEvt = evt;
+  evt = prepareEvent(evt);
+  self2.updateBox();
+  var process = function(touch) {
+    if (self2.actives.length < opts.maxNumberOfNipples) {
+      self2.processOnStart(touch);
+    } else if (origEvt.type.match(/^touch/)) {
+      Object.keys(self2.manager.ids).forEach(function(k) {
+        if (Object.values(origEvt.touches).findIndex(function(t) {
+          return t.identifier === k;
+        }) < 0) {
+          var e = [evt[0]];
+          e.identifier = k;
+          self2.processOnEnd(e);
+        }
+      });
+      if (self2.actives.length < opts.maxNumberOfNipples) {
+        self2.processOnStart(touch);
+      }
+    }
+  };
+  map(evt, process);
+  self2.manager.bindDocument();
+  return false;
+};
+Collection.prototype.processOnStart = function(evt) {
+  var self2 = this;
+  var opts = self2.options;
+  var indexInIdles;
+  var identifier = self2.manager.getIdentifier(evt);
+  var pressure = evt.force || evt.pressure || evt.webkitForce || 0;
+  var position = {
+    x: evt.pageX,
+    y: evt.pageY
+  };
+  var nipple = self2.getOrCreate(identifier, position);
+  if (nipple.identifier !== identifier) {
+    self2.manager.removeIdentifier(nipple.identifier);
+  }
+  nipple.identifier = identifier;
+  var process = function(nip) {
+    nip.trigger("start", nip);
+    self2.trigger("start " + nip.id + ":start", nip);
+    nip.show();
+    if (pressure > 0) {
+      self2.pressureFn(evt, nip, nip.identifier);
+    }
+    self2.processOnMove(evt);
+  };
+  if ((indexInIdles = self2.idles.indexOf(nipple)) >= 0) {
+    self2.idles.splice(indexInIdles, 1);
+  }
+  self2.actives.push(nipple);
+  self2.ids.push(nipple.identifier);
+  if (opts.mode !== "semi") {
+    process(nipple);
+  } else {
+    var distance$1 = distance(position, nipple.position);
+    if (distance$1 <= opts.catchDistance) {
+      process(nipple);
+    } else {
+      nipple.destroy();
+      self2.processOnStart(evt);
+      return;
+    }
+  }
+  return nipple;
+};
+Collection.prototype.getOrCreate = function(identifier, position) {
+  var self2 = this;
+  var opts = self2.options;
+  var nipple;
+  if (/(semi|static)/.test(opts.mode)) {
+    nipple = self2.idles[0];
+    if (nipple) {
+      self2.idles.splice(0, 1);
+      return nipple;
+    }
+    if (opts.mode === "semi") {
+      return self2.createNipple(position, identifier);
+    }
+    console.warn("Coudln't find the needed nipple.");
+    return false;
+  }
+  nipple = self2.createNipple(position, identifier);
+  return nipple;
+};
+Collection.prototype.processOnMove = function(evt) {
+  var self2 = this;
+  var opts = self2.options;
+  var identifier = self2.manager.getIdentifier(evt);
+  var nipple = self2.nipples.get(identifier);
+  var scroll = self2.manager.scroll;
+  if (!isPressed(evt)) {
+    this.processOnEnd(evt);
+    return;
+  }
+  if (!nipple) {
+    console.error("Found zombie joystick with ID " + identifier);
+    self2.manager.removeIdentifier(identifier);
+    return;
+  }
+  if (opts.dynamicPage) {
+    var elBox = nipple.el.getBoundingClientRect();
+    nipple.position = {
+      x: scroll.x + elBox.left,
+      y: scroll.y + elBox.top
+    };
+  }
+  nipple.identifier = identifier;
+  var size = nipple.options.size / 2;
+  var pos = {
+    x: evt.pageX,
+    y: evt.pageY
+  };
+  if (opts.lockX) {
+    pos.y = nipple.position.y;
+  }
+  if (opts.lockY) {
+    pos.x = nipple.position.x;
+  }
+  var dist = distance(pos, nipple.position);
+  var angle$1 = angle(pos, nipple.position);
+  var rAngle = radians(angle$1);
+  var force = dist / size;
+  var raw = {
+    distance: dist,
+    position: pos
+  };
+  var clamped_dist;
+  var clamped_pos;
+  if (nipple.options.shape === "circle") {
+    clamped_dist = Math.min(dist, size);
+    clamped_pos = findCoord(nipple.position, clamped_dist, angle$1);
+  } else {
+    clamped_pos = clamp(pos, nipple.position, size);
+    clamped_dist = distance(clamped_pos, nipple.position);
+  }
+  if (opts.follow) {
+    if (dist > size) {
+      let delta_x = pos.x - clamped_pos.x;
+      let delta_y = pos.y - clamped_pos.y;
+      nipple.position.x += delta_x;
+      nipple.position.y += delta_y;
+      nipple.el.style.top = nipple.position.y - (self2.box.top + scroll.y) + "px";
+      nipple.el.style.left = nipple.position.x - (self2.box.left + scroll.x) + "px";
+      dist = distance(pos, nipple.position);
+    }
+  } else {
+    pos = clamped_pos;
+    dist = clamped_dist;
+  }
+  var xPosition = pos.x - nipple.position.x;
+  var yPosition = pos.y - nipple.position.y;
+  nipple.frontPosition = {
+    x: xPosition,
+    y: yPosition
+  };
+  if (!opts.dataOnly) {
+    applyPosition(nipple.ui.front, nipple.frontPosition);
+  }
+  var toSend = {
+    identifier: nipple.identifier,
+    position: pos,
+    force,
+    pressure: evt.force || evt.pressure || evt.webkitForce || 0,
+    distance: dist,
+    angle: {
+      radian: rAngle,
+      degree: angle$1
+    },
+    vector: {
+      x: xPosition / size,
+      y: -yPosition / size
+    },
+    raw,
+    instance: nipple,
+    lockX: opts.lockX,
+    lockY: opts.lockY
+  };
+  toSend = nipple.computeDirection(toSend);
+  toSend.angle = {
+    radian: radians(180 - angle$1),
+    degree: 180 - angle$1
+  };
+  nipple.trigger("move", toSend);
+  self2.trigger("move " + nipple.id + ":move", toSend);
+};
+Collection.prototype.processOnEnd = function(evt) {
+  var self2 = this;
+  var opts = self2.options;
+  var identifier = self2.manager.getIdentifier(evt);
+  var nipple = self2.nipples.get(identifier);
+  var removedIdentifier = self2.manager.removeIdentifier(nipple.identifier);
+  if (!nipple) {
+    return;
+  }
+  if (!opts.dataOnly) {
+    nipple.hide(function() {
+      if (opts.mode === "dynamic") {
+        nipple.trigger("removed", nipple);
+        self2.trigger("removed " + nipple.id + ":removed", nipple);
+        self2.manager.trigger("removed " + nipple.id + ":removed", nipple);
+        nipple.destroy();
+      }
+    });
+  }
+  clearInterval(self2.pressureIntervals[nipple.identifier]);
+  nipple.resetDirection();
+  nipple.trigger("end", nipple);
+  self2.trigger("end " + nipple.id + ":end", nipple);
+  if (self2.ids.indexOf(nipple.identifier) >= 0) {
+    self2.ids.splice(self2.ids.indexOf(nipple.identifier), 1);
+  }
+  if (self2.actives.indexOf(nipple) >= 0) {
+    self2.actives.splice(self2.actives.indexOf(nipple), 1);
+  }
+  if (/(semi|static)/.test(opts.mode)) {
+    self2.idles.push(nipple);
+  } else if (self2.nipples.indexOf(nipple) >= 0) {
+    self2.nipples.splice(self2.nipples.indexOf(nipple), 1);
+  }
+  self2.manager.unbindDocument();
+  if (/(semi|static)/.test(opts.mode)) {
+    self2.manager.ids[removedIdentifier.id] = removedIdentifier.identifier;
+  }
+};
+Collection.prototype.onDestroyed = function(evt, nipple) {
+  var self2 = this;
+  if (self2.nipples.indexOf(nipple) >= 0) {
+    self2.nipples.splice(self2.nipples.indexOf(nipple), 1);
+  }
+  if (self2.actives.indexOf(nipple) >= 0) {
+    self2.actives.splice(self2.actives.indexOf(nipple), 1);
+  }
+  if (self2.idles.indexOf(nipple) >= 0) {
+    self2.idles.splice(self2.idles.indexOf(nipple), 1);
+  }
+  if (self2.ids.indexOf(nipple.identifier) >= 0) {
+    self2.ids.splice(self2.ids.indexOf(nipple.identifier), 1);
+  }
+  self2.manager.removeIdentifier(nipple.identifier);
+  self2.manager.unbindDocument();
+};
+Collection.prototype.destroy = function() {
+  var self2 = this;
+  self2.unbindEvt(self2.options.zone, "start");
+  self2.nipples.forEach(function(nipple) {
+    nipple.destroy();
+  });
+  for (var i in self2.pressureIntervals) {
+    if (self2.pressureIntervals.hasOwnProperty(i)) {
+      clearInterval(self2.pressureIntervals[i]);
+    }
+  }
+  self2.trigger("destroyed", self2.nipples);
+  self2.manager.unbindDocument();
+  self2.off();
+};
+function Manager(options) {
+  var self2 = this;
+  self2.ids = {};
+  self2.index = 0;
+  self2.collections = [];
+  self2.scroll = getScroll();
+  self2.config(options);
+  self2.prepareCollections();
+  var resizeHandler = function() {
+    var pos;
+    self2.collections.forEach(function(collection) {
+      collection.forEach(function(nipple) {
+        pos = nipple.el.getBoundingClientRect();
+        nipple.position = {
+          x: self2.scroll.x + pos.left,
+          y: self2.scroll.y + pos.top
+        };
+      });
+    });
+  };
+  bindEvt(window, "resize", function() {
+    throttle(resizeHandler);
+  });
+  var scrollHandler = function() {
+    self2.scroll = getScroll();
+  };
+  bindEvt(window, "scroll", function() {
+    throttle(scrollHandler);
+  });
+  return self2.collections;
+}
+Manager.prototype = new Super();
+Manager.constructor = Manager;
+Manager.prototype.prepareCollections = function() {
+  var self2 = this;
+  self2.collections.create = self2.create.bind(self2);
+  self2.collections.on = self2.on.bind(self2);
+  self2.collections.off = self2.off.bind(self2);
+  self2.collections.destroy = self2.destroy.bind(self2);
+  self2.collections.get = function(id) {
+    var nipple;
+    self2.collections.every(function(collection) {
+      nipple = collection.get(id);
+      return nipple ? false : true;
+    });
+    return nipple;
+  };
+};
+Manager.prototype.create = function(options) {
+  return this.createCollection(options);
+};
+Manager.prototype.createCollection = function(options) {
+  var self2 = this;
+  var collection = new Collection(self2, options);
+  self2.bindCollection(collection);
+  self2.collections.push(collection);
+  return collection;
+};
+Manager.prototype.bindCollection = function(collection) {
+  var self2 = this;
+  var type;
+  var handler = function(evt, data) {
+    type = evt.type + " " + data.id + ":" + evt.type;
+    self2.trigger(type, data);
+  };
+  collection.on("destroyed", self2.onDestroyed.bind(self2));
+  collection.on("shown hidden rested dir plain", handler);
+  collection.on("dir:up dir:right dir:down dir:left", handler);
+  collection.on("plain:up plain:right plain:down plain:left", handler);
+};
+Manager.prototype.bindDocument = function() {
+  var self2 = this;
+  if (!self2.binded) {
+    self2.bindEvt(document, "move").bindEvt(document, "end");
+    self2.binded = true;
+  }
+};
+Manager.prototype.unbindDocument = function(force) {
+  var self2 = this;
+  if (!Object.keys(self2.ids).length || force === true) {
+    self2.unbindEvt(document, "move").unbindEvt(document, "end");
+    self2.binded = false;
+  }
+};
+Manager.prototype.getIdentifier = function(evt) {
+  var id;
+  if (!evt) {
+    id = this.index;
+  } else {
+    id = evt.identifier === void 0 ? evt.pointerId : evt.identifier;
+    if (id === void 0) {
+      id = this.latest || 0;
+    }
+  }
+  if (this.ids[id] === void 0) {
+    this.ids[id] = this.index;
+    this.index += 1;
+  }
+  this.latest = id;
+  return this.ids[id];
+};
+Manager.prototype.removeIdentifier = function(identifier) {
+  var removed = {};
+  for (var id in this.ids) {
+    if (this.ids[id] === identifier) {
+      removed.id = id;
+      removed.identifier = this.ids[id];
+      delete this.ids[id];
+      break;
+    }
+  }
+  return removed;
+};
+Manager.prototype.onmove = function(evt) {
+  var self2 = this;
+  self2.onAny("move", evt);
+  return false;
+};
+Manager.prototype.onend = function(evt) {
+  var self2 = this;
+  self2.onAny("end", evt);
+  return false;
+};
+Manager.prototype.oncancel = function(evt) {
+  var self2 = this;
+  self2.onAny("end", evt);
+  return false;
+};
+Manager.prototype.onAny = function(which, evt) {
+  var self2 = this;
+  var id;
+  var processFn = "processOn" + which.charAt(0).toUpperCase() + which.slice(1);
+  evt = prepareEvent(evt);
+  var processColl = function(e, id2, coll) {
+    if (coll.ids.indexOf(id2) >= 0) {
+      coll[processFn](e);
+      e._found_ = true;
+    }
+  };
+  var processEvt = function(e) {
+    id = self2.getIdentifier(e);
+    map(self2.collections, processColl.bind(null, e, id));
+    if (!e._found_) {
+      self2.removeIdentifier(id);
+    }
+  };
+  map(evt, processEvt);
+  return false;
+};
+Manager.prototype.destroy = function() {
+  var self2 = this;
+  self2.unbindDocument(true);
+  self2.ids = {};
+  self2.index = 0;
+  self2.collections.forEach(function(collection) {
+    collection.destroy();
+  });
+  self2.off();
+};
+Manager.prototype.onDestroyed = function(evt, coll) {
+  var self2 = this;
+  if (self2.collections.indexOf(coll) < 0) {
+    return false;
+  }
+  self2.collections.splice(self2.collections.indexOf(coll), 1);
+};
+const factory = new Manager();
+var nipplejs = {
+  create: function(options) {
+    return factory.create(options);
+  },
+  factory
+};
+export { Color as $, create_bidirectional_transition as A, createEventDispatcher as B, fly as C, binding_callbacks as D, AudioLoader as E, AnimationMixer as F, GLTFLoader as G, Audio as H, nipplejs as I, Scene as J, CameraHelper as K, sRGBEncoding as L, AxesHelper as M, HemisphereLight as N, OrbitControls as O, PerspectiveCamera as P, SpotLight as Q, SpotLightHelper as R, SvelteComponent as S, PlaneGeometry as T, MeshStandardMaterial as U, Vector3 as V, WebGLRenderer as W, Mesh as X, MathUtils as Y, Clock as Z, AudioListener as _, space as a, SkeletonHelper as a0, BoxGeometry as a1, MeshPhongMaterial as a2, Fog as a3, Stats$1 as a4, GUI$1 as a5, bind as a6, create_component as a7, mount_component as a8, add_flush_callback as a9, destroy_component as aa, onMount as ab, src_url_equal as b, attr as c, set_style as d, element as e, insert as f, append as g, set_data as h, init as i, create_out_transition as j, detach as k, empty as l, transition_in as m, group_outros as n, transition_out as o, check_outros as p, fade as q, toggle_class as r, safe_not_equal as s, text as t, listen as u, is_function as v, destroy_each as w, run_all as x, noop as y, add_render_callback as z };

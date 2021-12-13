@@ -8,7 +8,9 @@ export default defineConfig({
     minify: false
   },
   plugins: [
-    svelte(),
+    svelte({
+      hot: false, // Desativado por problemas
+    }),
     injectHtml({
       data: {
         compiledStatus: '<div id="--compiled-vite" style="display: none"></div>'
