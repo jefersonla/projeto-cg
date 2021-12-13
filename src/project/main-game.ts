@@ -5,24 +5,31 @@ import {
     MeshStandardMaterial,
     SkeletonHelper,
     AnimationMixer,
-    MeshPhongMaterial,
     MathUtils,
     PlaneBufferGeometry,
-    BoxGeometry,
     SpotLightHelper,
     SpotLight,
     HemisphereLight,
     sRGBEncoding,
     Clock,
     WebGLRenderer,
-    PerspectiveCamera, Scene, Vector3, AxesHelper, CameraHelper, Fog, AudioLoader, AudioListener, Audio
+    PerspectiveCamera,
+    Scene,
+    Vector3,
+    AxesHelper,
+    CameraHelper,
+    Fog,
+    AudioListener,
+    Audio,
+    RepeatWrapping,
+    MeshPhongMaterial, TextureLoader
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { Player } from './lib/player';
 import type { GameElement } from "./entities/game-element.entity";
 import type {NotifyCallback, ProgressBarCallback} from "./utils/utils";
-import {isMobileOrTablet} from "./utils/utils";
+import {createDummyCube, isMobileOrTablet} from "./utils/utils";
 import {CustomAudioLoader} from "./lib/custom-audio-loader";
 
 /**
@@ -223,7 +230,7 @@ export class MainGame {
 
         // Create an spotlight, which can cast shadows
         const spotLight = new SpotLight(0xffffff, 0.7);
-        spotLight.position.set(25, 60, 25);
+        spotLight.position.set(30, 80, 30);
 
 
         // Enable shadow
@@ -250,15 +257,24 @@ export class MainGame {
      *
      * @private
      */
-    private initGroundPlane() {
-        // Add a plane to represent ground on this scene
-        const planeGeometry = new PlaneBufferGeometry(4000, 4000, 32, 32);
-        const planeMaterial = new MeshStandardMaterial({ color: 0x32d04e });
+    private async initGroundPlane() {
+        // Carrega a textura do chão
+        const textureLoader = new TextureLoader();
+        const texture = await textureLoader.loadAsync("game/textures/floor.png");
+        texture.wrapS = RepeatWrapping;
+        texture.wrapT = RepeatWrapping;
+        texture.repeat.set(3, 3);
+
+        // Cria os componentes do chão (geometria e material)
+        const planeGeometry = new PlaneBufferGeometry(130, 130, 32, 32);
+        const planeMaterial = new MeshPhongMaterial({ map: texture });
+
+        // Instancia o plano
         const groundPlane = new Mesh(planeGeometry, planeMaterial);
         groundPlane.rotation.x = MathUtils.degToRad(-90);
         groundPlane.receiveShadow = true;
-        this.scene.add(groundPlane);
 
+        this.scene.add(groundPlane);
     }
 
     /**
@@ -335,26 +351,6 @@ export class MainGame {
         this.scene.add(this.player.model);
     }
 
-    // TODO MOVE FROM THIS! Cria cubo genérico
-    private createDummyCube(pos: Vector3, color: string) {
-        // Cria um elemento qualquer
-        const cubeSize = 1;
-
-        const geometry = new BoxGeometry(cubeSize, cubeSize, cubeSize);
-        geometry.translate(pos.x, (cubeSize / 2), pos.z);
-
-        const material = new MeshPhongMaterial({
-            color: new Color(color),
-            // wireframe: true,
-        });
-        const cube = new Mesh(geometry, material);
-
-        cube.castShadow = true;
-        cube.receiveShadow = true;
-
-        this.scene.add(cube);
-    }
-
     /**
      * Inicializa a cena
      *
@@ -366,30 +362,32 @@ export class MainGame {
             loadCallback(((operationNumber * 100) / totalNumberOperations), false);
         };
 
-        this.initGroundPlane();
-        updateProgressBar(1);
-
         // Carrega os cubos
         for (let el of this.gameElements) {
-            this.createDummyCube(el.position, el.nameColor);
+            el.cube = createDummyCube(el.position, el.nameColor, 2);
+            this.scene.add(el.cube);
         }
-        updateProgressBar(2);
+        updateProgressBar(1);
 
         // TODO REMOVE ou USA
         this.scene.fog = new Fog(0xffffff, 58, 60);
-        updateProgressBar(3);
+        updateProgressBar(2);
 
         // Carrega o player
         await this.initPlayer();
-        updateProgressBar(4);
+        updateProgressBar(3);
 
         // Carrega a música de fundo
         await this.initBackgroundMusic();
-        updateProgressBar(5);
+        updateProgressBar(4);
 
         // Carrega as musicas do jogo
         await this.initGameSounds();
         updateProgressBar(5);
+
+        // Carrega o plano
+        await this.initGroundPlane();
+        updateProgressBar(6);
     }
 
     /**
@@ -562,6 +560,28 @@ export class MainGame {
         );
     }
 
+    private resetGameElements() {
+        this.gameElements.forEach(gel => {
+            gel.correct = false;
+            gel.cube.material.transparent = false;
+            gel.cube.material.opacity = 1.0;
+        });
+    }
+
+    /**
+     * Randomiza as posições dos items do jogo
+     */
+    randomizeGameItemsPositions() {
+        console.log('chamada');
+        for (const el of this.gameElements) {
+            el.cube.position.x = MathUtils.randInt(0, 45);
+            el.cube.position.z = MathUtils.randInt(0, 45);
+
+            el.position.x = el.cube.position.x;
+            el.position.z = el.cube.position.z;
+        }
+    }
+
     /**
      * Checa se a tarefa a ser perfomada está sendo executada adequadamente
      *
@@ -570,9 +590,10 @@ export class MainGame {
     private checkQuestTask() {
         let i = 0;
         for (const el of this.gameElements) {
-            if (this.player.checkCollision(el.position, 4)) {
+            if (this.player.checkCollision(el.position, 6)) {
                 if (i == 0 && this.gameElements[1].correct == true) {
-                    this.gameElements.forEach(gel => gel.correct = false);
+                    this.resetGameElements();
+                    // this.randomizeGameItemsPositions();
                     this.failureSound.play();
                 } else if (
                     i == 0 && this.gameElements[1].correct == false ||
@@ -580,8 +601,11 @@ export class MainGame {
                 ) {
                     this.successSound.play();
                     el.correct = true;
+                    el.cube.material.transparent = true;
+                    el.cube.material.opacity = 0.3;
                 } else {
-                    this.gameElements.forEach(gel => gel.correct = false);
+                    this.resetGameElements();
+                    // this.randomizeGameItemsPositions();
                     this.failureSound.play();
                 }
 

@@ -249,3 +249,12 @@ Licensed under Creative Commons: By Attribution 3.0 License
 http://creativecommons.org/licenses/by/3.0/
 Music promoted by https://www.chosic.com/free-music/all/ 
 ```
+
+```text
+https://kenney.nl/assets/survival-kit
+License: (CC0 1.0 Universal) You're free to use
+these game assets in any project, personal or 
+commercial. There's no need to ask permission before
+using these. Giving attribution is not required, but 
+is greatly appreciated!
+```
