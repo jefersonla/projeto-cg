@@ -11,7 +11,7 @@
 
     /* ------ App Components ------ */
     import { MainGame } from './main-game';
-    import { Vector3 } from "three";
+    import {MathUtils, Vector3} from "three";
     import {onMount} from "svelte";
 
     // ---------------------- DEBUG MODE ---------------------- //
@@ -46,42 +46,42 @@
             nameColor: 'green',
             textColor: 'blue',
             correct: false,
-            position: new Vector3(10, 0, 15)
+            position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, 45))
         },
         {
             name: 'Azul',
             nameColor: 'blue',
             textColor: 'orange',
             correct: false,
-            position: new Vector3(0, 0, 10)
+            position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
         },
         {
             name: 'Preto',
             nameColor: 'black',
             textColor: 'red',
             correct: false,
-            position: new Vector3(8, 0, 5)
+            position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, -45))
         },
         {
             name: 'Vermelho',
             nameColor: 'red',
             textColor: 'black',
             correct: false,
-            position: new Vector3(4, 0, 3)
+            position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, -45))
         },
         {
             name: 'Amarelo',
             nameColor: 'yellow',
             textColor: 'green',
             correct: false,
-            position: new Vector3(10, 0, 2)
+            position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, 45))
         },
         {
             name: 'Rosa',
             nameColor: 'pink',
             textColor: 'purple',
             correct: false,
-            position: new Vector3(10, 0, 30)
+            position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
         }
     ];
 

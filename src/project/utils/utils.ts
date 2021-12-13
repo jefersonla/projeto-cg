@@ -1,3 +1,5 @@
+import {BoxGeometry, Color, Mesh, MeshPhongMaterial, Vector3} from "three";
+
 /**
  * Callback de atualização da barra de progresso
  */
@@ -19,4 +21,24 @@ export function isMobileOrTablet() {
     })(navigator.userAgent || navigator.vendor || (window as any).opera);
 
     return check;
+}
+
+/**
+ * Cria um cubo bobo
+ */
+export function createDummyCube(pos: Vector3, color: string, cubeSize = 1): Mesh<BoxGeometry, MeshPhongMaterial> {
+    const geometry = new BoxGeometry(cubeSize, cubeSize, cubeSize);
+    geometry.translate(pos.x, (cubeSize / 2), pos.z);
+
+    const material = new MeshPhongMaterial({
+        color: new Color(color),
+        // wireframe: true,
+    });
+    const cube = new Mesh(geometry, material);
+
+    cube.castShadow = true;
+    cube.receiveShadow = true;
+    cube.matrixAutoUpdate = true;
+
+    return cube;
 }
