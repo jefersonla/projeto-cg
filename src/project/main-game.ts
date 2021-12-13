@@ -15,16 +15,15 @@ import {
     sRGBEncoding,
     Clock,
     WebGLRenderer,
-    PerspectiveCamera, Scene, Vector3, AxesHelper, Camera, CameraHelper
+    PerspectiveCamera, Scene, Vector3, AxesHelper, CameraHelper, Fog, AudioLoader, AudioListener, Audio
 } from "three";
-// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import type { GLTF, } from 'three/examples/jsm/loaders/GLTFLoader';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
-import { Player } from './components/player';
-
-
-type ProgressBarCallback = (progress?: number, finished?: boolean) => void;
+import { Player } from './lib/player';
+import type { GameElement } from "./entities/game-element.entity";
+import type {NotifyCallback, ProgressBarCallback} from "./utils/utils";
+import {isMobileOrTablet} from "./utils/utils";
+import {CustomAudioLoader} from "./lib/custom-audio-loader";
 
 /**
  * Classe principal do jogo
@@ -32,6 +31,7 @@ type ProgressBarCallback = (progress?: number, finished?: boolean) => void;
 export class MainGame {
     /** ---------- System Properties --------- **/
 
+    /* Player do jogo */
     player: Player;
 
     /* Indica que o jogo está rodando ou não */
@@ -48,8 +48,10 @@ export class MainGame {
     /* Debug Frame Status */
     debugStats: Stats;
 
+    /** ---------- Game Properties --------- **/
+
     /* Canvas Container */
-    private canvasContainer: HTMLDivElement;
+    private readonly canvasContainer: HTMLDivElement;
 
     /* Cena atual do jogo */
     scene: Scene;
@@ -66,8 +68,8 @@ export class MainGame {
     /* Render da aplicação */
     renderer: WebGLRenderer;
 
-    /* Controle de Orbita */
-    // controls: OrbitControls;
+    /* */
+    audioListener: AudioListener;
 
     /* Controle de animação */
     animationsMixer: AnimationMixer[];
@@ -75,39 +77,58 @@ export class MainGame {
     /* Controle de tempo de execução */
     clock: Clock;
 
-    // TODO REMOVER - usado apenas no teste
-    cube: Mesh;
-
     // Opções de debug
     debugOptions = {
         enableSkeleton: false,
-        skeletonHelper: null,
+        skeletonHelper: null as SkeletonHelper,
 
         enableSpotlightHelper: false,
-        spotlightHelper: null,
+        spotlightHelper: null as SpotLightHelper,
 
         enableCameraHelper: false,
-        cameraHelper: null,
+        cameraHelper: null as CameraHelper,
 
         enableFrontCameraHelper: false,
-        frontCameraHelper: null,
+        frontCameraHelper: null as CameraHelper,
 
         enableAxesHelper: false,
-        axesHelper: null
+        axesHelper: null as AxesHelper,
+
+        enableOrbitControl: false,
+        updateOrbitControl: false,
+        orbitControl: null as OrbitControls,
+
+        resetCamera: () => this.resetCamera()
     };
 
+    /* Material do Boné */
     private hatMaterial?: MeshStandardMaterial;
+
+    /* Material do Cabelo */
     private hairMaterial?: MeshStandardMaterial;
+
+    /* Música de fundo */
+    private backgroundMusic?: Audio;
+
+    /* Som de sucesso (ao acertar) */
+    private successSound?: Audio;
+
+    /* Som de falha (ao errar) */
+    private failureSound?: Audio;
 
     /**
      * Constrói a aplicação
      *
-     * @param canvasContainer
+     * @param canvasContainer Container para renderização
+     * @param gameElements Elementos do jogo
+     * @param notify Callback de notificação de mudança de estado
      * @param debugEnabled Habilita ou desabilita o debug da aplicação
      * @param loadCallback Carrega o load
      */
     constructor(
         canvasContainer: HTMLDivElement,
+        public gameElements: GameElement[],
+        public notify: NotifyCallback = () => {},
         public debugEnabled = false,
         loadCallback: ProgressBarCallback = () => {}
     ) {
@@ -125,22 +146,26 @@ export class MainGame {
         // Configura o jogo
         this.initRender();
         this.initCamera();
-        this.initLights();
+        this.initLights()
+        this.initAudio();
 
         loadCallback(25, false);
 
-        // Animação e controle
+        // Controle de animação
         this.initAnimationMixer();
-        this.initBasicControl();
 
         loadCallback(50, false);
 
         // Inicia a cena
-        this.initScene()
+        this.initScene(loadCallback)
             .then(() => loadCallback(100, true));
     }
 
-    // Cria a camera
+    /**
+     * Inicializa a camera
+     *
+     * @private
+     */
     private initCamera() {
         this.camera = new PerspectiveCamera(
             75,
@@ -155,8 +180,15 @@ export class MainGame {
         this.camera.lookAt(new Vector3(0, 0, 0));
 
         this.debugOptions.cameraHelper = new CameraHelper(this.camera);
+        this.debugOptions.orbitControl = new OrbitControls(this.camera, this.canvasContainer);
+        this.debugOptions.orbitControl.enabled = false;
     }
 
+    /**
+     * Inicializa o render
+     *
+     * @private
+     */
     private initRender() {
         // Cria o render
         this.renderer = new WebGLRenderer();
@@ -179,6 +211,11 @@ export class MainGame {
         this.debugOptions.axesHelper = new AxesHelper(10,);
     }
 
+    /**
+     * Inicializa as luzes
+     *
+     * @private
+     */
     private initLights() {
         // Create an hemisphere light and add it to scene
         const hemisphereLight = new HemisphereLight(0x443333, 0x111122);
@@ -208,7 +245,12 @@ export class MainGame {
         this.debugOptions.spotlightHelper = new SpotLightHelper(spotLight);
     }
 
-    private initGrounPlane() {
+    /**
+     * Inicia o terreno do jogo
+     *
+     * @private
+     */
+    private initGroundPlane() {
         // Add a plane to represent ground on this scene
         const planeGeometry = new PlaneBufferGeometry(4000, 4000, 32, 32);
         const planeMaterial = new MeshStandardMaterial({ color: 0x32d04e });
@@ -219,23 +261,32 @@ export class MainGame {
 
     }
 
+    /**
+     * Inicia o mixer de animações
+     *
+     * @private
+     */
     private initAnimationMixer() {
         this.animationsMixer = [];
 
         this.clock = new Clock();
     }
 
-    private initBasicControl() {
-        // Adiciona controles de órbita para a aplicação
-        // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-
-        // this.controls.target.set(0, 0.5, 0);
-        // this.controls.target
-        // this.controls.update();
-        // this.controls.enablePan = true;
-        // this.controls.enableDamping = true;
+    /**
+     * Inicializa a interface de audio do jogo
+     *
+     * @private
+     */
+    private initAudio() {
+        this.audioListener = new AudioListener();
+        this.camera.add(this.audioListener);
     }
 
+    /**
+     * Inicializa o player
+     *
+     * @private
+     */
     private async initPlayer() {
         // Inicializa a camera frontal
         this.frontCamera = new PerspectiveCamera(
@@ -253,8 +304,9 @@ export class MainGame {
         this.debugOptions.frontCameraHelper = new CameraHelper(this.frontCamera);
 
         // Carrega o player
-        this.player = await Player.loadPlayer(this.frontCamera);
+        this.player = await Player.loadPlayer(this.frontCamera, this.audioListener);
 
+        // Extrai elementos para personalização
         this.player.model.traverse(o => {
             if (o instanceof Mesh) {
                 if (o.name == 'Hat') {
@@ -267,6 +319,11 @@ export class MainGame {
             }
         });
 
+        // Ativa os controles mobile se smartphone ou tablet
+        if (isMobileOrTablet()) {
+            this.player.setupMobileControls(this.canvasContainer);
+        }
+
         // Salva as demais propriedades
         this.animationsMixer.push(this.player.animationMixer);
 
@@ -278,38 +335,124 @@ export class MainGame {
         this.scene.add(this.player.model);
     }
 
-    private createDummyCube() {
+    // TODO MOVE FROM THIS! Cria cubo genérico
+    private createDummyCube(pos: Vector3, color: string) {
         // Cria um elemento qualquer
         const cubeSize = 1;
+
         const geometry = new BoxGeometry(cubeSize, cubeSize, cubeSize);
-        geometry.translate(0, (cubeSize / 2), 0)
+        geometry.translate(pos.x, (cubeSize / 2), pos.z);
 
         const material = new MeshPhongMaterial({
-            color: 0xff3e00,
+            color: new Color(color),
             // wireframe: true,
         });
-        this.cube = new Mesh(geometry, material);
+        const cube = new Mesh(geometry, material);
 
-        this.cube.castShadow = true;
-        this.cube.receiveShadow = true;
+        cube.castShadow = true;
+        cube.receiveShadow = true;
 
-        this.scene.add(this.cube);
+        this.scene.add(cube);
     }
 
-    private async initScene() {
-        this.initGrounPlane();
+    /**
+     * Inicializa a cena
+     *
+     * @private
+     */
+    private async initScene(loadCallback: ProgressBarCallback) {
+        const totalNumberOperations = 6;
+        const updateProgressBar = (operationNumber) => {
+            loadCallback(((operationNumber * 100) / totalNumberOperations), false);
+        };
 
-        // TODO REMOVER - Apenas para teste
-        this.createDummyCube();
+        this.initGroundPlane();
+        updateProgressBar(1);
+
+        // Carrega os cubos
+        for (let el of this.gameElements) {
+            this.createDummyCube(el.position, el.nameColor);
+        }
+        updateProgressBar(2);
 
         // TODO REMOVE ou USA
-        // this.scene.fog = new Fog( 0x72645b, 10, 30 );
+        this.scene.fog = new Fog(0xffffff, 58, 60);
+        updateProgressBar(3);
 
-        this.initPlayer();
+        // Carrega o player
+        await this.initPlayer();
+        updateProgressBar(4);
+
+        // Carrega a música de fundo
+        await this.initBackgroundMusic();
+        updateProgressBar(5);
+
+        // Carrega as musicas do jogo
+        await this.initGameSounds();
+        updateProgressBar(5);
+    }
+
+    /**
+     * Inicializa os sons do jogo
+     *
+     * @private
+     */
+    private async initGameSounds() {
+        // Carrega a música de sucesso
+        const successSoundBuf = await CustomAudioLoader
+            .load('game/sounds/success_sound.ogg');
+        this.successSound = new Audio(this.audioListener);
+
+        // Configura a música de sucesso
+        this.successSound.setBuffer(successSoundBuf);
+        this.successSound.setLoop(false);
+        this.successSound.setVolume(0.5);
+
+        // Carrega a música de falha
+        const failureSoundBuf = await CustomAudioLoader
+            .load('game/sounds/failure_sound.ogg');
+        this.failureSound = new Audio(this.audioListener);
+
+        // Configura a música de falha
+        this.failureSound.setBuffer(failureSoundBuf);
+        this.failureSound.setLoop(false);
+        this.failureSound.setVolume(0.5);
+    }
+
+    /**
+     * Inicializa a música de fundo
+     *
+     * @private
+     */
+    private async initBackgroundMusic() {
+        // Carrega a música de fundo
+        const backgroundMusicBuf = await CustomAudioLoader
+            .load('game/sounds/fluffing_a_duck_ambient.ogg');
+        this.backgroundMusic = new Audio(this.audioListener);
+
+        // Configura a música de fundo
+        this.backgroundMusic.setBuffer( backgroundMusicBuf );
+        this.backgroundMusic.setLoop( true );
+        this.backgroundMusic.setVolume( 0.2 );
+        this.backgroundMusic.play();
+    }
+
+    /**
+     * Reset a camera para a posição default
+     *
+     * @private
+     */
+    private resetCamera() {
+        this.camera.position.x = this.player.model.position.x;
+        this.camera.position.z = this.player.model.position.z + 15;
+        this.camera.position.y = this.player.model.position.y + 20;
+
+        this.camera.lookAt(this.player.model.position);
     }
 
     /**
      * Inicializa as opções de Debug da aplicação
+     *
      * @private
      */
     private initDebugOptions() {
@@ -318,6 +461,9 @@ export class MainGame {
 
         this.debugMenu = new dat.GUI();
         this.debugMenu.close();
+
+        // Outside options
+        this.debugMenu.add(this.debugOptions, 'resetCamera');
 
         const debug = this.debugMenu.addFolder('helpers');
 
@@ -349,6 +495,9 @@ export class MainGame {
                             ? this.scene.add(this.debugOptions.axesHelper)
                             : this.scene.remove(this.debugOptions.axesHelper);
                         break;
+                    case 'enableOrbitControl':
+                        this.debugOptions.orbitControl.enabled = state;
+                        break;
                 }
             }
         };
@@ -359,6 +508,7 @@ export class MainGame {
             debug.add(this.debugOptions, 'enableCameraHelper', false),
             debug.add(this.debugOptions, 'enableFrontCameraHelper', false),
             debug.add(this.debugOptions, 'enableAxesHelper', false),
+            debug.add(this.debugOptions, 'enableOrbitControl', false),
         ];
         debugProperties.forEach(debugProperty => debugProperty.onChange(updateDebug(debugProperty.property)));
     }
@@ -388,7 +538,7 @@ export class MainGame {
      * Indica se a página contém a proporção básica para operar
      */
     isPageRatioAllowed() {
-        return (window.innerWidth / window.innerHeight) >= 1;
+        return (window.innerWidth / window.innerHeight) >= 1 && (window.innerWidth / window.innerHeight) <= 3;
     }
 
     /**
@@ -413,25 +563,53 @@ export class MainGame {
     }
 
     /**
+     * Checa se a tarefa a ser perfomada está sendo executada adequadamente
+     *
+     * @private
+     */
+    private checkQuestTask() {
+        let i = 0;
+        for (const el of this.gameElements) {
+            if (this.player.checkCollision(el.position, 4)) {
+                if (i == 0 && this.gameElements[1].correct == true) {
+                    this.gameElements.forEach(gel => gel.correct = false);
+                    this.failureSound.play();
+                } else if (
+                    i == 0 && this.gameElements[1].correct == false ||
+                    this.gameElements[i - 1].correct === true
+                ) {
+                    this.successSound.play();
+                    el.correct = true;
+                } else {
+                    this.gameElements.forEach(gel => gel.correct = false);
+                    this.failureSound.play();
+                }
+
+                this.notify();
+            }
+            i++;
+        }
+    }
+
+    /**
      * Executa frame a frame do jogo
      *
      * @private
      */
     private step() {
+        // Atualiza as statistics de debug
         if (this.debugEnabled) {
             this.updateDebugStats();
         }
 
         // Game Logic
 
-        // TODO REMOVER - Rotaciona o cubo
-        // this.cube.rotation.x += 0.01;
-        // this.cube.rotation.y += 0.01;
-        this.cube.castShadow = true;
-
         // Atualiza o controle de órbita
-        // this.controls.update();
+        if (this.debugOptions.updateOrbitControl) {
+            this.debugOptions.orbitControl.update();
+        }
 
+        // Mixer de animação
         let mixerUpdateDelta = this.clock.getDelta();
         for (const animationMixer of this.animationsMixer) {
             animationMixer.update(mixerUpdateDelta);
@@ -440,13 +618,9 @@ export class MainGame {
         // Update player movement
         if (!!this.player) {
             this.player.updateAnimation();
-            this.player.updatePlayerMovement();
-            // this.player.updateFrontCamera();
-            this.player.updateIsometricCamera(this.camera);
-
-            if (this.player.checkCollision(new Vector3(0, 0, 0), 2)) {
-                console.log('COLLISION!');
-            }
+            this.player.updatePlayerPosition();
+            this.player.updateIsometricCameraPosition(this.camera);
+            this.checkQuestTask();
         }
 
         // Renderiza a cena
