@@ -88,7 +88,7 @@ export class Player {
             .load('game/sounds/footstep_sound.ogg')
             .then(audioBuffer => {
                 const sound = new Audio(audioListener);
-                sound.setVolume( 0.15 );
+                sound.setVolume( 0.25 );
                 sound.setBuffer(audioBuffer);
                 sound.setLoop( true );
 
@@ -196,7 +196,6 @@ export class Player {
      * @private
      */
     private setupAnimations() {
-
         this.runAction.enabled = true;
         this.runAction.setEffectiveTimeScale(1);
         this.runAction.setEffectiveWeight(1);
@@ -314,6 +313,14 @@ export class Player {
             .setEffectiveWeight(0.8)
             .fadeIn(duration)
             .play();
+    }
+
+    stopPlayer() {
+        if (this.footStepSound.isPlaying) {
+            this.footStepSound.stop()
+        }
+
+        this.movementVector.set(0, 0, 0);
     }
 
     /**

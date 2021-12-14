@@ -240,6 +240,17 @@ Desenvolvido com ❤️ em Salvador-BA na **UFBA** (Universidade Federal da Bahi
 
 **⚠ Hospedado também em https://github.com/jefersonla/projeto-cg**
 
+```text
+todo:
+
+- https://github.com/mrdoob/three.js/pull/22833
+- https://github.com/sunag/flow
+- https://tablericons.com/
+
+
+```
+
+
 ## Other Licenses
 
 ```text

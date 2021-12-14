@@ -22,7 +22,8 @@ import {
     AudioListener,
     Audio,
     RepeatWrapping,
-    MeshPhongMaterial, TextureLoader
+    MeshPhongMaterial,
+    TextureLoader,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
@@ -31,6 +32,8 @@ import type { GameElement } from "./entities/game-element.entity";
 import type {NotifyCallback, ProgressBarCallback} from "./utils/utils";
 import {createDummyCube, isMobileOrTablet} from "./utils/utils";
 import {CustomAudioLoader} from "./lib/custom-audio-loader";
+import {CustomModelLoader} from "./lib/custom-model-loader";
+import {FireworksScene} from "./lib/fireworks-scene";
 
 /**
  * Classe principal do jogo
@@ -55,10 +58,31 @@ export class MainGame {
     /* Debug Frame Status */
     debugStats: Stats;
 
-    /** ---------- Game Properties --------- **/
+    // Opções de debug
+    debugOptions = {
+        enableSkeleton: false,
+        skeletonHelper: null as SkeletonHelper,
 
-    /* Canvas Container */
-    private readonly canvasContainer: HTMLDivElement;
+        enableSpotlightHelper: false,
+        spotlightHelper: null as SpotLightHelper,
+
+        enableCameraHelper: false,
+        cameraHelper: null as CameraHelper,
+
+        enableFrontCameraHelper: false,
+        frontCameraHelper: null as CameraHelper,
+
+        enableAxesHelper: false,
+        axesHelper: null as AxesHelper,
+
+        enableOrbitControl: false,
+        updateOrbitControl: false,
+        orbitControl: null as OrbitControls,
+
+        resetCamera: () => this.resetCamera()
+    };
+
+    /** ---------- Game Properties --------- **/
 
     /* Cena atual do jogo */
     scene: Scene;
@@ -84,29 +108,8 @@ export class MainGame {
     /* Controle de tempo de execução */
     clock: Clock;
 
-    // Opções de debug
-    debugOptions = {
-        enableSkeleton: false,
-        skeletonHelper: null as SkeletonHelper,
-
-        enableSpotlightHelper: false,
-        spotlightHelper: null as SpotLightHelper,
-
-        enableCameraHelper: false,
-        cameraHelper: null as CameraHelper,
-
-        enableFrontCameraHelper: false,
-        frontCameraHelper: null as CameraHelper,
-
-        enableAxesHelper: false,
-        axesHelper: null as AxesHelper,
-
-        enableOrbitControl: false,
-        updateOrbitControl: false,
-        orbitControl: null as OrbitControls,
-
-        resetCamera: () => this.resetCamera()
-    };
+    /* Cena com fogos para o fim do game */
+    private fireworkScene: FireworksScene;
 
     /* Material do Boné */
     private hatMaterial?: MeshStandardMaterial;
@@ -133,13 +136,12 @@ export class MainGame {
      * @param loadCallback Carrega o load
      */
     constructor(
-        canvasContainer: HTMLDivElement,
+        private readonly canvasContainer: HTMLDivElement,
         public gameElements: GameElement[],
         public notify: NotifyCallback = () => {},
         public debugEnabled = false,
         loadCallback: ProgressBarCallback = () => {}
     ) {
-        this.canvasContainer = canvasContainer;
         this.useFrontCamera = false;
 
         // Inicializa o sistema de debug
@@ -155,12 +157,10 @@ export class MainGame {
         this.initCamera();
         this.initLights()
         this.initAudio();
-
         loadCallback(25, false);
 
         // Controle de animação
         this.initAnimationMixer();
-
         loadCallback(50, false);
 
         // Inicia a cena
@@ -198,7 +198,9 @@ export class MainGame {
      */
     private initRender() {
         // Cria o render
-        this.renderer = new WebGLRenderer();
+        this.renderer = new WebGLRenderer({
+            alpha: true
+        });
         this.renderer.setSize(
             window.innerWidth * 0.95,
             window.innerHeight * 0.95
@@ -289,6 +291,15 @@ export class MainGame {
     }
 
     /**
+     * Inicializa a cena final com os fogos de artificio
+     *
+     * @private
+     */
+    private async initFireworkScene() {
+        this.fireworkScene = await FireworksScene.playScene(this.renderer, this.audioListener);
+    }
+
+    /**
      * Inicializa a interface de audio do jogo
      *
      * @private
@@ -357,9 +368,9 @@ export class MainGame {
      * @private
      */
     private async initScene(loadCallback: ProgressBarCallback) {
-        const totalNumberOperations = 6;
+        const totalNumberOperations = 8;
         const updateProgressBar = (operationNumber) => {
-            loadCallback(((operationNumber * 100) / totalNumberOperations), false);
+            loadCallback(50 + ((((operationNumber * 100) / totalNumberOperations) / 100) * 50), false);
         };
 
         // Carrega os cubos
@@ -388,6 +399,149 @@ export class MainGame {
         // Carrega o plano
         await this.initGroundPlane();
         updateProgressBar(6);
+
+        // Carrega a cerca
+        await this.initFence();
+        updateProgressBar(7);
+
+        // Cena final
+        await this.initFireworkScene();
+        updateProgressBar(8);
+    }
+
+    /**
+     * Carrega os items da cerca
+     *
+     * @private
+     */
+    private async initFence() {
+        const gltfModel = await CustomModelLoader.load('game/models/fence/scene.gltf');
+        const fenceObj = gltfModel.scene.children[0];
+
+        // const fenceInstancedMesh = new InstancedMesh(fenceObj, , 12);
+
+        // obj.traverse(o => {
+        //     if (o instanceof Mesh) {
+        //         o.castShadow = true;
+        //     }
+        // });
+        // obj.scale.multiplyScalar(0.7)
+        // obj.position.copy(new Vector3(43,2.7,65))
+        //
+        //
+        // obj.traverse(o => {
+        //     if (o instanceof Mesh) {
+        //
+        //         o.castShadow = true;
+        //     }
+        // });
+        // obj.scale.multiplyScalar(0.7)
+        // obj.position.copy(new Vector3(0,2.7,65))
+        //
+        //
+        // obj.traverse(o => {
+        //     if (o instanceof Mesh) {
+        //
+        //         o.castShadow = true;
+        //     }
+        // });
+        // obj.scale.multiplyScalar(0.7)
+        // obj.position.copy(new Vector3(-43,2.7,65))
+        //
+        //
+        // obj.traverse(o => {
+        //     if (o instanceof Mesh) {
+        //
+        //         o.castShadow = true;
+        //     }
+        // });
+        // obj.scale.multiplyScalar(0.7)
+        // obj.position.copy(new Vector3(43,2.7,-57))
+        //
+        //
+        // obj.traverse(o => {
+        //     if (o instanceof Mesh) {
+        //
+        //         o.castShadow = true;
+        //     }
+        // });
+        // obj.scale.multiplyScalar(0.7)
+        // obj.position.copy(new Vector3(0,2.7,-57))
+        //
+        // obj.traverse(o => {
+        //     if (o instanceof Mesh) {
+        //
+        //         o.castShadow = true;
+        //     }
+        // });
+        // obj.scale.multiplyScalar(0.7)
+        // obj.position.copy(new Vector3(-43,2.7,-57))
+        //
+        //
+        // obj.traverse(o => {
+        //     if (o instanceof Mesh) {
+        //
+        //         o.castShadow = true;
+        //     }
+        // });
+        // obj.scale.multiplyScalar(0.7)
+        // obj.position.copy(new Vector3(-68,2.7,-40))
+        // obj.rotation.y = MathUtils.degToRad(-90);
+        //
+        //
+        // obj.traverse(o => {
+        //     if (o instanceof Mesh) {
+        //
+        //         o.castShadow = true;
+        //     }
+        // });
+        // obj.scale.multiplyScalar(0.7)
+        // obj.position.copy(new Vector3(-68,2.7,0))
+        // obj.rotation.y = MathUtils.degToRad(-90);
+        //
+        //
+        // obj.traverse(o => {
+        //     if (o instanceof Mesh) {
+        //
+        //         o.castShadow = true;
+        //     }
+        // });
+        // obj.scale.multiplyScalar(0.7)
+        // obj.position.copy(new Vector3(-68,2.7,40))
+        // obj.rotation.y = MathUtils.degToRad(-90);
+        //
+        //
+        // obj.traverse(o => {
+        //     if (o instanceof Mesh) {
+        //
+        //         o.castShadow = true;
+        //     }
+        // });
+        // obj.scale.multiplyScalar(0.7)
+        // obj.position.copy(new Vector3(60,2.7,-40))
+        // obj.rotation.y = MathUtils.degToRad(-90);
+        //
+        //
+        // obj.traverse(o => {
+        //     if (o instanceof Mesh) {
+        //
+        //         o.castShadow = true;
+        //     }
+        // });
+        // obj.scale.multiplyScalar(0.7)
+        // obj.position.copy(new Vector3(60,2.7,0))
+        // obj.rotation.y = MathUtils.degToRad(-90);
+        //
+        //
+        // obj.traverse(o => {
+        //     if (o instanceof Mesh) {
+        //
+        //         o.castShadow = true;
+        //     }
+        // });
+        // obj.scale.multiplyScalar(0.7)
+        // obj.position.copy(new Vector3(60,2.7,40))
+        // obj.rotation.y = MathUtils.degToRad(-90);
     }
 
     /**
@@ -430,8 +584,8 @@ export class MainGame {
 
         // Configura a música de fundo
         this.backgroundMusic.setBuffer( backgroundMusicBuf );
-        this.backgroundMusic.setLoop( true );
-        this.backgroundMusic.setVolume( 0.2 );
+        this.backgroundMusic.setLoop(true);
+        this.backgroundMusic.setVolume(0.12);
         this.backgroundMusic.play();
     }
 
@@ -546,12 +700,17 @@ export class MainGame {
         const aspectRatio = window.innerWidth / window.innerHeight;
         const borderPercentage = 0.01;
 
-        // Atualiza as camera
+        // Atualiza as cameras
         this.camera.aspect = aspectRatio;
         this.camera.updateProjectionMatrix();
 
         this.frontCamera.aspect = aspectRatio;
         this.frontCamera.updateProjectionMatrix();
+
+        if (this.fireworkScene) {
+            this.fireworkScene.camera.aspect = aspectRatio;
+            this.fireworkScene.camera.updateProjectionMatrix();
+        }
 
         // Atualiza o render
         this.renderer.setSize(
@@ -572,7 +731,6 @@ export class MainGame {
      * Randomiza as posições dos items do jogo
      */
     randomizeGameItemsPositions() {
-        console.log('chamada');
         for (const el of this.gameElements) {
             el.cube.position.x = MathUtils.randInt(0, 45);
             el.cube.position.z = MathUtils.randInt(0, 45);
@@ -595,30 +753,51 @@ export class MainGame {
                     if (!el.cube.material.transparent) {
                         // this.randomizeGameItemsPositions();
                         this.resetGameElements();
-                        this.failureSound.play();
+
+                        if (!this.failureSound.isPlaying) {
+                            this.failureSound.play();
+                        }
                     }
                 } else if (
                     (i == 0 && this.gameElements[1].correct == false) ||
                     this.gameElements[i - 1].correct === true
                 ) {
                     if (!el.cube.material.transparent) {
-                        this.successSound.play();
                         el.correct = true;
                         el.cube.material.transparent = true;
                         el.cube.material.opacity = 0.3;
+
+                        if (!this.successSound.isPlaying) {
+                            this.successSound.play();
+                        }
                     }
                 } else {
                     if (!el.cube.material.transparent) {
                         // this.randomizeGameItemsPositions();
                         this.resetGameElements();
-                        this.failureSound.play();
+
+                        if (!this.failureSound.isPlaying) {
+                            this.failureSound.play();
+                        }
                     }
                 }
 
                 this.notify();
+                if (this.isRunning && this.gameElements.every(el => el.correct)) {
+                    setTimeout(() => this.endGame(), 500);
+                }
             }
             i++;
         }
+    }
+
+    /**
+     * Finaliza o jogo
+     */
+    endGame() {
+        this.stop();
+        this.notify('end');
+        this.fireworkScene.start(this.debugStats);
     }
 
     /**
@@ -627,6 +806,12 @@ export class MainGame {
      * @private
      */
     private step() {
+        // Para a execução
+        if (!this.isRunning) {
+            cancelAnimationFrame(this.animationFrameHandler);
+            return;
+        }
+
         // Atualiza as statistics de debug
         if (this.debugEnabled) {
             this.updateDebugStats();
@@ -663,11 +848,11 @@ export class MainGame {
     /**
      * Executa a aplicação
      */
-    run() {
+    start() {
         // Inicia loop de renderização se jogo estiver parado
         if (!this.isRunning) {
-            this.animationFrameHandler = requestAnimationFrame(() => this.step());
             this.isRunning = true;
+            this.animationFrameHandler = requestAnimationFrame(() => this.step());
         }
     }
 
@@ -686,6 +871,14 @@ export class MainGame {
             // Configura as variáveis de estado
             this.isRunning = false;
             this.animationFrameHandler = 0;
+
+            // Para música de fundo
+            if (this.backgroundMusic.isPlaying) {
+                this.backgroundMusic.stop();
+            }
+
+            // Para o player
+            this.player.stopPlayer();
         }
     }
 

@@ -13,6 +13,7 @@
     import { MainGame } from './main-game';
     import {MathUtils, Vector3} from "three";
     import {onMount} from "svelte";
+    import {GameElement} from "./entities/game-element.entity";
 
     // ---------------------- DEBUG MODE ---------------------- //
     const DEBUG_MODE = true;
@@ -40,7 +41,7 @@
     let game: MainGame;
 
     // Items do jogo
-    let gameItens = [
+    let gameItens: GameElement[] = [
         {
             name: 'Verde',
             nameColor: 'green',
@@ -55,35 +56,35 @@
             correct: false,
             position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
         },
-        {
-            name: 'Preto',
-            nameColor: 'black',
-            textColor: 'red',
-            correct: false,
-            position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, -45))
-        },
-        {
-            name: 'Vermelho',
-            nameColor: 'red',
-            textColor: 'black',
-            correct: false,
-            position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, -45))
-        },
-        {
-            name: 'Amarelo',
-            nameColor: 'yellow',
-            textColor: 'green',
-            correct: false,
-            position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, 45))
-        },
-        {
-            name: 'Rosa',
-            nameColor: 'pink',
-            textColor: 'purple',
-            correct: false,
-            position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
-        }
-    ];
+        // {
+        //     name: 'Preto',
+        //     nameColor: 'black',
+        //     textColor: 'red',
+        //     correct: false,
+        //     position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, -45))
+        // },
+        // {
+        //     name: 'Vermelho',
+        //     nameColor: 'red',
+        //     textColor: 'black',
+        //     correct: false,
+        //     position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, -45))
+        // },
+        // {
+        //     name: 'Amarelo',
+        //     nameColor: 'yellow',
+        //     textColor: 'green',
+        //     correct: false,
+        //     position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, 45))
+        // },
+        // {
+        //     name: 'Rosa',
+        //     nameColor: 'pink',
+        //     textColor: 'purple',
+        //     correct: false,
+        //     position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
+        // }
+    ].shuffle();
 
     // Redimensiona e checa se o jogo pode rodar
     const resizeAndControlGame = () => {
@@ -93,7 +94,7 @@
         if (game.isPageRatioAllowed()) {
             displayAlert = false;
             if (gameStarted) {
-                game.run();
+                game.start();
             }
         } else {
             displayAlert = true;
@@ -105,8 +106,11 @@
     let progressValue = 0;
 
     // Notifica que houve alterações nos dados do jogo para atualizar a interface
-    const notify = () => {
+    const notify = (status?: string) => {
         gameItens = gameItens;
+        if (status == 'end') {
+            gameStarted = false;
+        }
     };
 
     // Estado do jogo mudou
@@ -176,7 +180,9 @@
 <!-- ./AlertOverlay -->
 
 <!-- ColorMenu -->
-<ColorMenu on:colorChanged={colorChanged} on:menuStateChanged={menuStateChanged} />
+{#if gameStarted}
+    <ColorMenu on:colorChanged={colorChanged} on:menuStateChanged={menuStateChanged} />
+{/if}
 <!-- ./ColorMenu -->
 
 <!-- GameArea -->

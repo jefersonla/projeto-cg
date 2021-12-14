@@ -8,17 +8,7 @@ export type ProgressBarCallback = (progress?: number, finished?: boolean) => voi
 /**
  * Callback de notificação de ocorrência de mudança de estado
  */
-export type NotifyCallback = () => void;
-
-/**
- * Callback de atualização da barra de progresso
- */
-export type ProgressBarCallback = (progress?: number, finished?: boolean) => void;
-
-/**
- * Callback de notificação de ocorrência de mudança de estado
- */
-export type NotifyCallback = () => void;
+export type NotifyCallback = (status?: string) => void;
 
 /**
  * Checa se estamos rodando num celular ou tablet
