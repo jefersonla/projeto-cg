@@ -4,7 +4,7 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-import { S as SvelteComponent, i as init, s as safe_not_equal, e as element, a as space, t as text, b as src_url_equal, c as attr, d as set_style, f as insert, g as append, h as set_data, j as create_out_transition, k as detach, l as empty, m as transition_in, n as group_outros, o as transition_out, p as check_outros, q as fade, r as toggle_class, u as listen, v as is_function, w as fly, x as destroy_each, y as run_all, z as noop, A as add_render_callback, B as create_bidirectional_transition, C as createEventDispatcher, D as binding_callbacks, G as GLTFLoader, E as AudioLoader, F as AnimationMixer, V as Vector3, H as Audio, I as nipplejs, J as BoxGeometry, M as MeshPhongMaterial, K as Color, L as Mesh, P as PointsMaterial, N as HemisphereLight, O as MathUtils, Q as BufferGeometry, R as Points, T as BufferAttribute, U as Scene, W as PerspectiveCamera, X as FontLoader, Y as TextGeometry, Z as Object3D, _ as InstancedMesh, $ as DynamicDrawUsage, a0 as CameraHelper, a1 as OrbitControls, a2 as WebGLRenderer, a3 as sRGBEncoding, a4 as AxesHelper, a5 as SpotLight, a6 as SpotLightHelper, a7 as TextureLoader, a8 as RepeatWrapping, a9 as PlaneGeometry, aa as Clock, ab as AudioListener, ac as SkeletonHelper, ad as Fog, ae as Stats, af as GUI$1, ag as bind, ah as create_component, ai as mount_component, aj as destroy_component, ak as add_flush_callback, al as onMount } from "./vendor.6c771940.js";
+import { S as SvelteComponent, i as init, s as safe_not_equal, e as element, a as space, t as text, b as src_url_equal, c as attr, d as set_style, f as insert, g as append, h as set_data, j as create_out_transition, k as detach, l as empty, m as transition_in, n as group_outros, o as transition_out, p as check_outros, q as fade, r as toggle_class, u as listen, v as is_function, w as fly, x as destroy_each, y as run_all, z as noop, A as add_render_callback, B as create_bidirectional_transition, C as createEventDispatcher, D as binding_callbacks, G as GLTFLoader, E as AudioLoader, F as AnimationMixer, V as Vector3, H as Audio, I as nipplejs, J as BoxGeometry, M as MeshPhongMaterial, K as Color, L as Mesh, P as PointsMaterial, N as HemisphereLight, O as MathUtils, Q as BufferGeometry, R as Points, T as BufferAttribute, U as Scene, W as PerspectiveCamera, X as FontLoader, Y as TextGeometry, Z as CameraHelper, _ as OrbitControls, $ as WebGLRenderer, a0 as sRGBEncoding, a1 as AxesHelper, a2 as SpotLight, a3 as SpotLightHelper, a4 as TextureLoader, a5 as RepeatWrapping, a6 as PlaneGeometry, a7 as Clock, a8 as AudioListener, a9 as SkeletonHelper, aa as Fog, ab as Stats, ac as GUI$1, ad as bind, ae as create_component, af as mount_component, ag as destroy_component, ah as add_flush_callback, ai as onMount } from "./vendor.a429996d.js";
 const p = function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) {
@@ -1341,43 +1341,6 @@ class FireworksScene {
     this.renderer.render(this.scene, this.camera);
   }
 }
-class InstancedModel {
-  constructor(model, numberOfInstances) {
-    __publicField(this, "instancedMeshes");
-    __publicField(this, "dummyPositional");
-    this.model = model;
-    this.numberOfInstances = numberOfInstances;
-    this.instancedMeshes = [];
-    this.dummyPositional = new Object3D();
-    model.traverse((el) => {
-      if (el instanceof Mesh) {
-        const instancedMesh = new InstancedMesh(el.geometry, el.material, numberOfInstances);
-        instancedMesh.instanceMatrix.setUsage(DynamicDrawUsage);
-        instancedMesh.receiveShadow = true;
-        instancedMesh.castShadow = true;
-        model.parent.children = model.parent.children.filter((gel) => gel != el);
-        model.parent.children.push(instancedMesh);
-        this.instancedMeshes.push(instancedMesh);
-      }
-    });
-  }
-  moveTo(instance2, position) {
-    if (instance2 < 0 || instance2 > this.numberOfInstances) {
-      throw new Error("Inst\xE2ncia fora do range");
-    }
-    this.dummyPositional.position.set(position.x, position.y, position.z);
-    this.dummyPositional.updateMatrix();
-    for (const mesh of this.instancedMeshes) {
-      mesh.setMatrixAt(instance2, this.dummyPositional.matrix);
-      mesh.instanceMatrix.needsUpdate = true;
-    }
-  }
-  rotateY(instance2, deg) {
-    if (instance2 < 0 || instance2 > this.numberOfInstances) {
-      throw new Error("Inst\xE2ncia fora do range");
-    }
-  }
-}
 class MainGame {
   constructor(canvasContainer, gameElements, notify = () => {
   }, debugEnabled = false, loadCallback = () => {
@@ -1461,7 +1424,7 @@ class MainGame {
     const hemisphereLight = new HemisphereLight(4469555, 1118498);
     this.scene.add(hemisphereLight);
     const spotLight = new SpotLight(16777215, 0.7);
-    spotLight.position.set(30, 80, 30);
+    spotLight.position.set(35, 80, 20);
     spotLight.castShadow = true;
     spotLight.shadow.mapSize.width = 1024;
     spotLight.shadow.mapSize.height = 1024;
@@ -1477,7 +1440,7 @@ class MainGame {
     texture.wrapS = RepeatWrapping;
     texture.wrapT = RepeatWrapping;
     texture.repeat.set(3, 3);
-    const planeGeometry = new PlaneGeometry(130, 130, 32, 32);
+    const planeGeometry = new PlaneGeometry(137, 137, 32, 32);
     const planeMaterial = new MeshPhongMaterial({ map: texture });
     const groundPlane = new Mesh(planeGeometry, planeMaterial);
     groundPlane.rotation.x = MathUtils.degToRad(-90);
@@ -1522,7 +1485,7 @@ class MainGame {
     this.scene.add(this.player.model);
   }
   async initScene(loadCallback) {
-    const totalNumberOperations = 8;
+    const totalNumberOperations = 9;
     const updateProgressBar = (operationNumber) => {
       loadCallback(50 + operationNumber * 100 / totalNumberOperations / 100 * 50, false);
     };
@@ -1545,31 +1508,37 @@ class MainGame {
     updateProgressBar(7);
     await this.initFireworkScene();
     updateProgressBar(8);
+    await this.initRandomElements();
+    updateProgressBar(9);
+  }
+  async initRandomElements() {
   }
   async initFence() {
     const gltfModel = await CustomModelLoader.load("game/models/fence/scene.gltf");
     const fenceObj = gltfModel.scene.children[0];
-    const fenceInstancedMesh = new InstancedModel(fenceObj, 12);
-    fenceInstancedMesh.model.scale.multiplyScalar(0.7);
-    this.scene.add(fenceInstancedMesh.model);
-    fenceInstancedMesh.moveTo(0, new Vector3(43, 2.7, 65));
-    fenceInstancedMesh.moveTo(1, new Vector3(0, 2.7, 65));
-    fenceInstancedMesh.moveTo(2, new Vector3(-43, 2.7, 65));
-    fenceInstancedMesh.moveTo(3, new Vector3(43, 2.7, -57));
-    fenceInstancedMesh.moveTo(4, new Vector3(0, 2.7, -57));
-    fenceInstancedMesh.moveTo(5, new Vector3(-43, 2.7, -57));
-    fenceInstancedMesh.moveTo(6, new Vector3(-68, 2.7, -40));
-    fenceInstancedMesh.rotateY(6, MathUtils.degToRad(-90));
-    fenceInstancedMesh.moveTo(7, new Vector3(-68, 2.7, 0));
-    fenceInstancedMesh.rotateY(7, MathUtils.degToRad(-90));
-    fenceInstancedMesh.moveTo(8, new Vector3(-68, 2.7, 40));
-    fenceInstancedMesh.rotateY(8, MathUtils.degToRad(-90));
-    fenceInstancedMesh.moveTo(9, new Vector3(60, 2.7, -40));
-    fenceInstancedMesh.rotateY(9, MathUtils.degToRad(-90));
-    fenceInstancedMesh.moveTo(10, new Vector3(60, 2.7, 0));
-    fenceInstancedMesh.rotateY(10, MathUtils.degToRad(-90));
-    fenceInstancedMesh.moveTo(11, new Vector3(60, 2.7, 40));
-    fenceInstancedMesh.rotateY(11, MathUtils.degToRad(-90));
+    fenceObj.scale.multiplyScalar(0.25);
+    const defaultHeight = 1.2;
+    const fenceWidth = 15;
+    const cornerTop = new Vector3(60, 0, 69);
+    const cornerBottom = new Vector3(60, 0, -66);
+    const cornerLeft = new Vector3(-69, 0, 60);
+    const cornerRight = new Vector3(66, 0, 60);
+    for (let i = 0; i < 9; i++) {
+      const topFence = fenceObj.clone(true);
+      topFence.position.set(cornerTop.x - fenceWidth * i, defaultHeight, cornerTop.z);
+      this.scene.add(topFence);
+      const bottomFence = fenceObj.clone(true);
+      bottomFence.position.set(cornerBottom.x - fenceWidth * i, defaultHeight, cornerBottom.z);
+      this.scene.add(bottomFence);
+      const leftFence = fenceObj.clone(true);
+      leftFence.position.set(cornerLeft.x, defaultHeight, cornerLeft.z - fenceWidth * i);
+      leftFence.rotateZ(MathUtils.degToRad(-90));
+      this.scene.add(leftFence);
+      const rightFence = fenceObj.clone(true);
+      rightFence.position.set(cornerRight.x, defaultHeight, cornerRight.z - fenceWidth * i);
+      rightFence.rotateZ(MathUtils.degToRad(-90));
+      this.scene.add(rightFence);
+    }
   }
   async initGameSounds() {
     const successSoundBuf = await CustomAudioLoader.load("game/sounds/success_sound.ogg");
