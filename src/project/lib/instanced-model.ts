@@ -2,6 +2,8 @@ import {Object3D, DynamicDrawUsage, InstancedMesh, Mesh, Vector3} from "three";
 
 /**
  * Abstração de instanced mesh para um modelo
+ *
+ * @deprecated use clone no lugar
  */
 export class InstancedModel {
 
@@ -59,6 +61,8 @@ export class InstancedModel {
             mesh.setMatrixAt(instance, this.dummyPositional.matrix);
             mesh.instanceMatrix.needsUpdate = true;
         }
+
+        this.model.matrixWorldNeedsUpdate = true;
     }
 
     /**

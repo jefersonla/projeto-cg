@@ -34,7 +34,6 @@ import {createDummyCube, isMobileOrTablet} from "./utils/utils";
 import {CustomAudioLoader} from "./lib/custom-audio-loader";
 import {CustomModelLoader} from "./lib/custom-model-loader";
 import {FireworksScene} from "./lib/fireworks-scene";
-import {InstancedModel} from "./lib/instanced-model";
 
 /**
  * Classe principal do jogo
@@ -233,7 +232,7 @@ export class MainGame {
 
         // Create an spotlight, which can cast shadows
         const spotLight = new SpotLight(0xffffff, 0.7);
-        spotLight.position.set(30, 80, 30);
+        spotLight.position.set(35, 80, 20);
 
 
         // Enable shadow
@@ -269,7 +268,7 @@ export class MainGame {
         texture.repeat.set(3, 3);
 
         // Cria os componentes do chão (geometria e material)
-        const planeGeometry = new PlaneBufferGeometry(130, 130, 32, 32);
+        const planeGeometry = new PlaneBufferGeometry(137, 137, 32, 32);
         const planeMaterial = new MeshPhongMaterial({ map: texture });
 
         // Instancia o plano
@@ -369,7 +368,7 @@ export class MainGame {
      * @private
      */
     private async initScene(loadCallback: ProgressBarCallback) {
-        const totalNumberOperations = 8;
+        const totalNumberOperations = 9;
         const updateProgressBar = (operationNumber) => {
             loadCallback(50 + ((((operationNumber * 100) / totalNumberOperations) / 100) * 50), false);
         };
@@ -408,53 +407,64 @@ export class MainGame {
         // Cena final
         await this.initFireworkScene();
         updateProgressBar(8);
+
+        // Carrega arvores e outros items de maneira randômica
+        await this.initRandomElements()
+        updateProgressBar(9);
     }
 
     /**
-     * Carrega os items da cerca
+     * Carrega elementos extras a cena como arvores, pedras, etc
+     *
+     * @private
+     */
+    private async initRandomElements() {
+        // TODO
+    }
+
+    /**
+     * Carrega e instancia a cerca
      *
      * @private
      */
     private async initFence() {
         const gltfModel = await CustomModelLoader.load('game/models/fence/scene.gltf');
         const fenceObj = gltfModel.scene.children[0];
+        fenceObj.scale.multiplyScalar(0.25);
 
-        // Replica o elemento para economizar memória
-        const fenceInstancedMesh = new InstancedModel(fenceObj,12);
-        fenceInstancedMesh.model.scale.multiplyScalar(0.7);
+        const defaultHeight = 1.2;
+        const fenceWidth = 15;
 
-        // Adiciona a instância principal e todos seus filhos
-        this.scene.add(fenceInstancedMesh.model);
+        const cornerTop = new Vector3(60, 0, 69);
+        const cornerBottom = new Vector3(60, 0, -66);
 
-        fenceInstancedMesh.moveTo(0, new Vector3(43,2.7,65));
+        const cornerLeft = new Vector3(-69, 0, 60);
+        const cornerRight = new Vector3(66, 0, 60);
 
-        fenceInstancedMesh.moveTo(1, new Vector3(0,2.7,65));
+        // Adiciona a cerca aos arredores do plano
+        for (let i = 0; i < 9; i++) {
+            // Top
+            const topFence = fenceObj.clone(true);
+            topFence.position.set(cornerTop.x - (fenceWidth * i), defaultHeight, cornerTop.z);
+            this.scene.add(topFence);
 
-        fenceInstancedMesh.moveTo(2, new Vector3(-43,2.7,65));
+            // Bottom
+            const bottomFence = fenceObj.clone(true);
+            bottomFence.position.set(cornerBottom.x - (fenceWidth * i), defaultHeight, cornerBottom.z);
+            this.scene.add(bottomFence);
 
-        fenceInstancedMesh.moveTo(3, new Vector3(43,2.7,-57));
+            // Left
+            const leftFence = fenceObj.clone(true);
+            leftFence.position.set(cornerLeft.x, defaultHeight, cornerLeft.z - (fenceWidth * i));
+            leftFence.rotateZ(MathUtils.degToRad(-90));
+            this.scene.add(leftFence);
 
-        fenceInstancedMesh.moveTo(4, new Vector3(0,2.7,-57));
-
-        fenceInstancedMesh.moveTo(5, new Vector3(-43,2.7,-57))
-        ;
-        fenceInstancedMesh.moveTo(6, new Vector3(-68,2.7,-40));
-        fenceInstancedMesh.rotateY(6, MathUtils.degToRad(-90));
-
-        fenceInstancedMesh.moveTo(7, new Vector3(-68,2.7,0));
-        fenceInstancedMesh.rotateY(7, MathUtils.degToRad(-90));
-
-        fenceInstancedMesh.moveTo(8, new Vector3(-68,2.7,40));
-        fenceInstancedMesh.rotateY(8, MathUtils.degToRad(-90));
-
-        fenceInstancedMesh.moveTo(9, new Vector3(60,2.7,-40));
-        fenceInstancedMesh.rotateY(9, MathUtils.degToRad(-90));
-
-        fenceInstancedMesh.moveTo(10, new Vector3(60,2.7,0));
-        fenceInstancedMesh.rotateY(10, MathUtils.degToRad(-90));
-
-        fenceInstancedMesh.moveTo(11, new Vector3(60,2.7,40));
-        fenceInstancedMesh.rotateY(11, MathUtils.degToRad(-90));
+            // Right
+            const rightFence = fenceObj.clone(true);
+            rightFence.position.set(cornerRight.x, defaultHeight, cornerRight.z - (fenceWidth * i));
+            rightFence.rotateZ(MathUtils.degToRad(-90));
+            this.scene.add(rightFence);
+        }
     }
 
     /**
