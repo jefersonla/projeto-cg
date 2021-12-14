@@ -4,7 +4,7 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-import { S as SvelteComponent, i as init, s as safe_not_equal, e as element, a as space, t as text, b as src_url_equal, c as attr, d as set_style, f as insert, g as append, h as set_data, j as create_out_transition, k as detach, l as empty, m as transition_in, n as group_outros, o as transition_out, p as check_outros, q as fade, r as toggle_class, u as listen, v as is_function, w as fly, x as destroy_each, y as run_all, z as noop, A as add_render_callback, B as create_bidirectional_transition, C as createEventDispatcher, D as binding_callbacks, G as GLTFLoader, E as AudioLoader, F as AnimationMixer, V as Vector3, H as Audio, I as nipplejs, J as BoxGeometry, M as MeshPhongMaterial, K as Color, L as Mesh, P as PointsMaterial, N as HemisphereLight, O as MathUtils, Q as BufferGeometry, R as Points, T as BufferAttribute, U as Scene, W as PerspectiveCamera, X as FontLoader, Y as TextGeometry, Z as CameraHelper, _ as OrbitControls, $ as ar, a0 as WebGLRenderer, a1 as sRGBEncoding, a2 as AxesHelper, a3 as SpotLight, a4 as SpotLightHelper, a5 as TextureLoader, a6 as RepeatWrapping, a7 as PlaneGeometry, a8 as Clock, a9 as AudioListener, aa as SkeletonHelper, ab as Fog, ac as Stats, ad as GUI$1, ae as bind, af as create_component, ag as mount_component, ah as destroy_component, ai as add_flush_callback, aj as onMount } from "./vendor.e7d7f823.js";
+import { S as SvelteComponent, i as init, s as safe_not_equal, e as element, a as space, t as text, b as src_url_equal, c as attr, d as set_style, f as insert, g as append, h as set_data, j as create_out_transition, k as detach, l as empty, m as transition_in, n as group_outros, o as transition_out, p as check_outros, q as fade, r as toggle_class, u as listen, v as is_function, w as fly, x as destroy_each, y as run_all, z as noop, A as add_render_callback, B as create_bidirectional_transition, C as createEventDispatcher, D as binding_callbacks, G as GLTFLoader, E as AudioLoader, F as AnimationMixer, V as Vector3, H as Audio, I as nipplejs, J as BoxGeometry, M as MeshPhongMaterial, K as Color, L as Mesh, P as PointsMaterial, N as HemisphereLight, O as MathUtils, Q as BufferGeometry, R as Points, T as BufferAttribute, U as Scene, W as PerspectiveCamera, X as FontLoader, Y as TextGeometry, Z as CameraHelper, _ as OrbitControls, $ as WebGLRenderer, a0 as sRGBEncoding, a1 as AxesHelper, a2 as SpotLight, a3 as SpotLightHelper, a4 as TextureLoader, a5 as RepeatWrapping, a6 as PlaneGeometry, a7 as Clock, a8 as AudioListener, a9 as SkeletonHelper, aa as Fog, ab as Stats, ac as GUI$1, ad as bind, ae as create_component, af as mount_component, ag as destroy_component, ah as add_flush_callback, ai as onMount } from "./vendor.b023202f.js";
 const p = function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) {
@@ -1072,10 +1072,10 @@ const _Player = class {
     targetPosition.y = 3;
     this.frontCamera.lookAt(targetPosition);
   }
-  updateIsometricCameraPosition(camera2) {
-    camera2.position.x = this.model.position.x;
-    camera2.position.z = this.model.position.z + 15;
-    camera2.position.y = this.model.position.y + 20;
+  updateIsometricCameraPosition(camera) {
+    camera.position.x = this.model.position.x;
+    camera.position.z = this.model.position.z + 15;
+    camera.position.y = this.model.position.y + 20;
   }
   checkCollision(obj, diameter) {
     return this.model.position.distanceTo(obj.clone()) < diameter / 2;
@@ -1140,12 +1140,12 @@ function createDummyCube(pos, color, cubeSize = 1) {
   return cube;
 }
 function createSceneAndCamera() {
-  const scene2 = new Scene();
-  const camera2 = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2e4);
-  camera2.position.set(-0, 0, 0);
-  camera2.rotation.set(0, 0, 0);
-  scene2.add(camera2);
-  return [scene2, camera2];
+  const scene = new Scene();
+  const camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2e4);
+  camera.position.set(-0, 0, 0);
+  camera.rotation.set(0, 0, 0);
+  scene.add(camera);
+  return [scene, camera];
 }
 async function createCongratulationsTextMesh() {
   const fontLoader = new FontLoader();
@@ -1176,7 +1176,7 @@ function playAudioBuffer(audioBuffer, audioListener, volume) {
   sound.play();
 }
 class FireworksScene {
-  constructor(camera2, scene2, renderer2, fireworks, fireworkSongs, audioListener) {
+  constructor(camera, scene, renderer, fireworks, fireworkSongs, audioListener) {
     __publicField(this, "isRunning");
     __publicField(this, "done");
     __publicField(this, "vertices");
@@ -1187,9 +1187,9 @@ class FireworksScene {
     __publicField(this, "material");
     __publicField(this, "animationFrameHandler");
     __publicField(this, "stats");
-    this.camera = camera2;
-    this.scene = scene2;
-    this.renderer = renderer2;
+    this.camera = camera;
+    this.scene = scene;
+    this.renderer = renderer;
     this.fireworks = fireworks;
     this.fireworkSongs = fireworkSongs;
     this.audioListener = audioListener;
@@ -1210,18 +1210,18 @@ class FireworksScene {
     });
     this.launch();
   }
-  static async playScene(renderer2, audioListener) {
+  static async playScene(renderer, audioListener) {
     const fireworks = [];
-    const [scene2, camera2] = createSceneAndCamera();
+    const [scene, camera] = createSceneAndCamera();
     const textMesh = await createCongratulationsTextMesh();
-    scene2.add(textMesh);
+    scene.add(textMesh);
     const hemisphereLight = new HemisphereLight(268435455, 3355443);
-    scene2.add(hemisphereLight);
+    scene.add(hemisphereLight);
     const fireworkSongs = {
       explode: await CustomAudioLoader.load("game/sounds/firework_explode.ogg"),
       launch: await CustomAudioLoader.load("game/sounds/firework_launch.ogg")
     };
-    return new FireworksScene(camera2, scene2, renderer2, fireworks, fireworkSongs, audioListener);
+    return new FireworksScene(camera, scene, renderer, fireworks, fireworkSongs, audioListener);
   }
   reset() {
     this.scene.remove(this.points);
@@ -1408,51 +1408,6 @@ class MainGame {
     this.debugOptions.orbitControl.enabled = false;
   }
   initArToolkit() {
-    var onRenderFcts = [];
-    const arToolkitSource = new ar.exports.ArToolkitSource({
-      sourceType: "webcam"
-    });
-    arToolkitSource.init(function onReady() {
-      setTimeout(() => {
-        onResize();
-      }, 2e3);
-    });
-    function onResize() {
-      arToolkitSource.onResizeElement();
-      arToolkitSource.copyElementSizeTo(renderer.domElement);
-      if (arToolkitContext.arController !== null) {
-        arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas);
-      }
-    }
-    var arToolkitContext = new ar.exports.ArToolkitContext({
-      cameraParametersUrl: ar.exports.ArToolkitContext.baseURL + "../data/data/camera_para.dat",
-      detectionMode: "mono"
-    });
-    arToolkitContext.init(function onCompleted() {
-      camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
-    });
-    onRenderFcts.push(function() {
-      if (arToolkitSource.ready === false)
-        return;
-      arToolkitContext.update(arToolkitSource.domElement);
-      scene.visible = camera.visible;
-    });
-    new ar.exports.ArMarkerControls(arToolkitContext, camera, {
-      type: "pattern",
-      patternUrl: ar.exports.ArToolkitContext.baseURL + "../data/data/patt.hiro",
-      changeMatrixMode: "cameraTransformMatrix"
-    });
-    scene.visible = false;
-    var lastTimeMsec = null;
-    requestAnimationFrame(function animate(nowMsec) {
-      requestAnimationFrame(animate);
-      lastTimeMsec = lastTimeMsec || nowMsec - 1e3 / 60;
-      var deltaMsec = Math.min(200, nowMsec - lastTimeMsec);
-      lastTimeMsec = nowMsec;
-      onRenderFcts.forEach(function(onRenderFct) {
-        onRenderFct(deltaMsec / 1e3, nowMsec / 1e3);
-      });
-    });
   }
   initRender() {
     this.renderer = new WebGLRenderer({
