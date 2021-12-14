@@ -56,34 +56,34 @@
             correct: false,
             position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
         },
-        // {
-        //     name: 'Preto',
-        //     nameColor: 'black',
-        //     textColor: 'red',
-        //     correct: false,
-        //     position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, -45))
-        // },
-        // {
-        //     name: 'Vermelho',
-        //     nameColor: 'red',
-        //     textColor: 'black',
-        //     correct: false,
-        //     position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, -45))
-        // },
-        // {
-        //     name: 'Amarelo',
-        //     nameColor: 'yellow',
-        //     textColor: 'green',
-        //     correct: false,
-        //     position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, 45))
-        // },
-        // {
-        //     name: 'Rosa',
-        //     nameColor: 'pink',
-        //     textColor: 'purple',
-        //     correct: false,
-        //     position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
-        // }
+        {
+            name: 'Preto',
+            nameColor: 'black',
+            textColor: 'red',
+            correct: false,
+            position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, -45))
+        },
+        {
+            name: 'Vermelho',
+            nameColor: 'red',
+            textColor: 'black',
+            correct: false,
+            position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, -45))
+        },
+        {
+            name: 'Amarelo',
+            nameColor: 'yellow',
+            textColor: 'green',
+            correct: false,
+            position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, 45))
+        },
+        {
+            name: 'Rosa',
+            nameColor: 'pink',
+            textColor: 'purple',
+            correct: false,
+            position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
+        }
     ].shuffle();
 
     // Redimensiona e checa se o jogo pode rodar

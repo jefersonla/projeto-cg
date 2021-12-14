@@ -34,6 +34,7 @@ import {createDummyCube, isMobileOrTablet} from "./utils/utils";
 import {CustomAudioLoader} from "./lib/custom-audio-loader";
 import {CustomModelLoader} from "./lib/custom-model-loader";
 import {FireworksScene} from "./lib/fireworks-scene";
+import {InstancedModel} from "./lib/instanced-model";
 
 /**
  * Classe principal do jogo
@@ -418,130 +419,42 @@ export class MainGame {
         const gltfModel = await CustomModelLoader.load('game/models/fence/scene.gltf');
         const fenceObj = gltfModel.scene.children[0];
 
-        // const fenceInstancedMesh = new InstancedMesh(fenceObj, , 12);
+        // Replica o elemento para economizar memória
+        const fenceInstancedMesh = new InstancedModel(fenceObj,12);
+        fenceInstancedMesh.model.scale.multiplyScalar(0.7);
 
-        // obj.traverse(o => {
-        //     if (o instanceof Mesh) {
-        //         o.castShadow = true;
-        //     }
-        // });
-        // obj.scale.multiplyScalar(0.7)
-        // obj.position.copy(new Vector3(43,2.7,65))
-        //
-        //
-        // obj.traverse(o => {
-        //     if (o instanceof Mesh) {
-        //
-        //         o.castShadow = true;
-        //     }
-        // });
-        // obj.scale.multiplyScalar(0.7)
-        // obj.position.copy(new Vector3(0,2.7,65))
-        //
-        //
-        // obj.traverse(o => {
-        //     if (o instanceof Mesh) {
-        //
-        //         o.castShadow = true;
-        //     }
-        // });
-        // obj.scale.multiplyScalar(0.7)
-        // obj.position.copy(new Vector3(-43,2.7,65))
-        //
-        //
-        // obj.traverse(o => {
-        //     if (o instanceof Mesh) {
-        //
-        //         o.castShadow = true;
-        //     }
-        // });
-        // obj.scale.multiplyScalar(0.7)
-        // obj.position.copy(new Vector3(43,2.7,-57))
-        //
-        //
-        // obj.traverse(o => {
-        //     if (o instanceof Mesh) {
-        //
-        //         o.castShadow = true;
-        //     }
-        // });
-        // obj.scale.multiplyScalar(0.7)
-        // obj.position.copy(new Vector3(0,2.7,-57))
-        //
-        // obj.traverse(o => {
-        //     if (o instanceof Mesh) {
-        //
-        //         o.castShadow = true;
-        //     }
-        // });
-        // obj.scale.multiplyScalar(0.7)
-        // obj.position.copy(new Vector3(-43,2.7,-57))
-        //
-        //
-        // obj.traverse(o => {
-        //     if (o instanceof Mesh) {
-        //
-        //         o.castShadow = true;
-        //     }
-        // });
-        // obj.scale.multiplyScalar(0.7)
-        // obj.position.copy(new Vector3(-68,2.7,-40))
-        // obj.rotation.y = MathUtils.degToRad(-90);
-        //
-        //
-        // obj.traverse(o => {
-        //     if (o instanceof Mesh) {
-        //
-        //         o.castShadow = true;
-        //     }
-        // });
-        // obj.scale.multiplyScalar(0.7)
-        // obj.position.copy(new Vector3(-68,2.7,0))
-        // obj.rotation.y = MathUtils.degToRad(-90);
-        //
-        //
-        // obj.traverse(o => {
-        //     if (o instanceof Mesh) {
-        //
-        //         o.castShadow = true;
-        //     }
-        // });
-        // obj.scale.multiplyScalar(0.7)
-        // obj.position.copy(new Vector3(-68,2.7,40))
-        // obj.rotation.y = MathUtils.degToRad(-90);
-        //
-        //
-        // obj.traverse(o => {
-        //     if (o instanceof Mesh) {
-        //
-        //         o.castShadow = true;
-        //     }
-        // });
-        // obj.scale.multiplyScalar(0.7)
-        // obj.position.copy(new Vector3(60,2.7,-40))
-        // obj.rotation.y = MathUtils.degToRad(-90);
-        //
-        //
-        // obj.traverse(o => {
-        //     if (o instanceof Mesh) {
-        //
-        //         o.castShadow = true;
-        //     }
-        // });
-        // obj.scale.multiplyScalar(0.7)
-        // obj.position.copy(new Vector3(60,2.7,0))
-        // obj.rotation.y = MathUtils.degToRad(-90);
-        //
-        //
-        // obj.traverse(o => {
-        //     if (o instanceof Mesh) {
-        //
-        //         o.castShadow = true;
-        //     }
-        // });
-        // obj.scale.multiplyScalar(0.7)
-        // obj.position.copy(new Vector3(60,2.7,40))
-        // obj.rotation.y = MathUtils.degToRad(-90);
+        // Adiciona a instância principal e todos seus filhos
+        this.scene.add(fenceInstancedMesh.model);
+
+        fenceInstancedMesh.moveTo(0, new Vector3(43,2.7,65));
+
+        fenceInstancedMesh.moveTo(1, new Vector3(0,2.7,65));
+
+        fenceInstancedMesh.moveTo(2, new Vector3(-43,2.7,65));
+
+        fenceInstancedMesh.moveTo(3, new Vector3(43,2.7,-57));
+
+        fenceInstancedMesh.moveTo(4, new Vector3(0,2.7,-57));
+
+        fenceInstancedMesh.moveTo(5, new Vector3(-43,2.7,-57))
+        ;
+        fenceInstancedMesh.moveTo(6, new Vector3(-68,2.7,-40));
+        fenceInstancedMesh.rotateY(6, MathUtils.degToRad(-90));
+
+        fenceInstancedMesh.moveTo(7, new Vector3(-68,2.7,0));
+        fenceInstancedMesh.rotateY(7, MathUtils.degToRad(-90));
+
+        fenceInstancedMesh.moveTo(8, new Vector3(-68,2.7,40));
+        fenceInstancedMesh.rotateY(8, MathUtils.degToRad(-90));
+
+        fenceInstancedMesh.moveTo(9, new Vector3(60,2.7,-40));
+        fenceInstancedMesh.rotateY(9, MathUtils.degToRad(-90));
+
+        fenceInstancedMesh.moveTo(10, new Vector3(60,2.7,0));
+        fenceInstancedMesh.rotateY(10, MathUtils.degToRad(-90));
+
+        fenceInstancedMesh.moveTo(11, new Vector3(60,2.7,40));
+        fenceInstancedMesh.rotateY(11, MathUtils.degToRad(-90));
     }
 
     /**
