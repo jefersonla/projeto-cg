@@ -54,7 +54,7 @@ for (const cssFilename of cssFilenames) {
     // Pega e modifica o conteúdo
     const cssFilePath = resolve(cssPath, cssFilename);
     const cssContent = readFileSync(cssFilePath, 'utf-8')
-        .replace(/url\("\//gm, 'url("');
+        .replace(/url\("\/assets\//gm, 'url("');
 
     // Grava o arquivo
     writeFileSync(cssFilePath, cssContent);

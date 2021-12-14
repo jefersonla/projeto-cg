@@ -24,16 +24,18 @@ import {
     RepeatWrapping,
     MeshPhongMaterial,
     TextureLoader,
-} from "three";
+} from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { Player } from './lib/player';
-import type { GameElement } from "./entities/game-element.entity";
-import type {NotifyCallback, ProgressBarCallback} from "./utils/utils";
-import {createDummyCube, isMobileOrTablet} from "./utils/utils";
-import {CustomAudioLoader} from "./lib/custom-audio-loader";
-import {CustomModelLoader} from "./lib/custom-model-loader";
-import {FireworksScene} from "./lib/fireworks-scene";
+import type { GameElement } from './entities/game-element.entity';
+import type {NotifyCallback, ProgressBarCallback} from './utils/utils';
+import {createDummyCube, isMobileOrTablet} from './utils/utils';
+import {CustomAudioLoader} from './lib/custom-audio-loader';
+import {CustomModelLoader} from './lib/custom-model-loader';
+import {FireworksScene} from './lib/fireworks-scene';
+
+import * as THREEx from '@ar-js-org/ar.js/three.js/build/ar';
 
 /**
  * Classe principal do jogo
@@ -192,6 +194,85 @@ export class MainGame {
     }
 
     /**
+     * Inicializa o ambiente do AR
+     *
+     * @experimental
+     */
+    initArToolkit() {
+        var onRenderFcts= [];
+
+        const arToolkitSource = new THREEx.ArToolkitSource({
+            // to read from the webcam or camera
+            sourceType : 'webcam',
+        });
+
+        arToolkitSource.init(function onReady(){
+            setTimeout(() => {
+                onResize()
+            }, 2000);
+        })
+
+        function onResize(){
+            arToolkitSource.onResizeElement()
+            arToolkitSource.copyElementSizeTo(renderer.domElement)
+            if( arToolkitContext.arController !== null ){
+                arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
+            }
+        }
+
+        // create atToolkitContext
+        var arToolkitContext = new THREEx.ArToolkitContext({
+            cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
+            detectionMode: 'mono',
+        })
+        // initialize it
+        arToolkitContext.init(function onCompleted(){
+            // copy projection matrix to camera
+            camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+        })
+
+        // update artoolkit on every frame
+        onRenderFcts.push(function(){
+            if( arToolkitSource.ready === false )	return
+
+            arToolkitContext.update( arToolkitSource.domElement )
+
+            // update scene.visible if the marker is seen
+            scene.visible = camera.visible
+        })
+
+        ////////////////////////////////////////////////////////////////////////////////
+        //          Create a ArMarkerControls
+        ////////////////////////////////////////////////////////////////////////////////
+
+        // init controls for camera
+        var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
+            type : 'pattern',
+            patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.hiro',
+            // patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
+            // as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
+            changeMatrixMode: 'cameraTransformMatrix'
+        })
+        // as we do changeMatrixMode: 'cameraTransformMatrix', start with invisible scene
+        scene.visible = false
+
+        // run the rendering loop
+        var lastTimeMsec= null
+        requestAnimationFrame(function animate(nowMsec){
+            // keep looping
+            requestAnimationFrame( animate );
+            // measure time
+            lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+            var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+            lastTimeMsec	= nowMsec
+            // call each update function
+            onRenderFcts.forEach(function(onRenderFct){
+                onRenderFct(deltaMsec/1000, nowMsec/1000)
+            })
+        })
+    }
+
+    /**
      * Inicializa o render
      *
      * @private
@@ -262,7 +343,7 @@ export class MainGame {
     private async initGroundPlane() {
         // Carrega a textura do chão
         const textureLoader = new TextureLoader();
-        const texture = await textureLoader.loadAsync("game/textures/floor.png");
+        const texture = await textureLoader.loadAsync('game/textures/floor.png');
         texture.wrapS = RepeatWrapping;
         texture.wrapT = RepeatWrapping;
         texture.repeat.set(3, 3);
