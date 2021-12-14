@@ -4,7 +4,7 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-import { S as SvelteComponent, i as init, s as safe_not_equal, e as element, a as space, t as text, b as src_url_equal, c as attr, d as set_style, f as insert, g as append, h as set_data, j as create_out_transition, k as detach, l as empty, m as transition_in, n as group_outros, o as transition_out, p as check_outros, q as fade, r as toggle_class, u as listen, v as is_function, w as fly, x as destroy_each, y as run_all, z as noop, A as add_render_callback, B as create_bidirectional_transition, C as createEventDispatcher, D as binding_callbacks, G as GLTFLoader, E as AudioLoader, F as AnimationMixer, V as Vector3, H as Audio, I as nipplejs, J as BoxGeometry, M as MeshPhongMaterial, K as Color, L as Mesh, P as PointsMaterial, N as HemisphereLight, O as MathUtils, Q as BufferGeometry, R as Points, T as BufferAttribute, U as Scene, W as PerspectiveCamera, X as FontLoader, Y as TextGeometry, Z as CameraHelper, _ as OrbitControls, $ as WebGLRenderer, a0 as sRGBEncoding, a1 as AxesHelper, a2 as SpotLight, a3 as SpotLightHelper, a4 as TextureLoader, a5 as RepeatWrapping, a6 as PlaneGeometry, a7 as Clock, a8 as AudioListener, a9 as SkeletonHelper, aa as Fog, ab as Stats, ac as GUI$1, ad as bind, ae as create_component, af as mount_component, ag as destroy_component, ah as add_flush_callback, ai as onMount } from "./vendor.a429996d.js";
+import { S as SvelteComponent, i as init, s as safe_not_equal, e as element, a as space, t as text, b as src_url_equal, c as attr, d as set_style, f as insert, g as append, h as set_data, j as create_out_transition, k as detach, l as empty, m as transition_in, n as group_outros, o as transition_out, p as check_outros, q as fade, r as toggle_class, u as listen, v as is_function, w as fly, x as destroy_each, y as run_all, z as noop, A as add_render_callback, B as create_bidirectional_transition, C as createEventDispatcher, D as binding_callbacks, G as GLTFLoader, E as AudioLoader, F as AnimationMixer, V as Vector3, H as Audio, I as nipplejs, J as BoxGeometry, M as MeshPhongMaterial, K as Color, L as Mesh, P as PointsMaterial, N as HemisphereLight, O as MathUtils, Q as BufferGeometry, R as Points, T as BufferAttribute, U as Scene, W as PerspectiveCamera, X as FontLoader, Y as TextGeometry, Z as Object3D, _ as InstancedMesh, $ as DynamicDrawUsage, a0 as CameraHelper, a1 as OrbitControls, a2 as WebGLRenderer, a3 as sRGBEncoding, a4 as AxesHelper, a5 as SpotLight, a6 as SpotLightHelper, a7 as TextureLoader, a8 as RepeatWrapping, a9 as PlaneGeometry, aa as Clock, ab as AudioListener, ac as SkeletonHelper, ad as Fog, ae as Stats, af as GUI$1, ag as bind, ah as create_component, ai as mount_component, aj as destroy_component, ak as add_flush_callback, al as onMount } from "./vendor.6c771940.js";
 const p = function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) {
@@ -1341,6 +1341,43 @@ class FireworksScene {
     this.renderer.render(this.scene, this.camera);
   }
 }
+class InstancedModel {
+  constructor(model, numberOfInstances) {
+    __publicField(this, "instancedMeshes");
+    __publicField(this, "dummyPositional");
+    this.model = model;
+    this.numberOfInstances = numberOfInstances;
+    this.instancedMeshes = [];
+    this.dummyPositional = new Object3D();
+    model.traverse((el) => {
+      if (el instanceof Mesh) {
+        const instancedMesh = new InstancedMesh(el.geometry, el.material, numberOfInstances);
+        instancedMesh.instanceMatrix.setUsage(DynamicDrawUsage);
+        instancedMesh.receiveShadow = true;
+        instancedMesh.castShadow = true;
+        model.parent.children = model.parent.children.filter((gel) => gel != el);
+        model.parent.children.push(instancedMesh);
+        this.instancedMeshes.push(instancedMesh);
+      }
+    });
+  }
+  moveTo(instance2, position) {
+    if (instance2 < 0 || instance2 > this.numberOfInstances) {
+      throw new Error("Inst\xE2ncia fora do range");
+    }
+    this.dummyPositional.position.set(position.x, position.y, position.z);
+    this.dummyPositional.updateMatrix();
+    for (const mesh of this.instancedMeshes) {
+      mesh.setMatrixAt(instance2, this.dummyPositional.matrix);
+      mesh.instanceMatrix.needsUpdate = true;
+    }
+  }
+  rotateY(instance2, deg) {
+    if (instance2 < 0 || instance2 > this.numberOfInstances) {
+      throw new Error("Inst\xE2ncia fora do range");
+    }
+  }
+}
 class MainGame {
   constructor(canvasContainer, gameElements, notify = () => {
   }, debugEnabled = false, loadCallback = () => {
@@ -1511,7 +1548,28 @@ class MainGame {
   }
   async initFence() {
     const gltfModel = await CustomModelLoader.load("game/models/fence/scene.gltf");
-    gltfModel.scene.children[0];
+    const fenceObj = gltfModel.scene.children[0];
+    const fenceInstancedMesh = new InstancedModel(fenceObj, 12);
+    fenceInstancedMesh.model.scale.multiplyScalar(0.7);
+    this.scene.add(fenceInstancedMesh.model);
+    fenceInstancedMesh.moveTo(0, new Vector3(43, 2.7, 65));
+    fenceInstancedMesh.moveTo(1, new Vector3(0, 2.7, 65));
+    fenceInstancedMesh.moveTo(2, new Vector3(-43, 2.7, 65));
+    fenceInstancedMesh.moveTo(3, new Vector3(43, 2.7, -57));
+    fenceInstancedMesh.moveTo(4, new Vector3(0, 2.7, -57));
+    fenceInstancedMesh.moveTo(5, new Vector3(-43, 2.7, -57));
+    fenceInstancedMesh.moveTo(6, new Vector3(-68, 2.7, -40));
+    fenceInstancedMesh.rotateY(6, MathUtils.degToRad(-90));
+    fenceInstancedMesh.moveTo(7, new Vector3(-68, 2.7, 0));
+    fenceInstancedMesh.rotateY(7, MathUtils.degToRad(-90));
+    fenceInstancedMesh.moveTo(8, new Vector3(-68, 2.7, 40));
+    fenceInstancedMesh.rotateY(8, MathUtils.degToRad(-90));
+    fenceInstancedMesh.moveTo(9, new Vector3(60, 2.7, -40));
+    fenceInstancedMesh.rotateY(9, MathUtils.degToRad(-90));
+    fenceInstancedMesh.moveTo(10, new Vector3(60, 2.7, 0));
+    fenceInstancedMesh.rotateY(10, MathUtils.degToRad(-90));
+    fenceInstancedMesh.moveTo(11, new Vector3(60, 2.7, 40));
+    fenceInstancedMesh.rotateY(11, MathUtils.degToRad(-90));
   }
   async initGameSounds() {
     const successSoundBuf = await CustomAudioLoader.load("game/sounds/success_sound.ogg");
@@ -2009,6 +2067,34 @@ function instance($$self, $$props, $$invalidate) {
       name: "Azul",
       nameColor: "blue",
       textColor: "orange",
+      correct: false,
+      position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
+    },
+    {
+      name: "Preto",
+      nameColor: "black",
+      textColor: "red",
+      correct: false,
+      position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, -45))
+    },
+    {
+      name: "Vermelho",
+      nameColor: "red",
+      textColor: "black",
+      correct: false,
+      position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, -45))
+    },
+    {
+      name: "Amarelo",
+      nameColor: "yellow",
+      textColor: "green",
+      correct: false,
+      position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, 45))
+    },
+    {
+      name: "Rosa",
+      nameColor: "pink",
+      textColor: "purple",
       correct: false,
       position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
     }
