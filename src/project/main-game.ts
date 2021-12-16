@@ -22,7 +22,6 @@ import {
     AudioListener,
     Audio,
     RepeatWrapping,
-    MeshPhongMaterial,
     TextureLoader,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -30,12 +29,13 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 import { Player } from './lib/player';
 import type { GameElement } from './entities/game-element.entity';
 import type {NotifyCallback, ProgressBarCallback} from './utils/utils';
-import {createDummyCube, isMobileOrTablet} from './utils/utils';
+import {createDummyCube, enableShadow, isMobileOrTablet} from './utils/utils';
 import {CustomAudioLoader} from './lib/custom-audio-loader';
 import {CustomModelLoader} from './lib/custom-model-loader';
 import {FireworksScene} from './lib/fireworks-scene';
+import type {SceneModel} from "./entities/scene-model.entity";
 
-import * as THREEx from '@ar-js-org/ar.js/three.js/build/ar';
+// import * as ARjs from '@ar-js-org/ar.js/three.js/build/ar';
 
 /**
  * Classe principal do jogo
@@ -214,7 +214,7 @@ export class MainGame {
         //
         // function onResize(){
         //     arToolkitSource.onResizeElement()
-        //     arToolkitSource.copyElementSizeTo(renderer.domElement)
+        //     arToolkitSource.copyElementSizeTo(this.renderer.domElement)
         //     if( arToolkitContext.arController !== null ){
         //         arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
         //     }
@@ -226,19 +226,19 @@ export class MainGame {
         //     detectionMode: 'mono',
         // })
         // // initialize it
-        // arToolkitContext.init(function onCompleted(){
+        // arToolkitContext.init(() => {
         //     // copy projection matrix to camera
-        //     camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+        //     this.camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
         // })
         //
         // // update artoolkit on every frame
-        // onRenderFcts.push(function(){
+        // onRenderFcts.push(() => {
         //     if( arToolkitSource.ready === false )	return
         //
         //     arToolkitContext.update( arToolkitSource.domElement )
         //
         //     // update scene.visible if the marker is seen
-        //     scene.visible = camera.visible
+        //     this.scene.visible = this.camera.visible
         // })
         //
         // ////////////////////////////////////////////////////////////////////////////////
@@ -246,15 +246,13 @@ export class MainGame {
         // ////////////////////////////////////////////////////////////////////////////////
         //
         // // init controls for camera
-        // var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
+        // var markerControls = new THREEx.ArMarkerControls(arToolkitContext, this.camera, {
         //     type : 'pattern',
         //     patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.hiro',
-        //     // patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
-        //     // as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
         //     changeMatrixMode: 'cameraTransformMatrix'
         // })
         // // as we do changeMatrixMode: 'cameraTransformMatrix', start with invisible scene
-        // scene.visible = false
+        // this.scene.visible = false
         //
         // // run the rendering loop
         // var lastTimeMsec= null
@@ -308,11 +306,13 @@ export class MainGame {
      */
     private initLights() {
         // Create an hemisphere light and add it to scene
-        const hemisphereLight = new HemisphereLight(0x443333, 0x111122);
-        this.scene.add(hemisphereLight);
+        const hemiLight = new HemisphereLight( '#fafdff', '#3e7106', 0.4 );
+        hemiLight.position.set( 0, 500, 0 );
+
+        this.scene.add(hemiLight);
 
         // Create an spotlight, which can cast shadows
-        const spotLight = new SpotLight(0xffffff, 0.7);
+        const spotLight = new SpotLight(0xffffff, 0.6);
         spotLight.position.set(35, 80, 20);
 
 
@@ -346,11 +346,12 @@ export class MainGame {
         const texture = await textureLoader.loadAsync('game/textures/floor.png');
         texture.wrapS = RepeatWrapping;
         texture.wrapT = RepeatWrapping;
-        texture.repeat.set(3, 3);
+        texture.repeat.set(1,1);
+
 
         // Cria os componentes do chão (geometria e material)
         const planeGeometry = new PlaneBufferGeometry(137, 137, 32, 32);
-        const planeMaterial = new MeshPhongMaterial({ map: texture });
+        const planeMaterial = new MeshStandardMaterial({ map: texture });
 
         // Instancia o plano
         const groundPlane = new Mesh(planeGeometry, planeMaterial);
@@ -500,7 +501,31 @@ export class MainGame {
      * @private
      */
     private async initRandomElements() {
-        // TODO
+        const sceneModels = await fetch('game/models/scene.json')
+            .then(res => res.json() as Promise<{[key: string]: SceneModel}>);
+
+        for (const sceneModel of Object.values(sceneModels)) {
+            const model = await CustomModelLoader
+                .load(sceneModel.src)
+                .then(gltf => gltf.scene.children[0].clone(true))
+                .then(obj => enableShadow(obj));
+
+            model.scale.multiplyScalar(sceneModel.scale ?? 4);
+            model.position.set(sceneModel.position.x, sceneModel.position.y, sceneModel.position.z);
+            model.rotation.set(sceneModel.rotation.x, sceneModel.rotation.y, sceneModel.rotation.z);
+
+            this.scene.add(model);
+        }
+
+        // Coloca uma quantidade de items de maneira randômica
+        // for (let i = 0; i < 30; i++) {
+        //     const item = MathUtils.randInt(0, models.length - 1);
+        //
+        //     const modelCopy = models[item].clone(true);
+        //     modelCopy.scale.multiplyScalar(4);
+        //     modelCopy.position.set(MathUtils.randInt(-60, 60), 0, MathUtils.randInt(-60, 60));
+        //     this.scene.add(modelCopy);
+        // }
     }
 
     /**
@@ -509,7 +534,7 @@ export class MainGame {
      * @private
      */
     private async initFence() {
-        const gltfModel = await CustomModelLoader.load('game/models/fence/scene.gltf');
+        const gltfModel = await CustomModelLoader.load('game/models/fence/fence.gltf');
         const fenceObj = gltfModel.scene.children[0];
         fenceObj.scale.multiplyScalar(0.25);
 
@@ -745,7 +770,7 @@ export class MainGame {
     }
 
     /**
-     * Checa se a tarefa a ser perfomada está sendo executada adequadamente
+     * Checa se a tarefa a ser performada está sendo executada adequadamente
      *
      * @private
      */
