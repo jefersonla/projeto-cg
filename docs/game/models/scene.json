@@ -1,0 +1,412 @@
+{
+    "treeFall.001": {
+        "src": "game/models/trees/treeFall.glb",
+        "position": {
+            "x": 51,
+            "z": -59,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "treeFall.002": {
+        "src": "game/models/trees/treeFall.glb",
+        "position": {
+            "x": 48,
+            "z": -47,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "treeFall.003": {
+        "src": "game/models/trees/treeFall.glb",
+        "position": {
+            "x": 58,
+            "z": -50,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.001": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": 44,
+            "z": 2,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.002": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": -30,
+            "z": -54,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.003": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": 26,
+            "z": -6,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.004": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": 56,
+            "z": -5,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.005": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": -53,
+            "z": -36,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.006": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": -53,
+            "z": -26,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.007": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": -46,
+            "z": -31,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.008": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": -34,
+            "z": -44,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.009": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": 53,
+            "z": 11,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.010": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": -53,
+            "z": -26,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.011": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": 0,
+            "z": 58,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.012": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": -30,
+            "z": 48,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.013": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": -28,
+            "z": 60,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.014": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": -50,
+            "z": 60,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "tree.015": {
+        "src": "game/models/trees/tree.glb",
+        "position": {
+            "x": -15,
+            "z": 48,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "campfire": {
+        "src": "game/models/camp/campfire.glb",
+        "position": {
+            "x": 48,
+            "z": 48,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "rockA.001": {
+        "src": "game/models/rocks/rockA.glb",
+        "position": {
+            "x": -20,
+            "z": -58,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "rockA.002": {
+        "src": "game/models/rocks/rockA.glb",
+        "position": {
+            "x": -7,
+            "z": -60,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        }
+    },
+    "rockC": {
+        "src": "game/models/rocks/rockC.glb",
+        "position": {
+            "x": -14,
+            "z": -60,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        },
+        "scale": 4
+    },
+    "rockCorner": {
+        "src": "game/models/rocks/rockB.glb",
+        "position": {
+            "x": -50,
+            "z": -55,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        },
+        "scale": 8
+    },
+    "crate.001": {
+        "src": "game/models/objects/crate.glb",
+        "position": {
+            "x": 52,
+            "z": 29,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 30
+        },
+        "scale": 6
+    },
+    "crate.002": {
+        "src": "game/models/objects/crate.glb",
+        "position": {
+            "x": 56,
+            "z": 27,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        },
+        "scale": 6
+    },
+    "crate.003": {
+        "src": "game/models/objects/crate.glb",
+        "position": {
+            "x": 56,
+            "z": 27,
+            "y": 2
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 60
+        },
+        "scale": 6
+    },
+    "crate.004": {
+        "src": "game/models/objects/crate.glb",
+        "position": {
+            "x": 60,
+            "z": 27,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 45
+        },
+        "scale": 6
+    },
+    "crate.005": {
+        "src": "game/models/objects/crate.glb",
+        "position": {
+            "x": 56,
+            "z": 29,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 0
+        },
+        "scale": 6
+    },
+    "chair.001": {
+        "src": "game/models/objects/chair.glb",
+        "position": {
+            "x": 53,
+            "z": 61,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 80
+        }
+    },
+    "chair.002": {
+        "src": "game/models/objects/chair.glb",
+        "position": {
+            "x": 48,
+            "z": 61,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 115
+        }
+    },
+    "table": {
+        "src": "game/models/objects/table.glb",
+        "position": {
+            "x": 51,
+            "z": 59,
+            "y": 0
+        },
+        "rotation": {
+            "x": 0,
+            "z": 0,
+            "y": 120
+        }
+    }
+}
