@@ -728,7 +728,7 @@ function get_each_context(ctx, list, i) {
 function create_if_block$1(ctx) {
   let div2;
   let div0;
-  let t6;
+  let t7;
   let div1;
   let div2_outro;
   let current;
@@ -741,22 +741,22 @@ function create_if_block$1(ctx) {
     c() {
       div2 = element("div");
       div0 = element("div");
-      div0.innerHTML = `<h2 class="svelte-10inn77">Sua Miss\xE3o!</h2> 
-            <h3 class="svelte-10inn77">Pegue os elementos correspondentes as <b>PALAVRAS</b> abaixo no mapa conforme a ordem.
-                <b>N\xE3o vale pegar os elementos das cores das palavras abaixo!</b></h3>`;
-      t6 = space();
+      div0.innerHTML = `<h2 class="gradient svelte-k2jzsf">Sua Miss\xE3o!</h2> 
+            <h3 class="svelte-k2jzsf">Pegue os elementos correspondentes as <b>PALAVRAS</b> abaixo no mapa conforme a ordem que aparecem. <br/> 
+                <b>N\xE3o vale pegar pelas cores dos nomes abaixo, somente pelos nomes!</b></h3>`;
+      t7 = space();
       div1 = element("div");
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].c();
       }
-      attr(div0, "class", "title svelte-10inn77");
-      attr(div1, "class", "elements svelte-10inn77");
-      attr(div2, "class", "float-message svelte-10inn77");
+      attr(div0, "class", "title svelte-k2jzsf");
+      attr(div1, "class", "elements svelte-k2jzsf");
+      attr(div2, "class", "float-message svelte-k2jzsf");
     },
     m(target, anchor) {
       insert(target, div2, anchor);
       append(div2, div0);
-      append(div2, t6);
+      append(div2, t7);
       append(div2, div1);
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].m(div1, null);
@@ -813,7 +813,7 @@ function create_each_block(ctx) {
       div = element("div");
       t0 = text(t0_value);
       t1 = space();
-      attr(div, "class", "cor-element svelte-10inn77");
+      attr(div, "class", "cor-element svelte-k2jzsf");
       set_style(div, "color", ctx[2].textColor);
       toggle_class(div, "correct", ctx[2].correct);
     },
@@ -2058,7 +2058,7 @@ function instance($$self, $$props, $$invalidate) {
     {
       name: "Azul",
       nameColor: "blue",
-      textColor: "orange",
+      textColor: "purple",
       correct: false,
       position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
     },
@@ -2078,15 +2078,15 @@ function instance($$self, $$props, $$invalidate) {
     },
     {
       name: "Amarelo",
-      nameColor: "yellow",
+      nameColor: "#ffea00",
       textColor: "green",
       correct: false,
       position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, 45))
     },
     {
       name: "Rosa",
-      nameColor: "pink",
-      textColor: "purple",
+      nameColor: "#ff00f2",
+      textColor: "orange",
       correct: false,
       position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
     }
@@ -2196,7 +2196,7 @@ function create_fragment(ctx) {
     c() {
       main = element("main");
       create_component(game.$$.fragment);
-      attr(main, "class", "svelte-p3128u");
+      attr(main, "class", "svelte-170v3tf");
     },
     m(target, anchor) {
       insert(target, main, anchor);

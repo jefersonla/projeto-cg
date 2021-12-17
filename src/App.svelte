@@ -24,11 +24,17 @@
   :root {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
       Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    font-size: calc(5px + 1vw);
+    font-size: 16px;
   }
 
   :global(html) {
     height: 100%;
+  }
+
+  @media only screen and (max-height: 575.98px) and (orientation: landscape) {
+    :root{
+      font-size: 10px;
+    }
   }
 
   :global(body) {

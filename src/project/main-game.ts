@@ -22,7 +22,7 @@ import {
     AudioListener,
     Audio,
     RepeatWrapping,
-    TextureLoader,
+    TextureLoader, VideoTexture,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
@@ -199,6 +199,26 @@ export class MainGame {
      * @experimental
      */
     initArToolkit() {
+        // const video = document.createElement('video');
+        // video.autoplay = true;
+        //
+        // if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        //     const constraints = { video: { width: 1280, height: 720, facingMode: 'user' } };
+        //     navigator.mediaDevices
+        //         .getUserMedia(constraints)
+        //         .then((stream) => {
+        //             video.srcObject =stream;
+        //             video.play();
+        //         })
+        //         .catch((error) => {
+        //             console.error( 'Unable to access the camera/webcam.', error );
+        //         });
+        // } else {
+        //     console.error( 'MediaDevices interface not available.' );
+        // }
+        //
+        // this.scene.background = new VideoTexture(video);
+
         // var onRenderFcts= [];
         //
         // const arToolkitSource = new THREEx.ArToolkitSource({

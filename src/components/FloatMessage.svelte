@@ -10,10 +10,10 @@
 {#if !disabled}
     <div out:fade class="float-message">
         <div class="title">
-            <h2>Sua Missão!</h2>
+            <h2 class="gradient">Sua Missão!</h2>
             <h3>
-                Pegue os elementos correspondentes as <b> PALAVRAS </b> abaixo no mapa conforme a ordem.
-                <b> Não vale pegar os elementos das cores das palavras abaixo! </b>
+                Pegue os elementos correspondentes as <b> PALAVRAS </b> abaixo no mapa conforme a ordem que aparecem. <br>
+                <b> Não vale pegar pelas cores dos nomes abaixo, somente pelos nomes! </b>
             </h3>
         </div>
         <div class="elements">
@@ -29,13 +29,12 @@
         z-index: 1;
         position: absolute;
         margin: 0;
-        width: 90vw;
-        height: 14vh;
+        width: 100ch;
         background: #fffeee;
         border: 4px solid #333333;
         border-radius: 3rem;
-        top: 80vh;
-        left: 5vw;
+        bottom: 6vh;
+        left: calc(50vw - 50ch);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -45,20 +44,45 @@
 
     .title {
         display: flex;
-        align-items: flex-start;
-        justify-content: flex-start;
+        align-items: center;
+        justify-content: center;
         width: 100%;
+        text-align: center;
         font-style: italic;
         flex-direction: column;
     }
 
+
+    .gradient {
+        --center-color: rgb(212, 51, 130);
+        --side-color: rgba(255,254,238,1);
+        color: #ffffff;
+        position: relative;
+        display: block;
+        background: -moz-linear-gradient(left,  var(--side-color) 1%,  var(--center-color)  53%, var(--side-color) 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, right top, color-stop(1%,var(--side-color)), color-stop(53%, var(--center-color) ), color-stop(100%,var(--side-color))); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(left,  var(--side-color) 1%, var(--center-color)  53%,var(--side-color) 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(left,  var(--side-color) 1%, var(--center-color)  53%,var(--side-color) 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(left,  var(--side-color) 1%, var(--center-color)  53%,var(--side-color) 100%); /* IE10+ */
+        background: linear-gradient(to right,  var(--side-color) 1%, var(--center-color)  53%,var(--side-color) 100%); /* W3C */
+    }
+
+    .gradient::after {
+        top: auto;
+        bottom: -5px;
+    }
+
     .title h2 {
+        text-align: center;
+        width: 75%;
         font-size: 1.3rem;
         font-weight: 600;
+        margin-bottom: 0.75rem;
     }
 
     .title h3 {
         font-size: 1.1rem;
+        width: 100%;
     }
 
     .elements {

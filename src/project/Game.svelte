@@ -52,7 +52,7 @@
         {
             name: 'Azul',
             nameColor: 'blue',
-            textColor: 'orange',
+            textColor: 'purple',
             correct: false,
             position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
         },
@@ -72,15 +72,15 @@
         },
         {
             name: 'Amarelo',
-            nameColor: 'yellow',
+            nameColor: '#ffea00',
             textColor: 'green',
             correct: false,
             position: new Vector3(MathUtils.randInt(0, 45), 0, MathUtils.randInt(0, 45))
         },
         {
             name: 'Rosa',
-            nameColor: 'pink',
-            textColor: 'purple',
+            nameColor: '#ff00f2',
+            textColor: 'orange',
             correct: false,
             position: new Vector3(MathUtils.randInt(0, -45), 0, MathUtils.randInt(0, 45))
         }
